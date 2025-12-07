@@ -2,7 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using server;
 using server.Data;
-using server.Features.Recipe.SearchRecipes;
+using server.Features.Recipes.GetRecipeDetails;
+using server.Features.Recipes.SearchRecipes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,7 @@ builder.Services.AddHttpClient("SpoonacularClient", (serviceProvider, client) =>
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 builder.Services.AddScoped<SearchRecipesService>();
-
+builder.Services.AddScoped<GetRecipeService>();
 
 var app = builder.Build();
 

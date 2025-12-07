@@ -12,7 +12,10 @@ Accept: application/json
 
 ###
 GET {{server_LocalHost}}/api/SearchRecipesEndpoint/search?minCalories=100&number=5
+Accept: application/json
 
+###
+GET {{server_LocalHost}}/api/GetRecipeEndpoint/643514
 Accept: application/json
 
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace server.Features.Recipe.SearchRecipes;
+namespace server.Features.Recipes.SearchRecipes;
 
 public class SearchRecipesService
 {

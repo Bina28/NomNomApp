@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace server.Features.Recipe.SearchRecipes;
+namespace server.Features.Recipes.SearchRecipes;
 
 
 [ApiController]
@@ -15,7 +15,7 @@ public class SearchRecipesEndpoint : ControllerBase
     }
 
     [HttpGet("search")]
-    public async Task<IActionResult> SearchRecipes( int numberOfcalories, int number)
+    public async Task<IActionResult> SearchRecipes(int numberOfcalories, int number)
     {
         var recipes = await _searchRecipesService.GetRecipes(numberOfcalories, number);
         return Ok(recipes);
