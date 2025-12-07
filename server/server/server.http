@@ -1,6 +1,43 @@
-@server_HostAddress = http://localhost:5087
+@server_HostAddress = https://api.spoonacular.com
+@apiKey = a9e987711b7045569439cf3104c6a729
+@server_LocalHost = https://localhost:7209
 
-GET {{server_HostAddress}}/weatherforecast/
+###
+GET {{server_HostAddress}}/recipes/complexSearch?query=pizza&apiKey={{apiKey}}
 Accept: application/json
 
 ###
+GET {{server_HostAddress}}/recipes/random?number=1&apiKey={{apiKey}}
+Accept: application/json
+
+###
+GET {{server_LocalHost}}/api/SearchRecipesEndpoint/search?minCalories=100&number=5
+
+Accept: application/json
+
+
+authenication
+POST  auth/signup
+POST auth/login
+
+USER
+GET /recipes               -get all recipes
+GET  /recipes/search       -filter
+GET /recipes/{id}          -get the
+POST /me/recipe            -create a new recipe by user
+DELETE /me/myrecipes/{id}  -delete a recipe created by the user
+GET /me/myrecipes          -get all recipes created by the user
+POST /me/favoriterecipes/{id}      -save a recipe to favorite list
+GET /me/favoriterecipes    -get all favorite recipes
+POST /me/user/{id}         -follow/unfollow a user
+POST /me/recipe/{id}       -add a comment to a recipe
+GET                        -get recipes based on previous search
+
+
+ADMIN
+POST admin/recipe         -create a new recipe
+GET admin/recipes         -get all recipes
+GET admin/recipe/{id}     -get recipe by id
+PUT admin/recipe/{id}     -update recipe
+DELETE admin/recipe/{id}  -delete a recipe  
+                          -approve a recipe created by a user or from a website
