@@ -16,7 +16,7 @@ public class GetRecipeEndpoint : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetRecipeById(int id)
     {
-       var recipe = await _service.GetRecipeById(id);
+       var recipe = await _service.Handle(id);
         return Ok(recipe);
     }
 }

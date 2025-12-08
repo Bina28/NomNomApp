@@ -30,6 +30,9 @@ builder.Services.AddHttpClient("SpoonacularClient", (serviceProvider, client) =>
 });
 builder.Services.AddScoped<SearchRecipesService>();
 builder.Services.AddScoped<GetRecipeService>();
+builder.Services.AddScoped<RecipeApiClient>();
+builder.Services.AddScoped<RecipeSaver>();
+builder.Services.AddScoped<RecipeProvider>();
 
 var app = builder.Build();
 
