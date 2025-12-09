@@ -25,9 +25,9 @@ POST auth/login
 
 USER
 GET /recipes               -get all recipes +
-GET  /recipes/search       -filter
+GET  /recipes/search       -filter by calories
 GET /recipes/{id}          -get the +
-POST /me/recipe            -create a new recipe by user
+POST /me/recipe            -create a new recipe by user +
 DELETE /me/myrecipes/{id}  -delete a recipe created by the user
 GET /me/myrecipes          -get all recipes created by the user
 POST /me/favoriterecipes/{id}      -save a recipe to favorite list
