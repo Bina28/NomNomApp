@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace server.Features.Recipes.GetRecipeDetails;
+namespace server.Features.Recipes.Spoonacular.Models;
 
-public record RecipeDto(
+public record SpoonacularRecipeDto(
 string? Title,
 string? Summary,
 string? Instructions,
