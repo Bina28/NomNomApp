@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using server;
 using server.Data;
+using server.Features.Recipes.Photos;
 using server.Features.Recipes.Spoonacular;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,18 +21,10 @@ builder.Services.Configure<SpoonacularSettings>(
 );
 builder.Services.AddSpoonacularApiClient();
 
-
-//builder.Services.AddHttpClient("SpoonacularClient", (serviceProvider, client) =>
-//{
-//    var settings = serviceProvider.GetRequiredService<IOptions<SpoonacularSettings>>().Value;
-//    client.BaseAddress = new Uri(settings.BaseUrl);
-//    client.DefaultRequestHeaders.Add("Accept", "application/json");
-//});
-
-
 builder.Services.AddScoped<RecipeService>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 
-
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
 
 var app = builder.Build();

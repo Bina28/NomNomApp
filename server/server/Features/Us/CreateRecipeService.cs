@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using server.Data;
 
-namespace server.Features.Users;
+namespace server.Features.Us;
 
 public class CreateRecipeService
 {
@@ -12,31 +12,31 @@ public class CreateRecipeService
         _context = context;
     }
 
-    public async Task<UserRecipe> Create(UserRecipeDto recipeDto)
-    {
-        var user = await _context.User.FirstOrDefaultAsync(u => u.Id == recipeDto.UserId) 
-            ?? throw new Exception("User not found");
+    //public async Task<UserRecipe> Create(UserRecipeDto recipeDto)
+    //{
+    //    var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == recipeDto.UserId) 
+    //        ?? throw new Exception("User not found");
 
-        var recipe = new UserRecipe
-        {
-            Title = recipeDto.Title,
-            User = user,
-            Instructions = [.. recipeDto.Instructions.Select(i => new UserInstruction
-            {
-                StepDescription = i.StepDescription,
-                Recipe = null!
-            })],
-            Ingredients = [.. recipeDto.Ingredients.Select(ing => new UserIngredient
-            {
-                Name = ing.Name,
-                Amount = ing.Amount,
-                Recipe = null! 
-            })]
-        };
+    //    var recipe = new UserRecipe
+    //    {
+    //        Title = recipeDto.Title,
+    //        User = user,
+    //        Instructions = [.. recipeDto.Instructions.Select(i => new UserInstruction
+    //        {
+    //            StepDescription = i.StepDescription,
+    //            Recipe = null!
+    //        })],
+    //        Ingredients = [.. recipeDto.Ingredients.Select(ing => new UserIngredient
+    //        {
+    //            Name = ing.Name,
+    //            Amount = ing.Amount,
+    //            Recipe = null! 
+    //        })]
+    //    };
 
-        await _context.SaveChangesAsync();
-        return recipe;
-    }
+    //    await _context.SaveChangesAsync();
+    //    return recipe;
+    //}
 }
 public class User
 {

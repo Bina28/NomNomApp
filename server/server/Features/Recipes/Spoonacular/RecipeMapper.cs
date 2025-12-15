@@ -1,5 +1,5 @@
 ﻿using server.Domain;
-using server.Features.Recipes.Spoonacular.Models;
+using server.Features.Recipes.Spoonacular.DTOs;
 
 namespace server.Features.Recipes.Spoonacular;
 
@@ -11,6 +11,7 @@ public static class RecipeMapper
             Title: apiRecipe.Title,
             Summary: apiRecipe.Summary,
             Instructions: apiRecipe.Instructions,
+            Image: apiRecipe.Photos?.Url,
             ExtendedIngredients: apiRecipe.ExtendedIngredients?
                 .Select(i => i.Original ?? string.Empty)
                 .ToList()

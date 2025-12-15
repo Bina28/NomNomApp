@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using server.Domain;
-using server.Features.Recipes.Spoonacular.Models;
+using server.Features.Recipes.Spoonacular.DTOs;
 using System.Text.Json;
 
 namespace server.Features.Recipes.Spoonacular;
@@ -32,9 +32,11 @@ public class SpoonacularApiClient
         response.EnsureSuccessStatusCode();
         var jsonResult = await response.Content.ReadAsStringAsync();
         var results = JsonSerializer.Deserialize<List<SpoonacularRecipeResponse>>(jsonResult,
-        new JsonSerializerOptions { PropertyNameCaseInsensitive = true}
+        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
  );
 
         return results ?? new List<SpoonacularRecipeResponse>();
     }
+
+
 }

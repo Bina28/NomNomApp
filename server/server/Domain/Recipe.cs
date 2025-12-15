@@ -9,8 +9,10 @@ public class Recipe
    
     public string? Summary { get; set; }
     public string? Instructions { get; set; }
-
+    public string? Image { get; set; }
 
     [JsonPropertyName("extendedIngredients")]
-    public List<Ingredient>? ExtendedIngredients { get; set; } = new();
+    public List<Ingredient>? ExtendedIngredients { get; set; } = [];
+    public  Photo? Photos { get; set; }
+
 }
