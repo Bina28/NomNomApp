@@ -111,11 +111,11 @@ public class RecipeService
             var detail = await _client.GetRecipeById(id);
             if (detail == null) continue;
 
-            await _context.AddRangeAsync(detail);
+          await SaveRecipe(detail);
 
         }
 
-        await _context.SaveChangesAsync();
+      
         return results;
     }
 }
