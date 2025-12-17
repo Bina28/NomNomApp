@@ -1,13 +1,15 @@
-﻿using server.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using server.Data;
+using server.Features.Recipes.CreateRecipe.DTOs;
 using server.Features.Shared;
 
-namespace server.Features.CreateRecipe;
+namespace server.Features.Recipes.CreateRecipe;
 
-public class CreateRecipeService
+public class CreateRecipeHandler
 {
     private readonly AppDbContext _context;
 
-    public CreateRecipeService(AppDbContext context)
+    public CreateRecipeHandler(AppDbContext context)
     {
         _context = context;
     }
@@ -16,6 +18,11 @@ public class CreateRecipeService
     {
         if (string.IsNullOrEmpty(request.Title))
             return Result.Fail<RecipeDto>("Title is required");
+
+        var titleExists = await _context.UserRecipes.AnyAsync(i => i.Title == request.Title);
+
+        if (titleExists)
+            return Result.Fail<RecipeDto>("Recipe with the same title already exists");
 
         if (request.Ingredients.Count == 0)
             return Result.Fail<RecipeDto>("Ingredients are required");

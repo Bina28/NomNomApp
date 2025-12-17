@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using server.Data;
-using server.Domain;
-using server.Features.Auth.Models;
+using server.Features.Auth.DTOs;
 
 namespace server.Features.Auth;
 
@@ -11,52 +8,30 @@ namespace server.Features.Auth;
 [ApiController]
 public class AuthController : ControllerBase
 {
-    private readonly JwtService _jwtService;
-    private readonly AppDbContext _context;
-    private readonly PasswordHasher _passwordHasher;
+    private readonly AuthHandler _service;
 
-    public AuthController(JwtService service, AppDbContext context, PasswordHasher hasher)
+    public AuthController(AuthHandler service)
     {
-        _jwtService = service;
-        _context = context;
-        _passwordHasher = hasher;
+        _service = service;
     }
 
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == request.UserName);
-        if (user == null || !_passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
-        {
-            return Unauthorized();
-        }
-
-        var token = _jwtService.GenereateToken(user.Id, user.UserName);
-        return Ok(new { Token = token });
+        var result = await _service.LoginAsync(request);
+        return result.Ok ?
+             Ok(new { Token = result.Data })
+             : Unauthorized(new { result.Error });
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegsiterRequest request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-        if (await _context.Users.AnyAsync(u => u.UserName == request.UserName))
-        {
-            return BadRequest("User already exists");
-        }
-
-        var user = new User
-        {
-            UserName = request.UserName,
-            Email = request.Email,
-            PasswordHash = _passwordHasher.HashPassword(request.Password)
-        };
-
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        var token = _jwtService.GenereateToken(user.Id, user.UserName);
-        return Ok(new { Token = token });
-
+        var result = await _service.RegisterAsync(request);
+        return result.Ok ?
+            Ok(new { Token = result.Data })
+            : BadRequest(new { result.Error });
     }
 }
 

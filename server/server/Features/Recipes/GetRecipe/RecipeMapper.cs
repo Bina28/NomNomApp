@@ -1,13 +1,12 @@
 ﻿using server.Domain;
-using server.Features.Recipes.Spoonacular.DTOs;
 
-namespace server.Features.Recipes.Spoonacular;
+namespace server.Features.Recipes.GetRecipe;
 
 public static class RecipeMapper
 {
-    public static SpoonacularRecipeDto ToDto(Recipe apiRecipe)
+    public static RecipeDto ToDto(Recipe apiRecipe)
     {
-        return new SpoonacularRecipeDto(
+        return new RecipeDto(
             Title: apiRecipe.Title,
             Summary: apiRecipe.Summary,
             Instructions: apiRecipe.Instructions,

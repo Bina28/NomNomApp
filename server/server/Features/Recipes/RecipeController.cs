@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using server.Features.Recipes.Spoonacular;
+using server.Features.Recipes.FindByNutrients;
+using server.Features.Recipes.GetRecipe;
 
 namespace server.Features.Recipes;
 
@@ -7,18 +8,19 @@ namespace server.Features.Recipes;
 [Route("api/[controller]")]
 public class RecipeController : ControllerBase
 {
-    private readonly RecipeService _service;
+    private readonly GetRecipeByIdHandler _recipeByIdHandler;
+    private readonly FindRecipesByNutrientsHandler _byNutrientsHandler;
 
-    public RecipeController(RecipeService service)
+    public RecipeController(GetRecipeByIdHandler recipeByIdHandler, FindRecipesByNutrientsHandler nutrientsHandler )
     {
-        _service = service;
-
+        _recipeByIdHandler = recipeByIdHandler;
+        _byNutrientsHandler = nutrientsHandler;
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetRecipeById(int id)
     {
-        var recipe = await _service.GetRecipeById(id);
+        var recipe = await _recipeByIdHandler.GetRecipeById(id);
         var dto = RecipeMapper.ToDto(recipe); 
         return Ok(dto);
     }
@@ -26,7 +28,7 @@ public class RecipeController : ControllerBase
     [HttpGet("search")]
     public async Task<IActionResult> FindRecipesByNutrients(int numberOfcalories, int number)
     {
-        var recipes = await _service.FindRecipesByNutrients(numberOfcalories, number);
+        var recipes = await _byNutrientsHandler.FindRecipesByNutrients(numberOfcalories, number);
         return Ok(recipes);
     }
 }

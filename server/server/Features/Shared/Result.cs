@@ -2,11 +2,9 @@
 
 public static class Result
 {
-    // uten data
     public static ResultValue Success() => new(true);
     public static ResultValue Fail(string error) => new(false, error);
 
-    // med data
     public static ResultValue<T> Success<T>(T data) => new(true, data);
     public static ResultValue<T> Fail<T>(string error) => new ResultValue<T>(false, default, error);
 }

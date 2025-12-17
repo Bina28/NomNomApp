@@ -1,7 +1,7 @@
 ﻿using server.Domain;
+using server.Features.Recipes.CreateRecipe.DTOs;
 
-
-namespace server.Features.CreateRecipe;
+namespace server.Features.Recipes.CreateRecipe;
 
 public class CreateRecipeMapper
 {

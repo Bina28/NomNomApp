@@ -1,40 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using server.Data;
 using server.Domain;
-using server.Features.Recipes.Photos;
-using server.Features.Recipes.Spoonacular.DTOs;
+using server.Features.Recipes.Services.Photo;
 
-namespace server.Features.Recipes.Spoonacular;
+namespace server.Features.Recipes.SaveRecipe;
 
-public class RecipeService
+public class SaveRecipeFromApiHandler
 {
-
     private readonly AppDbContext _context;
-    private readonly SpoonacularApiClient _client;
     private readonly IPhotoService _photoService;
 
-    public RecipeService(AppDbContext context, SpoonacularApiClient client, IPhotoService service)
+    public SaveRecipeFromApiHandler(AppDbContext context, IPhotoService service)
     {
         _context = context;
-        _client = client;
         _photoService = service;
     }
 
-    public async Task<Recipe> GetRecipeById(int id)
-    {
-        var recipeInDb = await _context.Recipes
-            .Include(r => r.ExtendedIngredients)
-            .FirstOrDefaultAsync(x => x.Id == id);
 
-        if (recipeInDb != null) return recipeInDb;
-
-
-        var apiRecipe = await _client.GetRecipeById(id) ?? throw new Exception("Recipe not found in API");
-        var savedRecipe = await SaveRecipe(apiRecipe);
-
-        return savedRecipe;
-
-    }
     public async Task<Recipe> SaveRecipe(Recipe apiRecipe)
     {
         var ingredients = new List<Ingredient>();
@@ -60,13 +42,14 @@ public class RecipeService
                 if (!ingredients.Any(x => x.Id == ingredient.Id))
                     ingredients.Add(ingredient);
             }
+
         }
 
         var recipe = new Recipe
         {
             Id = apiRecipe.Id,
             Title = apiRecipe.Title,
-            Summary = apiRecipe.Summary,    
+            Summary = apiRecipe.Summary,
             Instructions = apiRecipe.Instructions,
             ExtendedIngredients = ingredients
         };
@@ -89,33 +72,5 @@ public class RecipeService
 
         await _context.SaveChangesAsync();
         return recipe;
-    }
-
-
-    public async Task<List<SpoonacularRecipeResponse>> FindRecipesByNutrients(int calories, int number)
-    {
-        var results = await _client.FindRecipesByNutrients(calories, number);
-
-        var apiIds = results.Select(x => x.Id);
-
-        var existingIds = await _context.Recipes
-            .Where(r => apiIds.Contains(r.Id))
-            .Select(r => r.Id)
-            .ToListAsync();
-
-        var missingIds = apiIds.Except(existingIds);
-
-
-        foreach (var id in missingIds)
-        {
-            var detail = await _client.GetRecipeById(id);
-            if (detail == null) continue;
-
-          await SaveRecipe(detail);
-
-        }
-
-      
-        return results;
     }
 }

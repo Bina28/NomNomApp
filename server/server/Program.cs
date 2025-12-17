@@ -4,9 +4,12 @@ using Microsoft.IdentityModel.Tokens;
 using server;
 using server.Data;
 using server.Features.Auth;
-using server.Features.CreateRecipe;
-using server.Features.Recipes.Photos;
-using server.Features.Recipes.Spoonacular;
+using server.Features.Recipes.CreateRecipe;
+using server.Features.Recipes.FindByNutrients;
+using server.Features.Recipes.GetRecipe;
+using server.Features.Recipes.SaveRecipe;
+using server.Features.Recipes.Services.Photo;
+using server.Features.Recipes.Services.RecipeApiClients;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,11 +45,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.Configure<SpoonacularSettings>(
     builder.Configuration.GetSection("SpoonacularApi")
 );
-builder.Services.AddSpoonacularApiClient();
+builder.Services.AddSpoonacularApiClient(builder.Configuration);
 
-builder.Services.AddScoped<RecipeService>();
+builder.Services.AddScoped<AuthHandler>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
-builder.Services.AddScoped<CreateRecipeService>();
+builder.Services.AddScoped<CreateRecipeHandler>();
+builder.Services.AddScoped<GetRecipeByIdHandler>();
+builder.Services.AddScoped<SaveRecipeFromApiHandler>();
+builder.Services.AddScoped<FindRecipesByNutrientsHandler>();
 builder.Services.AddSingleton<PasswordHasher>();
 builder.Services.AddSingleton<JwtService>();
 
@@ -64,7 +70,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-
 
 app.Run();

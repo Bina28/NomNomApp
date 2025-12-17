@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
 using server.Domain;
-using server.Features.Recipes.Spoonacular.DTOs;
+using server.Features.Recipes.FindByNutrients;
 using System.Text.Json;
 
-namespace server.Features.Recipes.Spoonacular;
+namespace server.Features.Recipes.Services.RecipeApiClients;
 
-public class SpoonacularApiClient
+public class SpoonacularApiClient: IRecipeApiClient
 {
     private readonly string _apiKey;
     private readonly HttpClient _client;
@@ -24,18 +24,18 @@ public class SpoonacularApiClient
         return apiRecipe;
     }
 
-    public async Task<List<SpoonacularRecipeResponse>> FindRecipesByNutrients(int minCalories,
+    public async Task<List<RecipeResponse>> FindRecipesByNutrients(int minCalories,
     int maxResults)
     {
         var url = $"recipes/findByNutrients?apiKey={_apiKey}&minCalories={minCalories}&number={maxResults}";
         var response = await _client.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var jsonResult = await response.Content.ReadAsStringAsync();
-        var results = JsonSerializer.Deserialize<List<SpoonacularRecipeResponse>>(jsonResult,
+        var results = JsonSerializer.Deserialize<List<RecipeResponse>>(jsonResult,
         new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
  );
 
-        return results ?? new List<SpoonacularRecipeResponse>();
+        return results ?? new List<RecipeResponse>();
     }
 
 

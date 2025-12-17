@@ -1,23 +1,24 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using server.Features.Recipes.CreateRecipe.DTOs;
 using System.Security.Claims;
 
-namespace server.Features.CreateRecipe;
+namespace server.Features.Recipes.CreateRecipe;
 
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
 public class CreateRecipeController : ControllerBase
 {
-    private readonly CreateRecipeService _service;
+    private readonly CreateRecipeHandler _service;
 
-    public CreateRecipeController(CreateRecipeService service)
+    public CreateRecipeController(CreateRecipeHandler service)
     {
         _service = service;
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateRecipe([FromBody] RecipeDto request)
+    public async Task<IActionResult> Create([FromBody] RecipeDto request)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 

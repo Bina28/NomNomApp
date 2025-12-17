@@ -1,4 +1,4 @@
-﻿namespace server.Features.Recipes.Photos;
+﻿namespace server.Features.Recipes.Services.Photo;
 
 public class CloudinarySettings
 {

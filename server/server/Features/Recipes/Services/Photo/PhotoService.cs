@@ -2,7 +2,7 @@
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Options;
 
-namespace server.Features.Recipes.Photos;
+namespace server.Features.Recipes.Services.Photo;
 
 public class PhotoService : IPhotoService
 {
@@ -35,16 +35,16 @@ public class PhotoService : IPhotoService
             throw new Exception(uploadResult.Error.Message);
         }
 
-        return new PhotoUploadResult
-        {
-            PublicId = uploadResult.PublicId,
-            Url = uploadResult.SecureUrl.AbsoluteUri
-        };
+        return new PhotoUploadResult(
+            uploadResult.PublicId,
+            uploadResult.SecureUrl.AbsoluteUri
+        );
 
     }
 
 
 }
+
 
 
 
