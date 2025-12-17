@@ -4,23 +4,32 @@ using server.Domain;
 
 namespace server.Data;
 
-public class AppDbContext: DbContext 
+public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Recipe> Recipes { get; set; }
-    public DbSet<Ingredient> Ingredients { get; set; }   
+    public DbSet<Ingredient> Ingredients { get; set; }
     public DbSet<Photo> Photos { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<UserRecipe> UserRecipes { get; set; }
+    public DbSet<UserRecipeIngredients> UserRecipeIngredients { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<Recipe>()
-            .HasOne( r => r.Photos)
-            .WithOne( r => r.Recipe )
+            .HasOne(r => r.Photos)
+            .WithOne(r => r.Recipe)
             .HasForeignKey<Photo>(p => p.RecipeId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserRecipe>()
+        .HasMany(r => r.Ingredients)
+        .WithOne(i => i.Recipe)
+        .HasForeignKey(i => i.RecipeId)
+        .OnDelete(DeleteBehavior.Cascade);
+
     }
 
 }

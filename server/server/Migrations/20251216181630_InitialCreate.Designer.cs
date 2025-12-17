@@ -11,8 +11,8 @@ using server.Data;
 namespace server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251216115630_UserEntity")]
-    partial class UserEntity
+    [Migration("20251216181630_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -126,6 +126,48 @@ namespace server.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("server.Domain.UserRecipe", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRecipes");
+                });
+
+            modelBuilder.Entity("server.Domain.UserRecipeIngredients", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Amount")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RecipeId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipeId");
+
+                    b.ToTable("UserRecipeIngredients");
+                });
+
             modelBuilder.Entity("IngredientRecipe", b =>
                 {
                     b.HasOne("server.Domain.Ingredient", null)
@@ -152,9 +194,33 @@ namespace server.Migrations
                     b.Navigation("Recipe");
                 });
 
+            modelBuilder.Entity("server.Domain.UserRecipe", b =>
+                {
+                    b.HasOne("server.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("server.Domain.UserRecipeIngredients", b =>
+                {
+                    b.HasOne("server.Domain.UserRecipe", "Recipe")
+                        .WithMany("Ingredients")
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Recipe");
+                });
+
             modelBuilder.Entity("server.Domain.Recipe", b =>
                 {
                     b.Navigation("Photos");
+                });
+
+            modelBuilder.Entity("server.Domain.UserRecipe", b =>
+                {
+                    b.Navigation("Ingredients");
                 });
 #pragma warning restore 612, 618
         }

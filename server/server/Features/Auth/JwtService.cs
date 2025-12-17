@@ -17,6 +17,7 @@ public class JwtService
     public string GenereateToken(string userId, string userName) {
         var jwtSettings = _configuration.GetSection("JwtSettings");
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
+       
 
         var claims = new[]{
         new Claim(JwtRegisteredClaimNames.Sub, userId),

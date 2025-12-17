@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using server;
 using server.Data;
 using server.Features.Auth;
+using server.Features.CreateRecipe;
 using server.Features.Recipes.Photos;
 using server.Features.Recipes.Spoonacular;
 using System.Text;
@@ -45,16 +46,18 @@ builder.Services.AddSpoonacularApiClient();
 
 builder.Services.AddScoped<RecipeService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<CreateRecipeService>();
 builder.Services.AddSingleton<PasswordHasher>();
 builder.Services.AddSingleton<JwtService>();
 
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
-
 var app = builder.Build();
 
-
 app.UseHttpsRedirection();
+
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
+.WithOrigins("http://localhost:3000", "https://localhost:3000"));
 
 app.UseAuthentication();
 
@@ -62,7 +65,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
-.WithOrigins("http://localhost:3000", "https://localhost:3000"));
+
 
 app.Run();
