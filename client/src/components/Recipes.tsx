@@ -17,39 +17,49 @@ export default function Recipes() {
   };
 
   return (
-    <Container>
-      <Form>
-        <Form.Group style={{ maxWidth: "300px" }} className="mb-3">
-          <Form.Label>Enter min calories </Form.Label>
-          <Form.Control
-            type="text"
-            value={calories}
-            onChange={(e) => setCalories(e.target.value)}
-          />
-        </Form.Group>
+<Container 
+  className="d-flex flex-column justify-content-center align-items-center my-3" 
 
-        <Button variant="primary" type="submit" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </Form>
+>
+  <Form>
+    <Form.Group className="d-flex flex-column gap-2" style={{ width: "300px" }}>
+      <Form.Label>Enter min calories</Form.Label>
+      <Form.Control
+        type="text"
+        value={calories}
+        onChange={(e) => setCalories(e.target.value)}
+      />
+      <Button variant="primary" type="submit" onClick={handleSubmit}>
+        Submit
+      </Button>
+    </Form.Group>
+  </Form>
 
-      <Stack direction="horizontal" gap={3} className="flex-wrap">
-        {recipes.map((recipe) => (
-          <Card style={{ width: "18rem", height: "400px" }}>
-            <Card.Img variant="top" src={recipe.image} />
-            <Card.Body>
-              <Card.Title>{recipe.title}</Card.Title>
+  <Stack
+    direction="horizontal"
+    gap={3}
+    className="flex-wrap justify-content-center mt-4"
+  >
+    {recipes.map((recipe) => (
+      <Card
+        style={{ height: "350px" }}
+        className="w-25 m-2 d-flex flex-column"
+        key={recipe.id}
+      >
+        <Card.Img variant="top" src={recipe.image} />
+        <Card.Body className="d-flex flex-column justify-content-between">
+          <Card.Title>{recipe.title}</Card.Title>
+          <Button
+            variant="primary"
+            onClick={() => navigate(`/recipe/${recipe.id}`)}
+          >
+            Read more
+          </Button>
+        </Card.Body>
+      </Card>
+    ))}
+  </Stack>
+</Container>
 
-              <Button
-                variant="primary"
-                onClick={() => navigate(`/recipe/${recipe.id}`)}
-              >
-                Read more
-              </Button>
-            </Card.Body>
-          </Card>
-        ))}
-      </Stack>
-    </Container>
   );
 }

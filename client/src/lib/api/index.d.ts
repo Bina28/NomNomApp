@@ -12,3 +12,8 @@ type Recipe = {
   image: string;
 };
 
+type Login = {
+  email: string;
+  password:string;
+}
+

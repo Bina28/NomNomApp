@@ -16,8 +16,8 @@ function BasicExample() {
             <Nav.Link as={Link} to="/recipes">Recipes</Nav.Link>
             <NavDropdown title="Account" id="basic-nav-dropdown">
               <NavDropdown.Item href="#action/3.1">My recipes</NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.2">
-                Another action
+              <NavDropdown.Item as={Link} to="/login">
+                Login
               </NavDropdown.Item>
               <NavDropdown.Item href="#action/3.3">Favorite recipes</NavDropdown.Item>
               <NavDropdown.Divider />

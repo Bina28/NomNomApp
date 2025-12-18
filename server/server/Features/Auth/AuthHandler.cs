@@ -21,7 +21,7 @@ public class AuthHandler
     public async Task<ResultValue<string>> LoginAsync(LoginRequest request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-        if (user == null)
+        if (user == null  )
         {
             return Result.Fail<string>("User not found");
         }

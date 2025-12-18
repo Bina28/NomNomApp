@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using server;
 using server.Data;
 using server.Features.Auth;
 using server.Features.Recipes.CreateRecipe;
