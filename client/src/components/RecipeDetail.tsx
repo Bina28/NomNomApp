@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Button, Card } from "react-bootstrap";
+import {  Col, Container, Row } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 
 export default function RecipeDetial() {
@@ -8,26 +8,57 @@ export default function RecipeDetial() {
   const { id } = useParams();
   const api = import.meta.env.VITE_API_URL;
 
-  useEffect(() => {
-    axios.get(`${api}/recipe/${id}`).then((res) => setRecipe(res.data));
-  }, [id]);
+useEffect(() => {
+  const fetchRecipe = async () => {
+    try {
+      const res = await axios.get(`${api}/recipe/${id}`);
+      setRecipe(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  fetchRecipe();
+}, [id, api]);
 
   return (
-    <Card style={{ width: "18rem" }}>
-      <Card.Img variant="top" src={recipe?.image} />
-      <Card.Body>
-        <Card.Title>{recipe?.title}</Card.Title>
-        <Card.Text><div dangerouslySetInnerHTML={{ __html: recipe?.instructions || "" }} /></Card.Text>
-        <div dangerouslySetInnerHTML={{ __html: recipe?.summary || "" }} />
-        <Card.Text>
-          <ul>
-            {recipe?.extendedIngredients.map((ing, index) => (
-              <li key={index}>{ing}</li>
-            ))}
-          </ul>
-        </Card.Text>
-        <Button variant="primary">Go somewhere</Button>
-      </Card.Body>
-    </Card>
+<Container className="my-5">
+  <Row>
+    <Col lg={10} xl={8} className="mx-auto">
+      <img 
+        src={recipe?.image} 
+        alt={recipe?.title}
+        className="img-fluid rounded shadow-sm mb-4"
+        style={{ width: "100%", height: "400px", objectFit: "cover" }}
+      />
+
+      <h1 className="display-4 fw-bold mb-4">
+        {recipe?.title}
+      </h1>
+
+      <div 
+        className="lead text-muted mb-4 pb-4 border-bottom"
+        dangerouslySetInnerHTML={{ __html: recipe?.summary || "" }} 
+      />
+
+      <div className="mb-5">
+        <h2 className="h3 fw-semibold mb-3">Ingredienser</h2>
+        <ul className="fs-5 lh-lg">
+          {recipe?.extendedIngredients.map((ing, index) => (
+            <li key={index} className="mb-2">{ing}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mb-5">
+        <h2 className="h3 fw-semibold mb-3">Instruksjoner</h2>
+        <div
+          className="fs-5 lh-lg"
+          dangerouslySetInnerHTML={{ __html: recipe?.instructions || "" }}
+        />
+      </div>
+    </Col>
+  </Row>
+</Container>
   );
 }

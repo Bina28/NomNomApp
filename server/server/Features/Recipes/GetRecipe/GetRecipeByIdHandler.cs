@@ -23,6 +23,7 @@ public class GetRecipeByIdHandler
     {
         var recipeInDb = await _context.Recipes
             .Include(r => r.ExtendedIngredients)
+            .Include(r => r.Photos)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (recipeInDb != null) return recipeInDb;

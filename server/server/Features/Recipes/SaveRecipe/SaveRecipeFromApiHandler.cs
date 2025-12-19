@@ -42,8 +42,9 @@ public class SaveRecipeFromApiHandler
                 if (!ingredients.Any(x => x.Id == ingredient.Id))
                     ingredients.Add(ingredient);
             }
-
         }
+
+        string? imageUrl = null;
 
         var recipe = new Recipe
         {
@@ -51,26 +52,33 @@ public class SaveRecipeFromApiHandler
             Title = apiRecipe.Title,
             Summary = apiRecipe.Summary,
             Instructions = apiRecipe.Instructions,
-            ExtendedIngredients = ingredients
+            Image = imageUrl,
+            ExtendedIngredients = ingredients,
         };
 
-        _context.Recipes.Add(recipe);
-
+        Photo? photo = null;
 
         if (!string.IsNullOrEmpty(apiRecipe.Image))
         {
-            var cloudinaryResult =
-                await _photoService.UploadImgFromUrl(apiRecipe.Image);
+            var cloudinaryResult = await _photoService.UploadImgFromUrl(apiRecipe.Image);
 
-            recipe.Photos = new Photo
+            if (cloudinaryResult != null)
             {
-                Url = cloudinaryResult.Url,
-                PublicId = cloudinaryResult.PublicId,
-                Recipe = recipe
-            };
+                imageUrl = cloudinaryResult.Url;
+                photo = new Photo
+                {
+                    Url = cloudinaryResult.Url,
+                    PublicId = cloudinaryResult.PublicId,
+                    Recipe = recipe
+                };
+                recipe.Image = imageUrl;
+                recipe.Photos = photo;
+            }
         }
 
+        _context.Recipes.Add(recipe);
         await _context.SaveChangesAsync();
+
         return recipe;
     }
 }
