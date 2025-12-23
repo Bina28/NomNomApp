@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using server.Data;
 using server.Domain;
-using server.Features.Recipes.SaveRecipe;
 using server.Features.Recipes.Services.RecipeApiClients;
+using Server.Features.Recipes.SaveRecipe;
 
 namespace server.Features.Recipes.GetRecipe;
 
@@ -10,9 +10,9 @@ public class GetRecipeByIdHandler
 {
     private readonly AppDbContext _context;
     private readonly IRecipeApiClient _client;
-    private readonly SaveRecipeFromApiHandler _apiHandler;
+    private readonly ISaveRecipeFromApiHandler _apiHandler;
 
-    public GetRecipeByIdHandler(AppDbContext context, IRecipeApiClient client, SaveRecipeFromApiHandler handler)
+    public GetRecipeByIdHandler(AppDbContext context, IRecipeApiClient client, ISaveRecipeFromApiHandler handler)
     {
         _context = context;
         _client = client;
@@ -35,4 +35,5 @@ public class GetRecipeByIdHandler
         return savedRecipe;
 
     }
+
 }

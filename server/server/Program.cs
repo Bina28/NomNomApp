@@ -10,6 +10,7 @@ using server.Features.Recipes.GetRecipe;
 using server.Features.Recipes.SaveRecipe;
 using server.Features.Recipes.Services.Photo;
 using server.Features.Recipes.Services.RecipeApiClients;
+using Server.Features.Recipes.SaveRecipe;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,7 +60,7 @@ builder.Services.AddScoped<AuthHandler>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<CreateRecipeHandler>();
 builder.Services.AddScoped<GetRecipeByIdHandler>();
-builder.Services.AddScoped<SaveRecipeFromApiHandler>();
+builder.Services.AddScoped<ISaveRecipeFromApiHandler, SaveRecipeFromApiHandler>();
 builder.Services.AddScoped<FindRecipesByNutrientsHandler>();
 builder.Services.AddSingleton<PasswordHasher>();
 builder.Services.AddSingleton<JwtService>();

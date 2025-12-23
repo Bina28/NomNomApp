@@ -2,10 +2,11 @@
 using server.Data;
 using server.Domain;
 using server.Features.Recipes.Services.Photo;
+using Server.Features.Recipes.SaveRecipe;
 
 namespace server.Features.Recipes.SaveRecipe;
 
-public class SaveRecipeFromApiHandler
+public class SaveRecipeFromApiHandler: ISaveRecipeFromApiHandler
 {
     private readonly AppDbContext _context;
     private readonly IPhotoService _photoService;
