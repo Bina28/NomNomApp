@@ -1,25 +1,31 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using server.Data;
-using server.Features.Recipes.SaveRecipe;
 using server.Features.Recipes.Services.RecipeApiClients;
+using server.Features.Shared;
+using Server.Features.Recipes.FindByNutrients;
+using Server.Features.Recipes.GetRecipe;
 
 namespace server.Features.Recipes.FindByNutrients;
 
 public class FindRecipesByNutrientsHandler
 {
     private readonly AppDbContext _context;
-    private readonly  IRecipeApiClient _client;
-    private readonly SaveRecipeFromApiHandler _apiHandler;
-    public FindRecipesByNutrientsHandler(AppDbContext context, IRecipeApiClient client, SaveRecipeFromApiHandler handler)
+    private readonly IRecipeApiClient _client;
+    private readonly ISaveRecipeFromApiHandler _apiHandler;
+    public FindRecipesByNutrientsHandler(AppDbContext context, IRecipeApiClient client, ISaveRecipeFromApiHandler handler)
     {
         _context = context;
         _client = client;
         _apiHandler = handler;
     }
 
-    public async Task<List<RecipeResponse>> FindRecipesByNutrients(int calories, int number)
+    public async Task<Result<List<ApiRecipeDto>>> FindRecipesByNutrients(FindRecipesByNutrientsRequest request)
     {
-        var results = await _client.FindRecipesByNutrients(calories, number);
+        var results = await _client.FindRecipesByNutrients(request);
+
+        if (results == null)
+            return Result<List<ApiRecipeDto>>
+                .Fail("External API returned no data");
 
         var apiIds = results.Select(x => x.Id);
 
@@ -40,6 +46,6 @@ public class FindRecipesByNutrientsHandler
 
         }
 
-        return results;
+        return Result<List<ApiRecipeDto>>.Ok(results);
     }
 }

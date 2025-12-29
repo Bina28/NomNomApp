@@ -20,7 +20,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await _service.LoginAsync(request);
-        return result.Ok ?
+        return result.Success ?
              Ok(new { Token = result.Data })
              : Unauthorized(new { result.Error });
     }
@@ -29,7 +29,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var result = await _service.RegisterAsync(request);
-        return result.Ok ?
+        return result.Success ?
             Ok(new { Token = result.Data })
             : BadRequest(new { result.Error });
     }

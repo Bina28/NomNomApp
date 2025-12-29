@@ -2,9 +2,9 @@
 using server.Data;
 using server.Domain;
 using server.Features.Recipes.Services.Photo;
-using Server.Features.Recipes.SaveRecipe;
+using server.Features.Recipes.Services.RecipeApiClients;
 
-namespace server.Features.Recipes.SaveRecipe;
+namespace Server.Features.Recipes.GetRecipe;
 
 public class SaveRecipeFromApiHandler: ISaveRecipeFromApiHandler
 {
@@ -18,7 +18,7 @@ public class SaveRecipeFromApiHandler: ISaveRecipeFromApiHandler
     }
 
 
-    public async Task<Recipe> SaveRecipe(Recipe apiRecipe)
+    public async Task<Recipe> SaveRecipe(ApiRecipeDto apiRecipe)
     {
         var ingredients = new List<Ingredient>();
 

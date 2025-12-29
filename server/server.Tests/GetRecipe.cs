@@ -4,7 +4,7 @@ using server.Data;
 using server.Domain;
 using server.Features.Recipes.GetRecipe;
 using server.Features.Recipes.Services.RecipeApiClients;
-using Server.Features.Recipes.SaveRecipe;
+using Server.Features.Recipes.GetRecipe;
 
 namespace server.Tests;
 

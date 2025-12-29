@@ -4,9 +4,9 @@ namespace server.Features.Recipes.GetRecipe;
 
 public static class RecipeMapper
 {
-    public static RecipeDto ToDto(Recipe apiRecipe)
+    public static RecipeResponse ToResponse(Recipe apiRecipe)
     {
-        return new RecipeDto(
+        return new RecipeResponse(
             Title: apiRecipe.Title,
             Summary: apiRecipe.Summary,
             Instructions: apiRecipe.Instructions,

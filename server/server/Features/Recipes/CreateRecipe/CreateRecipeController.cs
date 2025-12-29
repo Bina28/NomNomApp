@@ -27,6 +27,6 @@ public class CreateRecipeController : ControllerBase
             return Unauthorized("User not found");
         }
         var result = await _service.CreateRecipe(request, userId);
-        return result.Ok ? Ok(result.Data) : BadRequest(result.Error);
+        return result.Success ? Ok(result.Data) : BadRequest(result.Error);
     }
 }

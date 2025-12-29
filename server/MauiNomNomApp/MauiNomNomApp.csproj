@@ -66,5 +66,22 @@
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Models\" />
+	  <Folder Include="Sevices\" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <MauiXaml Update="Pages\LoginPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <None Update="Pages\LoginPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </None>
+	</ItemGroup>
 
 </Project>

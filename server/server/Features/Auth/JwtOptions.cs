@@ -8,8 +8,4 @@ public class JwtOptions
     public string Audience { get; set; } = null!;
     public int ExpiryMinutes { get; set; }
 
-
-
-
-
 }

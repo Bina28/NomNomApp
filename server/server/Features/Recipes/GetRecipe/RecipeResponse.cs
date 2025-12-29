@@ -2,7 +2,7 @@
 
 namespace server.Features.Recipes.GetRecipe;
 
-public record RecipeDto(
+public record RecipeResponse(
 string? Title,
 string? Summary,
 string? Instructions,

@@ -14,24 +14,24 @@ public class CreateRecipeHandler
         _context = context;
     }
 
-    public async Task<ResultValue<RecipeDto>> CreateRecipe(RecipeDto request, string userId)
+    public async Task<Result<RecipeDto>> CreateRecipe(RecipeDto request, string userId)
     {
         if (string.IsNullOrEmpty(request.Title))
-            return Result.Fail<RecipeDto>("Title is required");
+            return Result<RecipeDto>.Fail("Title is required");
 
         var titleExists = await _context.UserRecipes.AnyAsync(i => i.Title == request.Title);
 
         if (titleExists)
-            return Result.Fail<RecipeDto>("Recipe with the same title already exists");
+            return Result<RecipeDto>.Fail("Recipe with the same title already exists");
 
         if (request.Ingredients.Count == 0)
-            return Result.Fail<RecipeDto>("Ingredients are required");
+            return Result<RecipeDto>.Fail("Ingredients are required");
 
         var recipe = CreateRecipeMapper.ToEntity(request, userId);
         await _context.AddAsync(recipe);
         await _context.SaveChangesAsync();
-             
-        return Result.Success(request);
+
+        return Result<RecipeDto>.Ok(request);
     }
 
 }
