@@ -33,9 +33,8 @@ public class GetRecipeByIdHandler
         if (apiRecipe == null) return Result<RecipeResponse>.Fail("Recipe not found");
 
         var savedRecipe = await _apiHandler.SaveRecipe(apiRecipe);
-        var savedResponse = RecipeMapper.ToResponse(savedRecipe);
 
-        return Result<RecipeResponse>.Ok(savedResponse);
+        return Result<RecipeResponse>.Ok(RecipeMapper.ToResponse(savedRecipe));
 
     }
 
