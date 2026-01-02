@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using server.Data;
 using server.Features.Auth;
 using server.Features.Recipes.CreateRecipe;
@@ -46,6 +47,15 @@ builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>>(sp =>
                     Encoding.UTF8.GetBytes(jwtOptions.Key)
                 )
             };
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    context.Token = context.Request.Cookies["access_token"];
+                    return Task.CompletedTask;
+                }
+            };
+
         });
 });
 
@@ -67,12 +77,31 @@ builder.Services.AddJwt();
 
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
+
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.File(
+            "logs/log-.txt",
+            rollingInterval: RollingInterval.Day
+        );
+});
+
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
-.WithOrigins("http://localhost:3000", "https://localhost:3000"));
+app.UseCors(x => x
+    .WithOrigins("http://localhost:3000", "https://localhost:3000")
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials()
+);
+
 
 app.UseAuthentication();
 

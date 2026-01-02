@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Server.Features.Recipes.FindByNutrients;
 using System.Text.Json;
 
@@ -24,7 +23,7 @@ public class SpoonacularApiClient : IRecipeApiClient
         return apiRecipe;
     }
 
-    public async Task<List<ApiRecipeDto>> FindRecipesByNutrients( FindRecipesByNutrientsRequest request)
+    public async Task<List<ApiRecipeDto>> FindRecipesByNutrients(FindRecipesByNutrientsRequest request)
     {
         var url = $"recipes/findByNutrients?apiKey={_apiKey}&minCalories={request.Calories}&number={request.Number}";
         var response = await _client.GetAsync(url);

@@ -2,6 +2,7 @@
 using server.Data;
 using server.Features.Auth.DTOs;
 using server.Features.Shared;
+using Server.Features.Auth.DTOs;
 
 namespace server.Features.Auth;
 
@@ -53,4 +54,23 @@ public class AuthHandler
         var token = _jwtService.GenereateToken(newUser.Id, newUser.UserName);
         return Result<string>.Ok(token);
     }
+
+    public async Task<Result<UserDto>> GetCurrentUserAsync(string userId)
+{
+    if (string.IsNullOrEmpty(userId))
+        return Result<UserDto>.Fail("Unauthorized");
+
+    var user = await _context.Users.FindAsync(Guid.Parse(userId));
+
+    if (user == null)
+        return Result<UserDto>.Fail("User not found");
+
+    return Result<UserDto>.Ok(new UserDto
+    {
+        Id = user.Id,
+        Email = user.Email,
+        UserName = user.UserName
+    });
+}
+
 }
