@@ -2,13 +2,13 @@
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Options;
 
-namespace server.Features.Recipes.Services.Photo;
+namespace Server.Features.Recipes.Infrastructure.Photo.CloudinaryPhoto;
 
-public class PhotoService : IPhotoService
+public class ClodinaryPhotoProvider : IPhotoProvider
 {
     private readonly Cloudinary _cloudinary;
 
-    public PhotoService(IOptions<CloudinarySettings> config)
+    public ClodinaryPhotoProvider(IOptions<CloudinarySettings> config)
     {
         var account = new Account(
             config.Value.CloudName,

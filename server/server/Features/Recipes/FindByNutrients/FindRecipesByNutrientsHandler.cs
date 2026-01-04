@@ -1,30 +1,30 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using server.Data;
-using server.Features.Recipes.Services.RecipeApiClients;
 using server.Features.Shared;
 using Server.Features.Recipes.FindByNutrients;
-using Server.Features.Recipes.GetRecipe;
+using Server.Features.Recipes.Infrastructure.Recipes;
+using Server.Features.Recipes.SaveRecipe;
 
 namespace server.Features.Recipes.FindByNutrients;
 
 public class FindRecipesByNutrientsHandler
 {
     private readonly AppDbContext _context;
-    private readonly IRecipeApiClient _client;
-    private readonly ISaveRecipeFromApiHandler _apiHandler;
-    public FindRecipesByNutrientsHandler(AppDbContext context, IRecipeApiClient client, ISaveRecipeFromApiHandler handler)
+    private readonly IRecipeProvider _client;
+    private readonly ISaveRecipeHandler _apiHandler;
+    public FindRecipesByNutrientsHandler(AppDbContext context, IRecipeProvider client, ISaveRecipeHandler handler)
     {
         _context = context;
         _client = client;
         _apiHandler = handler;
     }
 
-    public async Task<Result<List<ApiRecipeDto>>> FindRecipesByNutrients(FindRecipesByNutrientsRequest request)
+    public async Task<Result<List<FindRecipesByNutrientsResponse>>> FindRecipesByNutrients(FindRecipesByNutrientsRequest request)
     {
         var results = await _client.FindRecipesByNutrients(request);
 
         if (results == null)
-            return Result<List<ApiRecipeDto>>
+            return Result<List<FindRecipesByNutrientsResponse>>
                 .Fail("External API returned no data");
 
         var apiIds = results.Select(x => x.Id);
@@ -46,6 +46,11 @@ public class FindRecipesByNutrientsHandler
 
         }
 
-        return Result<List<ApiRecipeDto>>.Ok(results);
+        var response = results
+        .Select(FindRecipeByNutrientsMapper.ToResponse)
+        .ToList();
+
+
+        return Result<List<FindRecipesByNutrientsResponse>>.Ok(response);
     }
 }

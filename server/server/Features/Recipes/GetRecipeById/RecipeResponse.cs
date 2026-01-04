@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace server.Features.Recipes.GetRecipe;
+namespace Server.Features.Recipes.GetRecipeById;
 
 public record RecipeResponse(
 string? Title,

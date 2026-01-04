@@ -7,10 +7,11 @@ using server.Data;
 using server.Features.Auth;
 using server.Features.Recipes.CreateRecipe;
 using server.Features.Recipes.FindByNutrients;
-using server.Features.Recipes.GetRecipe;
-using server.Features.Recipes.Services.Photo;
-using server.Features.Recipes.Services.RecipeApiClients;
-using Server.Features.Recipes.GetRecipe;
+using Server.Features.Recipes.GetRecipeById;
+using Server.Features.Recipes.Infrastructure.Photo;
+using Server.Features.Recipes.Infrastructure.Photo.CloudinaryPhoto;
+using Server.Features.Recipes.Infrastructure.Recipes.Spoonacular;
+using Server.Features.Recipes.SaveRecipe;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,9 +65,9 @@ builder.Services.Configure<SpoonacularSettings>(
     builder.Configuration.GetSection("SpoonacularApi")
 );
 builder.Services.AddSpoonacularApiClient(builder.Configuration);
-builder.Services.AddScoped<ISaveRecipeFromApiHandler, SaveRecipeFromApiHandler>();
+builder.Services.AddScoped<ISaveRecipeHandler, SaveRecipeHandler>();
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
-builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IPhotoProvider, ClodinaryPhotoProvider>();
 builder.Services.AddScoped<AuthHandler>();
 builder.Services.AddScoped<CreateRecipeHandler>();
 builder.Services.AddScoped<GetRecipeByIdHandler>();

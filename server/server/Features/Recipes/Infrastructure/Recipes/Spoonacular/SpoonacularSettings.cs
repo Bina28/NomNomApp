@@ -1,4 +1,4 @@
-﻿namespace server.Features.Recipes.Services.RecipeApiClients;
+﻿namespace Server.Features.Recipes.Infrastructure.Recipes.Spoonacular;
 
 public class SpoonacularSettings
 {

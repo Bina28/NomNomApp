@@ -1,18 +1,17 @@
-﻿using server.Domain;
-using server.Features.Recipes.Services.RecipeApiClients;
-using server.Features.Shared;
-using Server.Features.Recipes.GetRecipe;
+﻿using server.Features.Shared;
+using Server.Features.Recipes.Infrastructure.Recipes;
+using Server.Features.Recipes.SaveRecipe;
 
-namespace server.Features.Recipes.GetRecipe;
+namespace Server.Features.Recipes.GetRecipeById;
 
 public class GetRecipeByIdHandler
 {
     private readonly IRecipeRepository _recipeRepository;
-    private readonly IRecipeApiClient _client;
-    private readonly ISaveRecipeFromApiHandler _apiHandler;
+    private readonly IRecipeProvider _client;
+    private readonly ISaveRecipeHandler _apiHandler;
     private readonly ILogger<GetRecipeByIdHandler> _logger;
 
-    public GetRecipeByIdHandler(IRecipeRepository repository, IRecipeApiClient client, ISaveRecipeFromApiHandler handler, ILogger<GetRecipeByIdHandler> logger)
+    public GetRecipeByIdHandler(IRecipeRepository repository, IRecipeProvider client, ISaveRecipeHandler handler, ILogger<GetRecipeByIdHandler> logger)
     {
         _recipeRepository = repository;
         _client = client;

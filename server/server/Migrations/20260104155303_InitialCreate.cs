@@ -3,7 +3,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace server.Migrations
+namespace Server.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -15,8 +15,7 @@ namespace server.Migrations
                 name: "Ingredients",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<string>(type: "text", nullable: false),
                     Original = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -58,7 +57,7 @@ namespace server.Migrations
                 name: "IngredientRecipe",
                 columns: table => new
                 {
-                    ExtendedIngredientsId = table.Column<int>(type: "integer", nullable: false),
+                    ExtendedIngredientsId = table.Column<string>(type: "text", nullable: false),
                     RecipesId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>

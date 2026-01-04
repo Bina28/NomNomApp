@@ -8,7 +8,7 @@ public class Photo
     public required string Url { get; set; }
     public required string PublicId { get; set; }
 
-    [ForeignKey("Recipe")]  
+    [ForeignKey("Recipe")]
     public int RecipeId { get; set; }
     public required Recipe Recipe { get; set; }
 }

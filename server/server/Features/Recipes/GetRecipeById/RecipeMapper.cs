@@ -1,6 +1,6 @@
 ﻿using server.Domain;
 
-namespace server.Features.Recipes.GetRecipe;
+namespace Server.Features.Recipes.GetRecipeById;
 
 public static class RecipeMapper
 {

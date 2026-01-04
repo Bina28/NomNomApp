@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using server.Features.Recipes.FindByNutrients;
-using server.Features.Recipes.GetRecipe;
 using Server.Features.Recipes.FindByNutrients;
+using Server.Features.Recipes.GetRecipeById;
 
 namespace server.Features.Recipes;
 

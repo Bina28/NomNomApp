@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ReturnsExtensions;
 using server.Domain;
-using server.Features.Recipes.GetRecipe;
-using server.Features.Recipes.Services.RecipeApiClients;
-using Server.Features.Recipes.GetRecipe;
+using Server.Features.Recipes.GetRecipeById;
+using Server.Features.Recipes.Infrastructure.Recipes;
+using Server.Features.Recipes.Infrastructure.Recipes.Spoonacular;
+using Server.Features.Recipes.SaveRecipe;
 
 namespace server.Tests;
 
@@ -32,7 +34,8 @@ public class GetRecipe
         Assert.True(result.Success);
         Assert.Equal("Test Recipe", result.Data?.Title);
 
-        await mockClient.DidNotReceive().GetRecipeById(Arg.Any<int>());
+        // --- THEN: The method doesn't call external API---
+        await mockClient.DidNotReceive().GetRecipeById(recipe.Id);
 
 
     }
@@ -48,7 +51,7 @@ public class GetRecipe
         // --- GIVEN: Recipe exists in API ---
         var apiRecipe = new ApiRecipeDto { Id = 1, Title = "Test Recipe" };
 
-        var mockClient = Substitute.For<IRecipeApiClient>();
+        var mockClient = Substitute.For<IRecipeProvider>();
         mockClient.GetRecipeById(1)
             .Returns(apiRecipe);
 
@@ -81,12 +84,12 @@ public class GetRecipe
         // --- GIVEN: Recipe doesn't exists in DB ---
         var repoMock = Substitute.For<IRecipeRepository>();
         repoMock.GetByIdWithDetailsAsync(1)
-            .Returns((Recipe?)null);
+            .ReturnsNull();
 
         // --- GIVEN: Recipe doesn't exists in API ---
         var mockClient = Substitute.For<IRecipeApiClient>();
         mockClient.GetRecipeById(1)
-             .Returns((ApiRecipeDto?)null);
+             .ReturnsNull();
 
         // --- GIVEN: Nothing is saved to DB ---
         var mockApiHandler = Substitute.For<ISaveRecipeFromApiHandler>();

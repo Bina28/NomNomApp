@@ -2,7 +2,7 @@
 using server.Data;
 using server.Domain;
 
-namespace Server.Features.Recipes.GetRecipe;
+namespace Server.Features.Recipes.GetRecipeById;
 
 public class RecipeRepository : IRecipeRepository
 {
