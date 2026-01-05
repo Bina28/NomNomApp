@@ -4,7 +4,6 @@ using NSubstitute.ReturnsExtensions;
 using server.Domain;
 using Server.Features.Recipes.GetRecipeById;
 using Server.Features.Recipes.Infrastructure.Recipes;
-using Server.Features.Recipes.Infrastructure.Recipes.Spoonacular;
 using Server.Features.Recipes.SaveRecipe;
 
 namespace server.Tests;
@@ -17,8 +16,8 @@ public class GetRecipe
         // --- GIVEN: There is a database with one recipe ---
         var recipe = new Recipe { Id = 1, Title = "Test Recipe" };
 
-        var mockClient = Substitute.For<IRecipeApiClient>();
-        var mockApiHandler = Substitute.For<ISaveRecipeFromApiHandler>();
+        var mockClient = Substitute.For<IRecipeProvider>();
+        var mockApiHandler = Substitute.For<ISaveRecipeHandler>();
         var logger = Substitute.For<ILogger<GetRecipeByIdHandler>>();
         var repoMock = Substitute.For<IRecipeRepository>();
 
@@ -49,7 +48,7 @@ public class GetRecipe
             .Returns((Recipe?)null);
 
         // --- GIVEN: Recipe exists in API ---
-        var apiRecipe = new ApiRecipeDto { Id = 1, Title = "Test Recipe" };
+        var apiRecipe = new Recipe { Id = 1, Title = "Test Recipe" };
 
         var mockClient = Substitute.For<IRecipeProvider>();
         mockClient.GetRecipeById(1)
@@ -58,11 +57,11 @@ public class GetRecipe
 
         // --- GIVEN: Recipe saved in DB ---
         var recipe = new Recipe { Id = 1, Title = "Test Recipe" };
-        var mockApiHandler = Substitute.For<ISaveRecipeFromApiHandler>();
+        var mockApiHandler = Substitute.For<ISaveRecipeHandler>();
         mockApiHandler.SaveRecipe(apiRecipe)
             .Returns(recipe);
 
-        var logger =Substitute.For<ILogger<GetRecipeByIdHandler>>();
+        var logger = Substitute.For<ILogger<GetRecipeByIdHandler>>();
 
         var sut = new GetRecipeByIdHandler(repoMock, mockClient, mockApiHandler, logger);
 
@@ -74,8 +73,8 @@ public class GetRecipe
         Assert.Equal("Test Recipe", result.Data?.Title);
 
         await mockApiHandler.Received(1).SaveRecipe(apiRecipe);
-      
-     
+
+
     }
 
     [Fact]
@@ -87,12 +86,12 @@ public class GetRecipe
             .ReturnsNull();
 
         // --- GIVEN: Recipe doesn't exists in API ---
-        var mockClient = Substitute.For<IRecipeApiClient>();
+        var mockClient = Substitute.For<IRecipeProvider>();
         mockClient.GetRecipeById(1)
              .ReturnsNull();
 
         // --- GIVEN: Nothing is saved to DB ---
-        var mockApiHandler = Substitute.For<ISaveRecipeFromApiHandler>();
+        var mockApiHandler = Substitute.For<ISaveRecipeHandler>();
 
         var logger = Substitute.For<ILogger<GetRecipeByIdHandler>>();
         var sut = new GetRecipeByIdHandler(repoMock, mockClient, mockApiHandler, logger);
@@ -104,8 +103,8 @@ public class GetRecipe
         Assert.False(result.Success);
 
         // --- THEN: Recipe is NOT saved ---
-        await mockApiHandler.DidNotReceive().SaveRecipe(Arg.Any<ApiRecipeDto>());
-         
+        await mockApiHandler.DidNotReceive().SaveRecipe(Arg.Any<Recipe>());
+
     }
 
 }

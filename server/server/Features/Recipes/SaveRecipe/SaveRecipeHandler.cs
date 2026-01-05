@@ -10,10 +10,10 @@ public class SaveRecipeHandler : ISaveRecipeHandler
     private readonly AppDbContext _context;
     private readonly IPhotoProvider _photoService;
 
-    public SaveRecipeHandler(AppDbContext context, IPhotoProvider service)
+    public SaveRecipeHandler(AppDbContext context, IPhotoProvider provider)
     {
         _context = context;
-        _photoService = service;
+        _photoService = provider;
     }
 
 
