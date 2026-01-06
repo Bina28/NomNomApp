@@ -30,26 +30,30 @@ public class SaveRecipeHandler : ISaveRecipeHandler
 
     private async Task<List<Ingredient>> ResolveIngredients(Recipe recipe)
     {
-        var ingredients = new List<Ingredient>();
+        var result = new List<Ingredient>();
+        var distinctIngredients = recipe.ExtendedIngredients
+            .Where(i => !string.IsNullOrWhiteSpace(i.Original))
+            .Select(i => i.Original?.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var ing in recipe.ExtendedIngredients)
+
+
+        foreach (var original in distinctIngredients)
         {
-            var existing = await _context.Ingredients.FirstOrDefaultAsync(x => x.Original == ing.Original);
+            var ingredient = _context.Ingredients.Local.FirstOrDefault(x => string.Equals(x.Original, original, StringComparison.OrdinalIgnoreCase))
+                ?? await _context.Ingredients.FirstOrDefaultAsync(x => string.Equals(x.Original, original, StringComparison.OrdinalIgnoreCase));
 
-            if (existing == null)
+            if (ingredient == null)
             {
-                existing = new Ingredient
-                {
-                    Original = ing.Original
-                };
-                _context.Ingredients.Add(existing);
+                ingredient = new Ingredient { Original = original };
+
+                _context.Ingredients.Add(ingredient);
             }
 
-            if (!ingredients.Any(x => x.Original == existing.Original))
-                ingredients.Add(existing);
+            result.Add(ingredient);
 
         }
-        return ingredients;
+        return result;
     }
 
     private async Task HandleImage(Recipe recipe)
