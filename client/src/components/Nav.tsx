@@ -21,7 +21,7 @@ function BasicExample() {
               <NavDropdown.Item as={Link} to="/login">
                 Login
               </NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.2">Sign Up</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/signUp">Sign Up</NavDropdown.Item>
               <NavDropdown.Divider />
 
       <NavDropdown.Item href="#action/3.3">

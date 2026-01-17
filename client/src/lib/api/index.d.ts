@@ -17,3 +17,8 @@ type Login = {
   password:string;
 }
 
+type SignUp = {
+  email: string;
+  password:string;
+  userName: string;
+}

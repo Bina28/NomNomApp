@@ -4,20 +4,23 @@ import { Button, Card, Form } from "react-bootstrap";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Login() {
+
+export default function SignUp() {
   const api = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-    const navigate = useNavigate();
+  const [userName, setUserName] = useState("");
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const loginCredentials: Login = {
+    const data: SignUp = {
       email: email,
       password: password,
+      userName: userName
     };
     try {
-      const response = await axios.post(`${api}/auth/login`, loginCredentials);
+      const response = await axios.post(`${api}/auth/register`, data);
       console.log(response.data);
       navigate("/userPage");
     } catch (error) {
@@ -40,6 +43,16 @@ export default function Login() {
             />
           </Form.Group>
 
+        <Form.Group controlId="userName">
+            <Form.Label>User Name</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter your username"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+            />
+          </Form.Group>
+
           <Form.Group controlId="formPassword">
             <Form.Label>Password</Form.Label>
             <Form.Control
@@ -58,3 +71,5 @@ export default function Login() {
     </Card>
   );
 }
+
+
