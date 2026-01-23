@@ -15,27 +15,28 @@ function BasicExample() {
   };
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary" data-bs-theme="dark">
+    <Navbar expand="lg" className="navbar-custom" data-bs-theme="dark">
       <Container>
-        <Navbar.Brand href="#home">NomNom</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/">NomNom</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="#home">Home</Nav.Link>
-            <Nav.Link as={Link} to="/recipes">Recipes</Nav.Link>
-            <Nav.Link>Create recipe</Nav.Link>
+            <Nav.Link as={Link} to="/recipes">Oppskrifter</Nav.Link>
+            <Nav.Link>Lag oppskrift</Nav.Link>
+          </Nav>
+          <Nav>
             {isLoggedIn ? (
-              <NavDropdown title={user?.userName || 'Account'} id="basic-nav-dropdown">
-                <NavDropdown.Item as={Link} to="/userPage">My Profile</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">My recipes</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">Favorites</NavDropdown.Item>
+              <NavDropdown title={user?.userName || 'Konto'} id="basic-nav-dropdown" align="end">
+                <NavDropdown.Item as={Link} to="/userPage">Min profil</NavDropdown.Item>
+                <NavDropdown.Item href="#action/3.3">Mine oppskrifter</NavDropdown.Item>
+                <NavDropdown.Item href="#action/3.3">Favoritter</NavDropdown.Item>
                 <NavDropdown.Divider />
-                <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
+                <NavDropdown.Item onClick={handleLogout}>Logg ut</NavDropdown.Item>
               </NavDropdown>
             ) : (
-              <NavDropdown title="Account" id="basic-nav-dropdown">
-                <NavDropdown.Item as={Link} to="/login">Login</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/signUp">Sign Up</NavDropdown.Item>
+              <NavDropdown title="Konto" id="basic-nav-dropdown" align="end">
+                <NavDropdown.Item as={Link} to="/login">Logg inn</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/signUp">Registrer deg</NavDropdown.Item>
               </NavDropdown>
             )}
           </Nav>

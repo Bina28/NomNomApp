@@ -36,47 +36,57 @@ export default function SignUp() {
   };
 
   return (
-    <Card className="p-4 mt-5 shadow-sm mx-auto" style={{ maxWidth: "400px" }}>
-      <Card.Body>
-        <Card.Title>Sign Up</Card.Title>
-        {error && <Alert variant="danger">{error}</Alert>}
-        <Form className="d-flex flex-column gap-3" onSubmit={handleSubmit}>
-          <Form.Group controlId="formEmail">
-            <Form.Label>Email address</Form.Label>
-            <Form.Control
-              type="email"
-              placeholder="Enter email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </Form.Group>
+    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
+      <Card className="auth-card mx-3" style={{ maxWidth: "420px", width: "100%" }}>
+        <Card.Body>
+          <Card.Title>Opprett konto</Card.Title>
+          <p className="text-center text-muted mb-4">Bli med i NomNom i dag</p>
 
-        <Form.Group controlId="userName">
-            <Form.Label>User Name</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter your username"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-            />
-          </Form.Group>
+          {error && <Alert variant="danger">{error}</Alert>}
 
-          <Form.Group controlId="formPassword">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </Form.Group>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="userName">
+              <Form.Label>Brukernavn</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Velg et brukernavn"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+              />
+            </Form.Group>
 
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
-        </Form>
-      </Card.Body>
-    </Card>
+            <Form.Group className="mb-3" controlId="formEmail">
+              <Form.Label>E-postadresse</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="din@epost.no"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-4" controlId="formPassword">
+              <Form.Label>Passord</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Lag et sterkt passord"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Form.Group>
+
+            <Button variant="primary" type="submit" className="w-100 mb-3">
+              Registrer deg
+            </Button>
+
+            <p className="text-center mb-0">
+              Har du allerede konto?{" "}
+              <a href="/login" className="auth-link">Logg inn</a>
+            </p>
+          </Form>
+        </Card.Body>
+      </Card>
+    </div>
   );
 }
 

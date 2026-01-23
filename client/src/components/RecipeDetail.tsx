@@ -22,43 +22,56 @@ useEffect(() => {
 }, [id, api]);
 
   return (
-<Container className="my-5">
-  <Row>
-    <Col lg={10} xl={8} className="mx-auto">
-      <img 
-        src={recipe?.image} 
-        alt={recipe?.title}
-        className="img-fluid rounded shadow-sm mb-4"
-        style={{ width: "100%", height: "400px", objectFit: "cover" }}
-      />
+    <Container className="py-4">
+      <Row>
+        <Col md={10} lg={8} xl={6} className="mx-auto">
+          <div className="recipe-detail-card" style={{
+            background: "white",
+            borderRadius: "12px",
+            overflow: "hidden",
+            boxShadow: "0 2px 16px rgba(0,0,0,0.08)"
+          }}>
+            <img
+              src={recipe?.image}
+              alt={recipe?.title}
+              style={{ width: "100%", height: "250px", objectFit: "cover" }}
+            />
 
-      <h1 className="display-4 fw-bold mb-4">
-        {recipe?.title}
-      </h1>
+            <div style={{ padding: "1.25rem" }}>
+              <h1 style={{ fontSize: "1.5rem", color: "var(--primary-color)", fontWeight: 700 }} className="mb-3">
+                {recipe?.title}
+              </h1>
 
-      <div 
-        className="lead text-muted mb-4 pb-4 border-bottom"
-        dangerouslySetInnerHTML={{ __html: recipe?.summary || "" }} 
-      />
+              <div
+                className="text-muted mb-3 pb-3 border-bottom"
+                style={{ fontSize: "0.95rem" }}
+                dangerouslySetInnerHTML={{ __html: recipe?.summary || "" }}
+              />
 
-      <div className="mb-5">
-        <h2 className="h3 fw-semibold mb-3">Ingredienser</h2>
-        <ul className="fs-5 lh-lg">
-          {recipe?.extendedIngredients.map((ing, index) => (
-            <li key={index} className="mb-2">{ing}</li>
-          ))}
-        </ul>
-      </div>
+              <div className="mb-4">
+                <h2 style={{ color: "var(--primary-color)", fontWeight: 600, fontSize: "1.1rem" }} className="mb-2">
+                  Ingredienser
+                </h2>
+                <ul style={{ paddingLeft: "1.25rem", fontSize: "0.95rem" }}>
+                  {recipe?.extendedIngredients.map((ing, index) => (
+                    <li key={index} className="mb-1">{ing}</li>
+                  ))}
+                </ul>
+              </div>
 
-      <div className="mb-5">
-        <h2 className="h3 fw-semibold mb-3">Instruksjoner</h2>
-        <div
-          className="fs-5 lh-lg"
-          dangerouslySetInnerHTML={{ __html: recipe?.instructions || "" }}
-        />
-      </div>
-    </Col>
-  </Row>
-</Container>
+              <div>
+                <h2 style={{ color: "var(--primary-color)", fontWeight: 600, fontSize: "1.1rem" }} className="mb-2">
+                  Instruksjoner
+                </h2>
+                <div
+                  style={{ fontSize: "0.95rem" }}
+                  dangerouslySetInnerHTML={{ __html: recipe?.instructions || "" }}
+                />
+              </div>
+            </div>
+          </div>
+        </Col>
+      </Row>
+    </Container>
   );
 }
