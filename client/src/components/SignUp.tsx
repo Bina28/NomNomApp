@@ -1,16 +1,16 @@
-import axios from "axios";
 import { useState } from "react";
 import { Button, Card, Form } from "react-bootstrap";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-
+import agent from "../lib/api/agent";
+import { useAuth } from "../context/AuthContext";
 
 export default function SignUp() {
-  const api = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [userName, setUserName] = useState("");
+  const { checkAuth } = useAuth();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,8 +20,8 @@ export default function SignUp() {
       userName: userName
     };
     try {
-      const response = await axios.post(`${api}/auth/register`, data);
-      console.log(response.data);
+      await agent.post("/auth/register", data);
+      await checkAuth();
       navigate("/userPage");
     } catch (error) {
       console.log(error);
