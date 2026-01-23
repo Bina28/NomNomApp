@@ -27,7 +27,7 @@ public class FindRecipesByNutrientsHandler
             return Result<List<FindRecipesByNutrientsResponse>>
                 .Fail("External API returned no data");
 
-        var apiIds = results.Select(x => x.Id);
+        var apiIds = results.Select(x => x.Id).ToList();
 
         var existingIds = await _context.Recipes
             .Where(r => apiIds.Contains(r.Id))

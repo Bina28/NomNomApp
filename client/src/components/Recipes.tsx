@@ -12,7 +12,7 @@ export default function Recipes() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     axios
-      .get(`${api}/recipe/search?numberOfCalories=${calories}&number=5`)
+      .get(`${api}/recipe/search?calories=${calories}&number=5`)
       .then((res) => setRecipes(res.data));
   };
 

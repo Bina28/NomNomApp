@@ -41,7 +41,7 @@ public class SaveRecipeHandler : ISaveRecipeHandler
         foreach (var original in distinctIngredients)
         {
             var ingredient = _context.Ingredients.Local.FirstOrDefault(x => string.Equals(x.Original, original, StringComparison.OrdinalIgnoreCase))
-                ?? await _context.Ingredients.FirstOrDefaultAsync(x => string.Equals(x.Original, original, StringComparison.OrdinalIgnoreCase));
+                ?? await _context.Ingredients.FirstOrDefaultAsync(x => x.Original != null && x.Original.ToLower() == original!.ToLower());
 
             if (ingredient == null)
             {
