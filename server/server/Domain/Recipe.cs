@@ -1,4 +1,6 @@
-﻿namespace server.Domain;
+﻿using Server.Domain;
+
+namespace server.Domain;
 
 public class Recipe
 {
@@ -12,5 +14,6 @@ public class Recipe
 
     public List<Ingredient> ExtendedIngredients { get; set; } = [];
     public Photo? Photos { get; set; }
+    public List<Comment> Comments { get; set; } = [];
 
 }

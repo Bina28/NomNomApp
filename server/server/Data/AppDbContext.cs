@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using server.Domain;
+using Server.Domain;
 
 
 namespace server.Data;
@@ -14,6 +15,8 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<UserRecipe> UserRecipes { get; set; }
     public DbSet<UserRecipeIngredients> UserRecipeIngredients { get; set; }
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<Follow> Follows { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -1,4 +1,6 @@
-﻿namespace server.Domain;
+﻿using Server.Domain;
+
+namespace server.Domain;
 
 public class User
 {
@@ -6,4 +8,9 @@ public class User
     public required string UserName { get; set; }
     public required string Email { get; set; }
     public required string PasswordHash { get; set; }
+
+    //navigation properties
+    public List<Comment> Comments { get; set; } = [];
+    public List<Follow> Followers { get; set; } = [];
+    public List<Follow> Following { get; set; } = [];
 }
