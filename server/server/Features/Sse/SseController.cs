@@ -8,7 +8,12 @@ namespace Server.Features.Sse;
 [Route("api/[controller]")]
 public class SseController : ControllerBase
 {
-    private SetConnectionManager  _sseManager;
+    private readonly SetConnectionManager _sseManager;
+
+    public SseController(SetConnectionManager sseManager)
+    {
+        _sseManager = sseManager;
+    }
 
     [HttpGet("stream")]
     [Authorize]

@@ -1,16 +1,21 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using server.Data;
 using server.Features.Shared;
+using Server.Domain;
+using Server.Features.Comments.DTOs;
+using Server.Features.Sse;
 
 namespace Server.Features.Comments;
 
 public class CommentsHandler
 {
     private readonly AppDbContext _context;
-    public CommentsHandler(AppDbContext context)
+    private readonly SetConnectionManager _sseManager;
+
+    public CommentsHandler(AppDbContext context, SetConnectionManager sseManager)
     {
         _context = context;
+        _sseManager = sseManager;
     }
 
     public async Task<Result<bool>> DeleteComment(string id)
@@ -25,27 +30,56 @@ public class CommentsHandler
         return Result<bool>.Ok(true);
     }
 
-    public async Result<> GetCommentsForRecipe(int recipeId)
+    public async Task<Result<List<Comment>>> GetCommentsForRecipe(int recipeId)
     {
         var comments = await _context.Comments
-             .Where(c => c.RecipeId == recipeId)
-             .ToListAsync();
-        if (comments == null || comments.Count == 0)
+            .Include(c => c.User)
+            .Where(c => c.RecipeId == recipeId)
+            .OrderByDescending(c => c.CreatedAt)
+            .ToListAsync();
+
+        return Result<List<Comment>>.Ok(comments);
+    }
+
+    public async Task<Result<double>> GetCommentsScore(int recipeId)
+    {
+        var comments = await _context.Comments
+            .Where(c => c.RecipeId == recipeId)
+            .ToListAsync();
+
+        if (comments.Count == 0)
         {
-            return Result<>.Fail("No comments found for this recipe");
+            return Result<double>.Ok(0);
         }
 
-
-        return Result<>.Ok();
+        var averageScore = comments.Average(c => c.Score);
+        return Result<double>.Ok(averageScore);
     }
 
-    public async Result<> GetCommentsScore(int recipeId)
+    public async Task<Result<Comment>> PostComment(CreateCommentRequest request, string userId)
     {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return Result<Comment>.Fail("User not found");
+        }
 
-    }
+        if (!int.TryParse(request.RecipeId, out var recipeId))
+        {
+            return Result<Comment>.Fail("Invalid recipe ID");
+        }
 
-    public async Result<> PostComment()
-    {
+        var comment = new Comment
+        {
+            Text = request.Text,
+            Score = request.Score,
+            UserId = userId,
+            RecipeId = recipeId
+        };
+
+        _context.Comments.Add(comment);
+        await _context.SaveChangesAsync();
+
         await _sseManager.BroadcastToRecipeViewers(comment.RecipeId, "new_comment", new
         {
             commentId = comment.Id,
@@ -55,5 +89,7 @@ public class CommentsHandler
             score = comment.Score,
             createdAt = comment.CreatedAt
         });
+
+        return Result<Comment>.Ok(comment);
     }
 }
