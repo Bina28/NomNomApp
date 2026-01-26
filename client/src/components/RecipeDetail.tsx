@@ -1,25 +1,26 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import {  Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import { useParams } from "react-router-dom";
+import Comments from "./Comments";
 
-export default function RecipeDetial() {
+export default function RecipeDetail() {
   const [recipe, setRecipe] = useState<Recipe>();
   const { id } = useParams();
   const api = import.meta.env.VITE_API_URL;
 
-useEffect(() => {
-  const fetchRecipe = async () => {
-    try {
-      const res = await axios.get(`${api}/recipe/${id}`);
-      setRecipe(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  useEffect(() => {
+    const fetchRecipe = async () => {
+      try {
+        const res = await axios.get(`${api}/recipe/${id}`);
+        setRecipe(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-  fetchRecipe();
-}, [id, api]);
+    fetchRecipe();
+  }, [id, api]);
 
   return (
     <Container className="py-4">
@@ -70,6 +71,8 @@ useEffect(() => {
               </div>
             </div>
           </div>
+
+          {id && <Comments recipeId={parseInt(id)} />}
         </Col>
       </Row>
     </Container>

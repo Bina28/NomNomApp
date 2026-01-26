@@ -27,16 +27,14 @@ function BasicExample() {
           <Nav>
             {isLoggedIn ? (
               <NavDropdown title={user?.userName || 'Konto'} id="basic-nav-dropdown" align="end">
-                <NavDropdown.Item as={Link} to="/userPage">Min profil</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">Mine oppskrifter</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">Favoritter</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/user">Min profil</NavDropdown.Item>
                 <NavDropdown.Divider />
                 <NavDropdown.Item onClick={handleLogout}>Logg ut</NavDropdown.Item>
               </NavDropdown>
             ) : (
               <NavDropdown title="Konto" id="basic-nav-dropdown" align="end">
                 <NavDropdown.Item as={Link} to="/login">Logg inn</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/signUp">Registrer deg</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/signup">Registrer deg</NavDropdown.Item>
               </NavDropdown>
             )}
           </Nav>
