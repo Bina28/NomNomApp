@@ -219,3 +219,171 @@ body {
   text-decoration: underline;
 }
 
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, var(--dark-color), #590d22);
+  color: white;
+  padding: 6rem 0;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  opacity: 0.9;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-btn-primary {
+  padding: 12px 32px;
+  font-weight: 600;
+}
+
+.hero-btn-secondary {
+  padding: 12px 32px;
+  font-weight: 600;
+  border-width: 2px;
+}
+
+.hero-btn-secondary:hover {
+  background: white;
+  color: var(--dark-color);
+}
+
+/* Features Section */
+.features-section {
+  padding: 4rem 0;
+  background: var(--card-bg);
+}
+
+.feature-card {
+  background: var(--light-bg);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  height: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.feature-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.feature-description {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: 0;
+}
+
+/* Popular Section */
+.popular-section {
+  padding: 4rem 0;
+  background: var(--light-bg);
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* CTA Section */
+.cta-section {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.cta-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.cta-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 1.5rem;
+}
+
+.cta-btn {
+  background: white;
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 12px 32px;
+  border: none;
+}
+
+.cta-btn:hover {
+  background: var(--light-bg);
+  color: var(--primary-hover);
+}
+
+/* Create Recipe Card */
+.create-recipe-card {
+  background: var(--card-bg);
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+}
+
+.create-recipe-card .form-label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Responsive Hero */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 4rem 0;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .cta-title {
+    font-size: 1.5rem;
+  }
+}
+

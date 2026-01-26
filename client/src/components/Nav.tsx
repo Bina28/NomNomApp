@@ -22,7 +22,7 @@ function BasicExample() {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/recipes">Oppskrifter</Nav.Link>
-            <Nav.Link>Lag oppskrift</Nav.Link>
+            <Nav.Link as={Link} to="/create-recipe">Lag oppskrift</Nav.Link>
           </Nav>
           <Nav>
             {isLoggedIn ? (
