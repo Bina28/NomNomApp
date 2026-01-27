@@ -76,8 +76,8 @@ public class AuthController : ControllerBase
         return new CookieOptions
         {
             HttpOnly = true,
-            Secure = false,
-            SameSite = SameSiteMode.Lax,
+            Secure = true,  // Требуется для HTTPS
+            SameSite = SameSiteMode.None,  // Позволяет cross-origin cookies
             Expires = DateTimeOffset.UtcNow.AddMinutes(15)
         };
     }

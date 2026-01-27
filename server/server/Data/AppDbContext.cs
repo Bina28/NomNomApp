@@ -33,6 +33,19 @@ public class AppDbContext : DbContext
         .HasForeignKey(i => i.RecipeId)
         .OnDelete(DeleteBehavior.Cascade);
 
+        // Configure Follow relationships - User can have many followers and follow many users
+        modelBuilder.Entity<Follow>()
+            .HasOne(f => f.Follower)
+            .WithMany(u => u.Following)
+            .HasForeignKey(f => f.FollowerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Follow>()
+            .HasOne(f => f.Following)
+            .WithMany(u => u.Followers)
+            .HasForeignKey(f => f.FollowingId)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 
 }
