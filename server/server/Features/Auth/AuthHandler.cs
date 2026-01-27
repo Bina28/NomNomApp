@@ -73,4 +73,18 @@ public class AuthHandler
     });
 }
 
+    public async Task<Result<List<UserDto>>> GetAllUsersAsync(string? currentUserId)
+    {
+        var users = await _context.Users
+            .Where(u => u.Id != currentUserId)
+            .Select(u => new UserDto
+            {
+                Id = u.Id,
+                Email = u.Email,
+                UserName = u.UserName
+            })
+            .ToListAsync();
+
+        return Result<List<UserDto>>.Ok(users);
+    }
 }

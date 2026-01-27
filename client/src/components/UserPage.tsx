@@ -12,16 +12,24 @@ type FollowUser = {
   following?: { userName: string };
 };
 
+type UserType = {
+  id: string;
+  userName: string;
+  email: string;
+};
+
 export default function UserPage() {
   const { user, isLoggedIn, isLoading } = useAuth();
   const [followers, setFollowers] = useState<FollowUser[]>([]);
   const [following, setFollowing] = useState<FollowUser[]>([]);
+  const [allUsers, setAllUsers] = useState<UserType[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isLoggedIn) {
       fetchFollowers();
       fetchFollowing();
+      fetchAllUsers();
     }
   }, [isLoggedIn]);
 
@@ -43,13 +51,37 @@ export default function UserPage() {
     }
   };
 
+  const fetchAllUsers = async () => {
+    try {
+      const res = await agent.get("/auth/users");
+      setAllUsers(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleFollow = async (userId: string) => {
+    try {
+      await agent.post(`/follows/${userId}`);
+      fetchFollowing();
+      fetchAllUsers();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const handleUnfollow = async (userId: string) => {
     try {
       await agent.delete(`/follows/${userId}`);
       fetchFollowing();
+      fetchAllUsers();
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const isFollowingUser = (userId: string) => {
+    return following.some((f) => f.followingId === userId);
   };
 
   if (isLoading) {
@@ -143,6 +175,41 @@ export default function UserPage() {
                             {f.follower?.userName?.charAt(0).toUpperCase()}
                           </div>
                           <span className="follow-name">{f.follower?.userName}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Tab>
+                <Tab eventKey="discover" title="Finn brukere">
+                  {allUsers.length === 0 ? (
+                    <p className="text-muted text-center py-4">
+                      Ingen andre brukere funnet
+                    </p>
+                  ) : (
+                    <div className="follow-list">
+                      {allUsers.map((u) => (
+                        <div key={u.id} className="follow-item">
+                          <div className="follow-avatar">
+                            {u.userName?.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="follow-name">{u.userName}</span>
+                          {isFollowingUser(u.id) ? (
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => handleUnfollow(u.id)}
+                            >
+                              Slutt å følge
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={() => handleFollow(u.id)}
+                            >
+                              Følg
+                            </Button>
+                          )}
                         </div>
                       ))}
                     </div>

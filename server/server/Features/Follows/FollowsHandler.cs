@@ -2,6 +2,7 @@
 using server.Data;
 using server.Features.Shared;
 using Server.Domain;
+using Server.Features.Follows.DTOs;
 using Server.Features.Sse;
 
 namespace Server.Features.Follows;
@@ -56,24 +57,38 @@ public class FollowsHandler
         return Result<bool>.Ok(true);
     }
 
-    public async Task<Result<List<Follow>>> GetFollowers(string userId)
+    public async Task<Result<List<FollowDto>>> GetFollowers(string userId)
     {
         var followers = await _context.Follows
             .Include(f => f.Follower)
             .Where(f => f.FollowingId == userId)
+            .Select(f => new FollowDto
+            {
+                Id = f.Id,
+                FollowerId = f.FollowerId,
+                FollowingId = f.FollowingId,
+                Follower = new UserInfo { UserName = f.Follower.UserName }
+            })
             .ToListAsync();
 
-        return Result<List<Follow>>.Ok(followers);
+        return Result<List<FollowDto>>.Ok(followers);
     }
 
-    public async Task<Result<List<Follow>>> GetFollowing(string userId)
+    public async Task<Result<List<FollowDto>>> GetFollowing(string userId)
     {
         var following = await _context.Follows
             .Include(f => f.Following)
             .Where(f => f.FollowerId == userId)
+            .Select(f => new FollowDto
+            {
+                Id = f.Id,
+                FollowerId = f.FollowerId,
+                FollowingId = f.FollowingId,
+                Following = new UserInfo { UserName = f.Following.UserName }
+            })
             .ToListAsync();
 
-        return Result<List<Follow>>.Ok(following);
+        return Result<List<FollowDto>>.Ok(following);
     }
 
     public async Task<Result<bool>> IsFollowing(string currentUserId, string targetUserId)

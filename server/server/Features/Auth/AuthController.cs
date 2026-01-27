@@ -63,6 +63,17 @@ public class AuthController : ControllerBase
             : Unauthorized();
     }
 
+    [HttpGet("users")]
+    [Authorize]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var result = await _service.GetAllUsersAsync(currentUserId);
+
+        return result.Success
+            ? Ok(result.Data)
+            : BadRequest(result.Error);
+    }
 
     [HttpPost("logout")]
     public IActionResult Logout()
