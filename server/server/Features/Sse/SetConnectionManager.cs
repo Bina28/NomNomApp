@@ -46,4 +46,12 @@ public class SetConnectionManager
             await SendEventAsync(userId, eventType, data);
         }
     }
+
+    public async Task BroadcastToAll(string eventType, object data)
+    {
+        foreach (var userId in _userConnections.Keys)
+        {
+            await SendEventAsync(userId, eventType, data);
+        }
+    }
 }

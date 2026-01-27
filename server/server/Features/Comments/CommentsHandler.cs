@@ -88,7 +88,7 @@ public class CommentsHandler
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync();
 
-        await _sseManager.BroadcastToRecipeViewers(comment.RecipeId, "new_comment", new
+        await _sseManager.BroadcastToAll("new_comment", new
         {
             commentId = comment.Id,
             recipeId = comment.RecipeId,

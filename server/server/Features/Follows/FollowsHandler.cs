@@ -45,13 +45,21 @@ public class FollowsHandler
             FollowingId = targetUserId
         };
 
+        var targetUser = await _context.Users.FindAsync(targetUserId);
+        if (targetUser == null)
+        {
+            return Result<bool>.Fail("Target user not found");
+        }
+
         _context.Follows.Add(follow);
         await _context.SaveChangesAsync();
 
-        await _sseManager.SendEventAsync(targetUserId, "new_follower", new
+        await _sseManager.BroadcastToAll("new_follow", new
         {
             followerId = currentUser.Id,
-            followerName = currentUser.UserName
+            followerName = currentUser.UserName,
+            followingId = targetUser.Id,
+            followingName = targetUser.UserName
         });
 
         return Result<bool>.Ok(true);
