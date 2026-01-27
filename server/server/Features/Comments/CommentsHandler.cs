@@ -30,15 +30,23 @@ public class CommentsHandler
         return Result<bool>.Ok(true);
     }
 
-    public async Task<Result<List<Comment>>> GetCommentsForRecipe(int recipeId)
+    public async Task<Result<List<CommentDto>>> GetCommentsForRecipe(int recipeId)
     {
         var comments = await _context.Comments
             .Include(c => c.User)
             .Where(c => c.RecipeId == recipeId)
             .OrderByDescending(c => c.CreatedAt)
+            .Select(c => new CommentDto(
+                c.Id,
+                c.Text,
+                c.Score,
+                c.CreatedAt,
+                c.User.UserName,
+                c.UserId
+            ))
             .ToListAsync();
 
-        return Result<List<Comment>>.Ok(comments);
+        return Result<List<CommentDto>>.Ok(comments);
     }
 
     public async Task<Result<double>> GetCommentsScore(int recipeId)
@@ -56,17 +64,17 @@ public class CommentsHandler
         return Result<double>.Ok(averageScore);
     }
 
-    public async Task<Result<Comment>> PostComment(CreateCommentRequest request, string userId)
+    public async Task<Result<CommentDto>> PostComment(CreateCommentRequest request, string userId)
     {
         var user = await _context.Users.FindAsync(userId);
         if (user == null)
         {
-            return Result<Comment>.Fail("User not found");
+            return Result<CommentDto>.Fail("User not found");
         }
 
         if (!int.TryParse(request.RecipeId, out var recipeId))
         {
-            return Result<Comment>.Fail("Invalid recipe ID");
+            return Result<CommentDto>.Fail("Invalid recipe ID");
         }
 
         var comment = new Comment
@@ -90,6 +98,15 @@ public class CommentsHandler
             createdAt = comment.CreatedAt
         });
 
-        return Result<Comment>.Ok(comment);
+        var commentDto = new CommentDto(
+            comment.Id,
+            comment.Text,
+            comment.Score,
+            comment.CreatedAt,
+            user.UserName,
+            comment.UserId
+        );
+
+        return Result<CommentDto>.Ok(commentDto);
     }
 }

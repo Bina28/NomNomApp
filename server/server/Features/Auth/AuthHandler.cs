@@ -60,7 +60,7 @@ public class AuthHandler
     if (string.IsNullOrEmpty(userId))
         return Result<UserDto>.Fail("Unauthorized");
 
-    var user = await _context.Users.FindAsync(Guid.Parse(userId));
+    var user = await _context.Users.FindAsync(userId);
 
     if (user == null)
         return Result<UserDto>.Fail("User not found");
