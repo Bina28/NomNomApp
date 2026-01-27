@@ -35,14 +35,4 @@ public class SseController : ControllerBase
             await Response.Body.FlushAsync(cancellationToken);
         }
     }
-
-    [HttpPost("viewing/{recipeId:int}")]
-    [Authorize]
-    public IActionResult SetViewingRecipe(int recipeId)
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        _sseManager.SetViewingRecipe(userId, recipeId);
-        return Ok();
-    }
-
 }
