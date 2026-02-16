@@ -87,7 +87,7 @@ export default function UserPage() {
   if (isLoading) {
     return (
       <Container className="py-5 text-center">
-        <p>Laster...</p>
+        <p>Loading...</p>
       </Container>
     );
   }
@@ -96,13 +96,13 @@ export default function UserPage() {
     return (
       <Container className="py-5">
         <Card className="auth-card mx-auto" style={{ maxWidth: "500px" }}>
-          <Card.Title>Logg inn for å se profilen din</Card.Title>
+          <Card.Title>Log in to view your profile</Card.Title>
           <div className="d-flex gap-2 justify-content-center mt-3">
             <Button variant="primary" onClick={() => navigate("/login")}>
-              Logg inn
+              Log In
             </Button>
             <Button variant="outline-secondary" onClick={() => navigate("/signup")}>
-              Registrer deg
+              Sign Up
             </Button>
           </div>
         </Card>
@@ -124,11 +124,11 @@ export default function UserPage() {
               <div className="user-stats d-flex justify-content-center gap-4 mt-3">
                 <div>
                   <strong>{followers.length}</strong>
-                  <span className="text-muted d-block">Følgere</span>
+                  <span className="text-muted d-block">Followers</span>
                 </div>
                 <div>
                   <strong>{following.length}</strong>
-                  <span className="text-muted d-block">Følger</span>
+                  <span className="text-muted d-block">Following</span>
                 </div>
               </div>
             </Card.Body>
@@ -137,10 +137,10 @@ export default function UserPage() {
           <Card className="user-content-card">
             <Card.Body>
               <Tabs defaultActiveKey="following" className="mb-3">
-                <Tab eventKey="following" title="Følger">
+                <Tab eventKey="following" title="Following">
                   {following.length === 0 ? (
                     <p className="text-muted text-center py-4">
-                      Du følger ingen ennå
+                      You're not following anyone yet
                     </p>
                   ) : (
                     <div className="follow-list">
@@ -155,17 +155,17 @@ export default function UserPage() {
                             size="sm"
                             onClick={() => handleUnfollow(f.followingId)}
                           >
-                            Slutt å følge
+                            Unfollow
                           </Button>
                         </div>
                       ))}
                     </div>
                   )}
                 </Tab>
-                <Tab eventKey="followers" title="Følgere">
+                <Tab eventKey="followers" title="Followers">
                   {followers.length === 0 ? (
                     <p className="text-muted text-center py-4">
-                      Ingen følger deg ennå
+                      No one is following you yet
                     </p>
                   ) : (
                     <div className="follow-list">
@@ -180,10 +180,10 @@ export default function UserPage() {
                     </div>
                   )}
                 </Tab>
-                <Tab eventKey="discover" title="Finn brukere">
+                <Tab eventKey="discover" title="Discover Users">
                   {allUsers.length === 0 ? (
                     <p className="text-muted text-center py-4">
-                      Ingen andre brukere funnet
+                      No other users found
                     </p>
                   ) : (
                     <div className="follow-list">
@@ -199,7 +199,7 @@ export default function UserPage() {
                               size="sm"
                               onClick={() => handleUnfollow(u.id)}
                             >
-                              Slutt å følge
+                              Unfollow
                             </Button>
                           ) : (
                             <Button
@@ -207,7 +207,7 @@ export default function UserPage() {
                               size="sm"
                               onClick={() => handleFollow(u.id)}
                             >
-                              Følg
+                              Follow
                             </Button>
                           )}
                         </div>
@@ -224,7 +224,7 @@ export default function UserPage() {
               variant="primary"
               onClick={() => navigate("/create-recipe")}
             >
-              Lag ny oppskrift
+              Create New Recipe
             </Button>
           </div>
         </Col>

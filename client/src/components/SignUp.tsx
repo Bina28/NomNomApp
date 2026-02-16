@@ -39,49 +39,49 @@ export default function SignUp() {
     <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
       <Card className="auth-card mx-3" style={{ maxWidth: "420px", width: "100%" }}>
         <Card.Body>
-          <Card.Title>Opprett konto</Card.Title>
-          <p className="text-center text-muted mb-4">Bli med i NomNom i dag</p>
+          <Card.Title>Create Account</Card.Title>
+          <p className="text-center text-muted mb-4">Join NomNom today</p>
 
           {error && <Alert variant="danger">{error}</Alert>}
 
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="userName">
-              <Form.Label>Brukernavn</Form.Label>
+              <Form.Label>Username</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Velg et brukernavn"
+                placeholder="Choose a username"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
               />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formEmail">
-              <Form.Label>E-postadresse</Form.Label>
+              <Form.Label>Email Address</Form.Label>
               <Form.Control
                 type="email"
-                placeholder="din@epost.no"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </Form.Group>
 
             <Form.Group className="mb-4" controlId="formPassword">
-              <Form.Label>Passord</Form.Label>
+              <Form.Label>Password</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="Lag et sterkt passord"
+                placeholder="Create a strong password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </Form.Group>
 
             <Button variant="primary" type="submit" className="w-100 mb-3">
-              Registrer deg
+              Sign Up
             </Button>
 
             <p className="text-center mb-0">
-              Har du allerede konto?{" "}
-              <a href="/login" className="auth-link">Logg inn</a>
+              Already have an account?{" "}
+              <a href="/login" className="auth-link">Log In</a>
             </p>
           </Form>
         </Card.Body>

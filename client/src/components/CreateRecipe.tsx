@@ -44,7 +44,7 @@ export default function CreateRecipe() {
     setError("");
 
     if (!title.trim()) {
-      setError("Vennligst fyll inn tittel");
+      setError("Please enter a title");
       return;
     }
 
@@ -53,7 +53,7 @@ export default function CreateRecipe() {
     );
 
     if (validIngredients.length === 0) {
-      setError("Legg til minst én ingrediens med navn og mengde");
+      setError("Add at least one ingredient with name and amount");
       return;
     }
 
@@ -66,7 +66,7 @@ export default function CreateRecipe() {
       });
       navigate("/user");
     } catch (err: any) {
-      setError(err.response?.data || "Kunne ikke opprette oppskrift");
+      setError(err.response?.data || "Could not create recipe");
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +75,7 @@ export default function CreateRecipe() {
   if (isLoading) {
     return (
       <Container className="py-5 text-center">
-        <p>Laster...</p>
+        <p>Loading...</p>
       </Container>
     );
   }
@@ -84,16 +84,16 @@ export default function CreateRecipe() {
     return (
       <Container className="py-5">
         <Card className="auth-card mx-auto" style={{ maxWidth: "500px" }}>
-          <Card.Title>Logg inn for å opprette oppskrift</Card.Title>
+          <Card.Title>Log in to create a recipe</Card.Title>
           <p className="text-center text-muted mb-4">
-            Du må være logget inn for å lage egne oppskrifter
+            You need to be logged in to create your own recipes
           </p>
           <div className="d-flex gap-2 justify-content-center">
             <Button variant="primary" onClick={() => navigate("/login")}>
-              Logg inn
+              Log In
             </Button>
             <Button variant="outline-secondary" onClick={() => navigate("/signup")}>
-              Registrer deg
+              Sign Up
             </Button>
           </div>
         </Card>
@@ -103,7 +103,7 @@ export default function CreateRecipe() {
 
   return (
     <Container className="py-4">
-      <h1 className="page-title text-center mb-4">Lag din egen oppskrift</h1>
+      <h1 className="page-title text-center mb-4">Create Your Own Recipe</h1>
 
       <Card className="create-recipe-card mx-auto" style={{ maxWidth: "700px" }}>
         <Card.Body className="p-4">
@@ -111,23 +111,23 @@ export default function CreateRecipe() {
 
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-4">
-              <Form.Label>Tittel på oppskrift</Form.Label>
+              <Form.Label>Recipe Title</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="F.eks. Bestemors kjøttkaker"
+                placeholder="E.g. Grandma's Meatballs"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </Form.Group>
 
             <div className="mb-4">
-              <Form.Label>Ingredienser</Form.Label>
+              <Form.Label>Ingredients</Form.Label>
               {ingredients.map((ingredient, index) => (
                 <Row key={index} className="g-2 mb-2 align-items-center">
                   <Col xs={5}>
                     <Form.Control
                       type="text"
-                      placeholder="Ingrediens"
+                      placeholder="Ingredient"
                       value={ingredient.name}
                       onChange={(e) =>
                         handleIngredientChange(index, "name", e.target.value)
@@ -137,7 +137,7 @@ export default function CreateRecipe() {
                   <Col xs={4}>
                     <Form.Control
                       type="text"
-                      placeholder="Mengde"
+                      placeholder="Amount"
                       value={ingredient.amount}
                       onChange={(e) =>
                         handleIngredientChange(index, "amount", e.target.value)
@@ -152,7 +152,7 @@ export default function CreateRecipe() {
                       onClick={() => handleRemoveIngredient(index)}
                       disabled={ingredients.length === 1}
                     >
-                      Fjern
+                      Remove
                     </Button>
                   </Col>
                 </Row>
@@ -163,20 +163,20 @@ export default function CreateRecipe() {
                 className="mt-2"
                 onClick={handleAddIngredient}
               >
-                + Legg til ingrediens
+                + Add Ingredient
               </Button>
             </div>
 
             <div className="d-grid gap-2">
               <Button variant="primary" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Oppretter..." : "Opprett oppskrift"}
+                {isSubmitting ? "Creating..." : "Create Recipe"}
               </Button>
               <Button
                 variant="outline-secondary"
                 onClick={() => navigate(-1)}
                 disabled={isSubmitting}
               >
-                Avbryt
+                Cancel
               </Button>
             </div>
           </Form>

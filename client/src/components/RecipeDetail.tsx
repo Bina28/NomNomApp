@@ -51,7 +51,7 @@ export default function RecipeDetail() {
 
               <div className="mb-4">
                 <h2 style={{ color: "var(--primary-color)", fontWeight: 600, fontSize: "1.1rem" }} className="mb-2">
-                  Ingredienser
+                  Ingredients
                 </h2>
                 <ul style={{ paddingLeft: "1.25rem", fontSize: "0.95rem" }}>
                   {recipe?.extendedIngredients.map((ing, index) => (
@@ -62,7 +62,7 @@ export default function RecipeDetail() {
 
               <div>
                 <h2 style={{ color: "var(--primary-color)", fontWeight: 600, fontSize: "1.1rem" }} className="mb-2">
-                  Instruksjoner
+                  Instructions
                 </h2>
                 <div
                   style={{ fontSize: "0.95rem" }}

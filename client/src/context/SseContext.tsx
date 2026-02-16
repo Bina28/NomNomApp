@@ -34,14 +34,14 @@ export function SseProvider({ children }: { children: ReactNode }) {
   useSse({
     onNewFollow: (data) => {
       addNotification(
-        "Ny følger!",
-        `${data.followerName} begynte å følge ${data.followingName}`,
+        "New Follower!",
+        `${data.followerName} started following ${data.followingName}`,
         "follow"
       );
     },
     onNewComment: (data) => {
       addNotification(
-        "Ny kommentar!",
+        "New Comment!",
         `${data.userName}: "${data.text}"`,
         "comment"
       );

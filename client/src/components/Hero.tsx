@@ -43,9 +43,9 @@ export default function Hero() {
       {/* Hero Section */}
       <section className="hero-section">
         <Container>
-          <h1 className="hero-title">Oppdag Nye Smaker</h1>
+          <h1 className="hero-title">Discover New Flavors</h1>
           <p className="hero-subtitle">
-            Finn perfekte oppskrifter basert på dine preferanser
+            Find the perfect recipes based on your preferences
           </p>
           <div className="hero-buttons">
             <Button
@@ -54,7 +54,7 @@ export default function Hero() {
               className="hero-btn-primary"
               onClick={() => navigate("/recipes")}
             >
-              Utforsk oppskrifter
+              Explore Recipes
             </Button>
             {!isLoggedIn && (
               <Button
@@ -63,7 +63,7 @@ export default function Hero() {
                 className="hero-btn-secondary"
                 onClick={() => navigate("/signup")}
               >
-                Registrer deg
+                Sign Up
               </Button>
             )}
           </div>
@@ -77,22 +77,22 @@ export default function Hero() {
             <Col md={4}>
               <FeatureCard
                 icon="🔍"
-                title="Søk enkelt"
-                description="Finn oppskrifter basert på kalorier og ingredienser"
+                title="Easy Search"
+                description="Find recipes based on calories and ingredients"
               />
             </Col>
             <Col md={4}>
               <FeatureCard
                 icon="⭐"
-                title="Vurder oppskrifter"
-                description="Gi stjerner fra 1-5 og del din mening"
+                title="Rate Recipes"
+                description="Give 1-5 stars and share your opinion"
               />
             </Col>
             <Col md={4}>
               <FeatureCard
                 icon="👥"
-                title="Følg andre"
-                description="Følg andre brukere og se hva de lager"
+                title="Follow Others"
+                description="Follow other users and see what they make"
               />
             </Col>
           </Row>
@@ -102,7 +102,7 @@ export default function Hero() {
       {/* Popular Recipes Section */}
       <section className="popular-section">
         <Container>
-          <h2 className="section-title">Populære oppskrifter</h2>
+          <h2 className="section-title">Popular Recipes</h2>
           <Row className="g-4">
             {popularRecipes.map((recipe) => (
               <Col xs={6} md={3} key={recipe.id}>
@@ -118,7 +118,7 @@ export default function Hero() {
                       className="mt-2"
                       onClick={() => navigate(`/recipe/${recipe.id}`)}
                     >
-                      Se oppskrift
+                      View Recipe
                     </Button>
                   </Card.Body>
                 </Card>
@@ -131,9 +131,9 @@ export default function Hero() {
       {/* CTA Section */}
       <section className="cta-section">
         <Container>
-          <h2 className="cta-title">Klar til å lage noe godt?</h2>
+          <h2 className="cta-title">Ready to cook something delicious?</h2>
           <p className="cta-subtitle">
-            Bli med i fellesskapet og oppdag tusenvis av oppskrifter
+            Join the community and discover thousands of recipes
           </p>
           <Button
             variant="light"
@@ -141,7 +141,7 @@ export default function Hero() {
             className="cta-btn"
             onClick={() => navigate(isLoggedIn ? "/recipes" : "/signup")}
           >
-            {isLoggedIn ? "Finn oppskrifter" : "Kom i gang gratis"}
+            {isLoggedIn ? "Find Recipes" : "Get Started for Free"}
           </Button>
         </Container>
       </section>
