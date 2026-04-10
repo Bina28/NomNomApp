@@ -22,7 +22,7 @@ public class SseController : ControllerBase
 
         Response.Headers.Append("Content-Type", "text/event-stream");
         Response.Headers.Append("Cache-Control", "no-cache");
-        Response.Headers.Append("Connection", "keep-alive");
+ 
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         _sseManager.AddConnection(userId, Response);

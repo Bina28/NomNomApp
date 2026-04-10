@@ -18,21 +18,21 @@ export default function Recipes() {
 
   return (
     <Container className="py-4">
-      <h1 className="page-title text-center mb-4">Finn oppskrifter</h1>
+      <h1 className="page-title text-center mb-4">Find Recipes</h1>
 
       <div className="search-form mx-auto" style={{ maxWidth: "500px" }}>
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
-            <Form.Label>Minimum kalorier</Form.Label>
+            <Form.Label>Minimum Calories</Form.Label>
             <Form.Control
               type="number"
-              placeholder="F.eks. 200"
+              placeholder="E.g. 200"
               value={calories}
               onChange={(e) => setCalories(e.target.value)}
             />
           </Form.Group>
           <Button variant="primary" type="submit" className="w-100">
-            Søk etter oppskrifter
+            Search Recipes
           </Button>
         </Form>
       </div>
@@ -52,7 +52,7 @@ export default function Recipes() {
                   className="mt-2"
                   onClick={() => navigate(`/recipe/${recipe.id}`)}
                 >
-                  Se oppskrift
+                  View Recipe
                 </Button>
               </Card.Body>
             </Card>

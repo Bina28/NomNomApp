@@ -22,10 +22,24 @@ public class SetConnectionManager
         var json = JsonSerializer.Serialize(data);
         var message = $"event: {eventType}\ndata: {json}\n\n";
 
-        foreach (var user in _userConnections.Values)
+        var deadConnections = new List<string>();
+
+        foreach (var (userId, response) in _userConnections)
         {
-            await user.WriteAsync(message);
-            await user.Body.FlushAsync();
+            try
+            {
+                await response.WriteAsync(message);
+                await response.Body.FlushAsync();
+            }
+            catch
+            {
+                deadConnections.Add(userId);
+            }
+        }
+
+        foreach (var userId in deadConnections)
+        {
+            _userConnections.TryRemove(userId, out _);
         }
     }
 }

@@ -21,20 +21,20 @@ function BasicExample() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/recipes">Oppskrifter</Nav.Link>
-            <Nav.Link as={Link} to="/create-recipe">Lag oppskrift</Nav.Link>
+            <Nav.Link as={Link} to="/recipes">Recipes</Nav.Link>
+            <Nav.Link as={Link} to="/create-recipe">Create Recipe</Nav.Link>
           </Nav>
           <Nav>
             {isLoggedIn ? (
-              <NavDropdown title={user?.userName || 'Konto'} id="basic-nav-dropdown" align="end">
-                <NavDropdown.Item as={Link} to="/user">Min profil</NavDropdown.Item>
+              <NavDropdown title={user?.userName || 'Account'} id="basic-nav-dropdown" align="end">
+                <NavDropdown.Item as={Link} to="/user">My Profile</NavDropdown.Item>
                 <NavDropdown.Divider />
-                <NavDropdown.Item onClick={handleLogout}>Logg ut</NavDropdown.Item>
+                <NavDropdown.Item onClick={handleLogout}>Log Out</NavDropdown.Item>
               </NavDropdown>
             ) : (
-              <NavDropdown title="Konto" id="basic-nav-dropdown" align="end">
-                <NavDropdown.Item as={Link} to="/login">Logg inn</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/signup">Registrer deg</NavDropdown.Item>
+              <NavDropdown title="Account" id="basic-nav-dropdown" align="end">
+                <NavDropdown.Item as={Link} to="/login">Log In</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/signup">Sign Up</NavDropdown.Item>
               </NavDropdown>
             )}
           </Nav>

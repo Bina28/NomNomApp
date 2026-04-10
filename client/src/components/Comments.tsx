@@ -66,7 +66,7 @@ export default function Comments({ recipeId }: CommentsProps) {
       fetchComments();
       fetchAverageScore();
     } catch (err: any) {
-      setError(err.response?.data || "Kunne ikke legge til kommentar");
+      setError(err.response?.data || "Could not add comment");
     } finally {
       setIsSubmitting(false);
     }
@@ -83,7 +83,7 @@ export default function Comments({ recipeId }: CommentsProps) {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("nb-NO", {
+    return new Date(dateString).toLocaleDateString("en-US", {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -97,7 +97,7 @@ export default function Comments({ recipeId }: CommentsProps) {
   return (
     <div className="comments-section">
       <div className="comments-header">
-        <h3>Vurderinger og kommentarer</h3>
+        <h3>Ratings and Comments</h3>
         {averageScore !== null && averageScore > 0 && (
           <div className="average-score">
             <span className="stars">{renderStars(Math.round(averageScore))}</span>
@@ -110,7 +110,7 @@ export default function Comments({ recipeId }: CommentsProps) {
         <Form onSubmit={handleSubmit} className="comment-form">
           {error && <Alert variant="danger">{error}</Alert>}
           <Form.Group className="mb-3">
-            <Form.Label>Din vurdering</Form.Label>
+            <Form.Label>Your Rating</Form.Label>
             <div className="star-rating">
               {[1, 2, 3, 4, 5].map((star) => (
                 <span
@@ -124,28 +124,28 @@ export default function Comments({ recipeId }: CommentsProps) {
             </div>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Kommentar</Form.Label>
+            <Form.Label>Comment</Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
-              placeholder="Skriv din kommentar her..."
+              placeholder="Write your comment here..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
             />
           </Form.Group>
           <Button variant="primary" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Sender..." : "Legg til kommentar"}
+            {isSubmitting ? "Submitting..." : "Add Comment"}
           </Button>
         </Form>
       ) : (
         <p className="login-prompt">
-          <a href="/login">Logg inn</a> for å legge til en kommentar
+          <a href="/login">Log in</a> to add a comment
         </p>
       )}
 
       <div className="comments-list">
         {comments.length === 0 ? (
-          <p className="no-comments">Ingen kommentarer ennå. Vær den første!</p>
+          <p className="no-comments">No comments yet. Be the first!</p>
         ) : (
           comments.map((comment) => (
             <div key={comment.id} className="comment-card">
@@ -163,7 +163,7 @@ export default function Comments({ recipeId }: CommentsProps) {
                     className="delete-btn"
                     onClick={() => handleDelete(comment.id)}
                   >
-                    Slett
+                    Delete
                   </Button>
                 )}
               </div>
