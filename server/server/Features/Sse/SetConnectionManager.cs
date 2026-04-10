@@ -22,10 +22,10 @@ public class SetConnectionManager
         var json = JsonSerializer.Serialize(data);
         var message = $"event: {eventType}\ndata: {json}\n\n";
 
-        foreach (var response in _userConnections.Values)
+        foreach (var user in _userConnections.Values)
         {
-            await response.WriteAsync(message);
-            await response.Body.FlushAsync();
+            await user.WriteAsync(message);
+            await user.Body.FlushAsync();
         }
     }
 }
