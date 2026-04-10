@@ -15,6 +15,7 @@ using Server.Features.Recipes.Infrastructure.Photo.CloudinaryPhoto;
 using Server.Features.Recipes.Infrastructure.Recipes.Spoonacular;
 using Server.Features.Recipes.SaveRecipe;
 using Server.Features.Sse;
+using Server.Middleware;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -99,6 +100,8 @@ builder.Host.UseSerilog((context, services, configuration) =>
 
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

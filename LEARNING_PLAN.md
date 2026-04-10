@@ -313,22 +313,272 @@ jobs:
 
 ---
 
+## Phase 7: Bug Fixes og Code Quality
+
+### 7.1 Fiks SSE memory leak og race condition
+**Filer:** `Features/Sse/SseController.cs`, `Features/Sse/SetConnectionManager.cs`
+
+**Problemer:**
+1. Når klient kobler fra, fjernes ALDRI tilkoblingen fra dictionary → memory leak
+2. Hvis `userId` er null, skrives alle uautentiserte brukere til samme nøkkel
+3. Ingen synkronisering mellom Add/Remove/Broadcast → race condition
+
+**Steg:**
+1. I `SseController.cs` — legg til sjekk øverst:
+   ```csharp
+   if (string.IsNullOrEmpty(userId))
+       return Unauthorized();
+   ```
+2. Wrap SSE-loopen i try/finally:
+   ```csharp
+   try
+   {
+       while (!HttpContext.RequestAborted.IsCancellationRequested)
+       {
+           await Task.Delay(30000, HttpContext.RequestAborted);
+           await Response.WriteAsync("event: ping\ndata: {}\n\n", HttpContext.RequestAborted);
+           await Response.Body.FlushAsync(HttpContext.RequestAborted);
+       }
+   }
+   finally
+   {
+       _sseManager.RemoveConnection(userId);
+   }
+   ```
+3. I `SetConnectionManager.cs` — bruk `ConcurrentDictionary` istedenfor vanlig `Dictionary`, eller legg til `SemaphoreSlim` for async-safe locking
+
+**Læringsmål:** Concurrency, thread safety, `ConcurrentDictionary`, resource cleanup
+
+---
+
+### 7.2 Fiks Spoonacular API-nøkkel i URL
+**Fil:** `Features/Recipes/Infrastructure/Recipes/Spoonacular/SpoonacularRecipeProvider.cs`
+
+**Problem:** API-nøkkel sendes som query parameter `?apiKey={_apiKey}`. Dette havner i server-logger, proxyer og browser history.
+
+**Steg:**
+1. Fjern `?apiKey={_apiKey}` fra URL-ene
+2. Sett headeren i HttpClient-konfigurasjonen (i `ServiceCollectionExtensions` eller der HttpClient registreres):
+   ```csharp
+   _client.DefaultRequestHeaders.Add("x-api-key", _apiKey);
+   ```
+3. Oppdater alle kall til å bruke URL uten apiKey
+
+**Læringsmål:** API security, HTTP headers vs query params
+
+---
+
+### 7.3 Legg til CancellationToken i alle handlers
+**Filer:** Alle handler-klasser
+
+**Problem:** Ingen handler tar imot `CancellationToken`. Hvis klienten avbryter requesten, fortsetter DB-operasjonen i bakgrunnen.
+
+**Steg:**
+1. Legg til `CancellationToken ct = default` som siste parameter i alle async-metoder i handlers
+2. Send `ct` videre til alle async-kall:
+   ```csharp
+   await _context.SaveChangesAsync(ct);
+   await _context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+   await _context.Comments.ToListAsync(ct);
+   ```
+3. I kontrollere — pass `HttpContext.RequestAborted`:
+   ```csharp
+   var result = await _handler.LoginAsync(request, HttpContext.RequestAborted);
+   ```
+
+**Læringsmål:** Cancellation i async/await, graceful shutdown, resource management
+
+---
+
+### 7.4 Fiks typo: GenereateToken → GenerateToken
+**Fil:** `Features/Auth/JwtService.cs`
+
+**Steg:**
+1. Rename metoden `GenereateToken` → `GenerateToken`
+2. Oppdater alle steder som kaller den:
+   - `AuthHandler.cs` linje 35 og 54
+
+**Læringsmål:** Rename refactoring (bruk IDE-verktøy!)
+
+---
+
+### 7.5 Legg til Id i RecipeResponse
+**Fil:** `Features/Recipes/GetRecipeById/RecipeResponse.cs`
+
+**Problem:** Response mangler `Id`-feltet. Klienten kan ikke referere til oppskriften etterpå.
+
+**Steg:**
+1. Legg til `int Id` som første property i `RecipeResponse`
+2. Oppdater `RecipeMapper.ToResponse()` til å inkludere `Id`
+
+---
+
+### 7.6 Custom exception for Cloudinary
+**Fil:** `Features/Recipes/Infrastructure/Photo/CloudinaryPhoto/ClodinaryPhotoProvider.cs`
+
+**Problem:** `throw new Exception(...)` — generisk exception uten logging.
+
+**Steg:**
+1. Lag `PhotoUploadException.cs` i Infrastructure/Photo:
+   ```csharp
+   public class PhotoUploadException : Exception
+   {
+       public PhotoUploadException(string message) : base(message) { }
+   }
+   ```
+2. Inject `ILogger<ClodinaryPhotoProvider>` i provideren
+3. Bytt ut:
+   ```csharp
+   // FØR:
+   throw new Exception(uploadResult.Error.Message);
+   // ETTER:
+   _logger.LogError("Cloudinary upload failed: {Error}", uploadResult.Error.Message);
+   throw new PhotoUploadException($"Failed to upload image: {uploadResult.Error.Message}");
+   ```
+
+**Læringsmål:** Custom exceptions, typed error handling
+
+---
+
+### 7.7 Lag enhetlig ErrorResponse DTO
+**Problem:** Ulike kontrollere returnerer feil i ulike formater:
+- `AuthController`: `new { result.Error }` → `{ "error": "..." }`
+- `CommentsController`: `BadRequest(result.Error)` → bare en streng
+
+**Steg:**
+1. Lag `Features/Shared/ErrorResponse.cs`:
+   ```csharp
+   public record ErrorResponse(string Message, string? Details = null);
+   ```
+2. Oppdater alle kontrollere til å bruke:
+   ```csharp
+   return BadRequest(new ErrorResponse(result.Error));
+   return Unauthorized(new ErrorResponse(result.Error));
+   ```
+
+**Læringsmål:** Konsistent API-design, god DX for frontend
+
+---
+
+### 7.8 Standardiser namespaces
+**Problem:** Blanding av `server.` og `Server.` (stor/liten S) i namespaces gjennom prosjektet.
+
+**Steg:**
+1. Velg én konvensjon — anbefalt: `Server.` (PascalCase, standard C#-konvensjon)
+2. Gå gjennom alle filer i Domain/, Features/, Data/ og endre namespace
+3. Oppdater alle `using`-statements
+
+**Tips:** Bruk IDE "Rename Namespace" for å gjøre dette trygt.
+
+---
+
+### 7.9 RegisterMapper — bruk DI istedenfor `new`
+**Fil:** `Features/Auth/AuthHandler.cs` linje 48
+
+**Problem:** `var mapper = new RegisterMapper(_passwordHasher)` — manuell instansiering istedenfor Dependency Injection. Gjør det vanskelig å teste.
+
+**Steg:**
+1. Registrer `RegisterMapper` i `Program.cs`:
+   ```csharp
+   builder.Services.AddScoped<RegisterMapper>();
+   ```
+2. Inject i `AuthHandler` constructor:
+   ```csharp
+   public AuthHandler(JwtService service, AppDbContext context, PasswordHasher hasher, RegisterMapper mapper)
+   ```
+3. Bruk `_mapper.ToEntity(request)` istedenfor å lage ny instans
+
+**Læringsmål:** DI-prinsippet, testbarhet, løs kobling
+
+---
+
+### 7.10 Optimaliser FollowsHandler — to DB-kall til ett
+**Fil:** `Features/Follows/FollowsHandler.cs`
+
+**Problem:** To separate `FindAsync`-kall for `currentUser` og `targetUser` — to roundtrips til DB.
+
+**Steg:**
+1. Bytt ut:
+   ```csharp
+   var currentUser = await _context.Users.FindAsync(currentUserId);
+   var targetUser = await _context.Users.FindAsync(targetUserId);
+   ```
+   med:
+   ```csharp
+   var users = await _context.Users
+       .Where(u => u.Id == currentUserId || u.Id == targetUserId)
+       .ToListAsync();
+   var currentUser = users.FirstOrDefault(u => u.Id == currentUserId);
+   var targetUser = users.FirstOrDefault(u => u.Id == targetUserId);
+   ```
+2. Sjekk null for begge og returner passende feilmelding
+
+**Læringsmål:** Database roundtrip-optimalisering, batch queries
+
+---
+
+### 7.11 Legg til .AsNoTracking() på alle read-only queries
+**Filer:**
+- `AuthHandler.cs` → `GetAllUsersAsync`
+- `FollowsHandler.cs` → `GetFollowers`, `GetFollowing`, `CheckFollowStatus`
+- `CommentsHandler.cs` → `GetCommentsForRecipe`
+
+**Problem:** EF Core tracker alle leste entities. For read-only operasjoner kaster dette bort minne.
+
+**Steg:**
+1. Legg til `.AsNoTracking()` etter `_context.XXX` og før `.Where()`/`.Select()`:
+   ```csharp
+   var users = await _context.Users
+       .AsNoTracking()
+       .Where(u => u.Id != currentUserId)
+       .Select(...)
+       .ToListAsync();
+   ```
+
+**Læringsmål:** EF Core change tracking, performance
+
+---
+
 ## Sjekkliste — Track progress
 
-- [ ] **Phase 1.1** Exception Handling Middleware
-- [ ] **Phase 1.2** Request Logging Middleware
-- [ ] **Phase 1.3** Correlation ID Middleware
-- [ ] **Phase 2.1** AuthHandler tester (8 tester)
-- [ ] **Phase 2.2** CommentsHandler tester (8 tester)
-- [ ] **Phase 2.3** Integration-tester med WebApplicationFactory
-- [ ] **Phase 2.4** Frontend-tester (Vitest)
-- [ ] **Phase 3.1** Structured logging i alle handlers
-- [ ] **Phase 3.2** Serilog Enrichers
-- [ ] **Phase 4.1** Secrets til User Secrets
-- [ ] **Phase 4.2** Input Validation
-- [ ] **Phase 4.3** Rate Limiting
-- [ ] **Phase 5.1** Health Checks
-- [ ] **Phase 5.2** EF Core optimalisering + fiks GetCommentsScore bug
-- [ ] **Phase 5.3** Pagination
-- [ ] **Phase 5.4** Caching
-- [ ] **Phase 6.1** GitHub Actions CI pipeline
+### Phase 1: Middleware
+- [ ] **1.1** Exception Handling Middleware
+- [ ] **1.2** Request Logging Middleware
+- [ ] **1.3** Correlation ID Middleware
+
+### Phase 2: Tester
+- [ ] **2.1** AuthHandler tester (8 tester)
+- [ ] **2.2** CommentsHandler tester (8 tester)
+- [ ] **2.3** Integration-tester med WebApplicationFactory
+- [ ] **2.4** Frontend-tester (Vitest)
+
+### Phase 3: Logging
+- [ ] **3.1** Structured logging i alle handlers
+- [ ] **3.2** Serilog Enrichers
+
+### Phase 4: Sikkerhet
+- [ ] **4.1** Secrets til User Secrets
+- [ ] **4.2** Input Validation
+- [ ] **4.3** Rate Limiting
+
+### Phase 5: Optimalisering
+- [ ] **5.1** Health Checks
+- [ ] **5.2** EF Core optimalisering + fiks GetCommentsScore bug
+- [ ] **5.3** Pagination
+- [ ] **5.4** Caching
+
+### Phase 6: CI/CD
+- [ ] **6.1** GitHub Actions CI pipeline
+
+### Phase 7: Bug Fixes og Code Quality
+- [ ] **7.1** Fiks SSE memory leak og race condition
+- [ ] **7.2** Fiks Spoonacular API-nøkkel i URL
+- [ ] **7.3** Legg til CancellationToken i alle handlers
+- [ ] **7.4** Fiks typo: GenereateToken → GenerateToken
+- [ ] **7.5** Legg til Id i RecipeResponse
+- [ ] **7.6** Custom exception for Cloudinary
+- [ ] **7.7** Lag enhetlig ErrorResponse DTO
+- [ ] **7.8** Standardiser namespaces
+- [ ] **7.9** RegisterMapper — bruk DI
+- [ ] **7.10** Optimaliser FollowsHandler (2 DB-kall → 1)
+- [ ] **7.11** Legg til .AsNoTracking() på read-only queries
