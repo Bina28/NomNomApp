@@ -18,12 +18,13 @@ public class AuthController : ControllerBase
     }
 
 
+    // IActionResult: returnerer ingen data, bare setter cookie
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await _service.LoginAsync(request);
         if (!result.Success)
-            return Unauthorized(new { result.Error });
+            return Problem(detail: result.Error, statusCode: 401);
 
         Response.Cookies.Append(
             "access_token",
@@ -34,12 +35,13 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
+    // IActionResult: returnerer ingen data, bare setter cookie
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var result = await _service.RegisterAsync(request);
         if (!result.Success)
-            return BadRequest(new { result.Error });
+           return Problem(detail: result.Error, statusCode: 400);
 
         Response.Cookies.Append(
             "access_token",
@@ -50,6 +52,7 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
+    // TODO: bør være ActionResult<UserDto> for Swagger-støtte
     [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> Me()
@@ -60,9 +63,10 @@ public class AuthController : ControllerBase
 
         return result.Success
             ? Ok(result.Data)
-            : Unauthorized();
+            : Problem(detail: result.Error, statusCode: 401);
     }
 
+    // TODO: bør være ActionResult<List<UserDto>> for Swagger-støtte
     [HttpGet("users")]
     [Authorize]
     public async Task<IActionResult> GetAllUsers()
@@ -72,9 +76,10 @@ public class AuthController : ControllerBase
 
         return result.Success
             ? Ok(result.Data)
-            : BadRequest(result.Error);
+            : Problem(detail: result.Error, statusCode: 400);
     }
 
+    // IActionResult: returnerer ingen data, bare sletter cookie
     [HttpPost("logout")]
     public IActionResult Logout()
     {
@@ -87,11 +92,12 @@ public class AuthController : ControllerBase
         return new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,  // Требуется для HTTPS
-            SameSite = SameSiteMode.None,  // Позволяет cross-origin cookies
+            Secure = true, 
+            SameSite = SameSiteMode.None, 
             Expires = DateTimeOffset.UtcNow.AddMinutes(15)
         };
     }
+
 }
 
 

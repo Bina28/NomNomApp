@@ -18,18 +18,19 @@ public class RecipeController : ControllerBase
         _byNutrientsHandler = nutrientsHandler;
     }
 
+    // TODO: bør være ActionResult<RecipeResponse> for Swagger-støtte
     [HttpGet("{id}")]
     public async Task<IActionResult> GetRecipeById(int id)
     {
         var result = await _recipeByIdHandler.GetRecipeById(id);
-
-        return result.Success ? Ok(result.Data) : NotFound(result.Error);
+        return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 404);
     }
 
+    // TODO: bør være ActionResult<List<FindRecipesByNutrientsResponse>> for Swagger-støtte
     [HttpGet("search")]
     public async Task<IActionResult> FindRecipesByNutrients([FromQuery] FindRecipesByNutrientsRequest request)
     {
         var result = await _byNutrientsHandler.FindRecipesByNutrients(request);
-        return result.Success ? Ok(result.Data) : NotFound(result.Error);
+        return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 404);
     }
 }

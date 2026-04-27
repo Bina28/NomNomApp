@@ -539,6 +539,74 @@ jobs:
 
 ---
 
+## Phase 8: Vertical Slice Architecture (refaktorering)
+
+### 8.1 Split AuthHandler
+**Problem:** `AuthHandler.cs` håndterer 4 forskjellige operasjoner — bryter VSA-prinsippet om én slice per use case.
+
+**Ny struktur:**
+```
+Features/Auth/
+  Login/
+    LoginHandler.cs
+    LoginRequest.cs
+    LoginResponse.cs
+  Register/
+    RegisterHandler.cs
+    RegisterRequest.cs
+  GetCurrentUser/
+    GetCurrentUserHandler.cs
+    UserDto.cs
+  GetAllUsers/
+    GetAllUsersHandler.cs
+```
+
+**Steg:**
+1. Lag mapper for hver operasjon
+2. Flytt relevant kode fra `AuthHandler.cs` til ny handler
+3. Oppdater `AuthController.cs` til å bruke nye handlers via DI
+4. Slett `AuthHandler.cs` når alt er flyttet
+
+---
+
+### 8.2 Split CommentsHandler
+**Ny struktur:**
+```
+Features/Comments/
+  PostComment/
+    PostCommentHandler.cs
+    CreateCommentRequest.cs
+    CommentDto.cs
+  DeleteComment/
+    DeleteCommentHandler.cs
+  GetComments/
+    GetCommentsHandler.cs
+  GetCommentsScore/
+    GetCommentsScoreHandler.cs
+```
+
+---
+
+### 8.3 Split FollowsHandler
+**Ny struktur:**
+```
+Features/Follows/
+  Follow/
+    FollowHandler.cs
+  Unfollow/
+    UnfollowHandler.cs
+  GetFollowers/
+    GetFollowersHandler.cs
+  GetFollowing/
+    GetFollowingHandler.cs
+  CheckFollowStatus/
+    CheckFollowStatusHandler.cs
+```
+
+**Læringsmål:** Forstå VSA-prinsippet fullt ut, én handler = én operasjon, enklere testing og vedlikehold
+
+---
+
 ## Sjekkliste — Track progress
 
 ### Phase 1: Middleware
@@ -582,3 +650,8 @@ jobs:
 - [ ] **7.9** RegisterMapper — bruk DI
 - [ ] **7.10** Optimaliser FollowsHandler (2 DB-kall → 1)
 - [ ] **7.11** Legg til .AsNoTracking() på read-only queries
+
+### Phase 8: Vertical Slice Architecture (refaktorering)
+- [ ] **8.1** Split AuthHandler → Login/, Register/, GetCurrentUser/, GetAllUsers/
+- [ ] **8.2** Split CommentsHandler → PostComment/, DeleteComment/, GetComments/, GetCommentsScore/
+- [ ] **8.3** Split FollowsHandler → Follow/, Unfollow/, GetFollowers/, GetFollowing/, CheckFollowStatus/
