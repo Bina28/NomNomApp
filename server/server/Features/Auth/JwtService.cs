@@ -6,7 +6,7 @@ using System.Text;
 
 namespace server.Features.Auth;
 
-public class JwtService
+public class JwtService : IJwtService
 {
     private readonly JwtOptions _jwtOptions;
 

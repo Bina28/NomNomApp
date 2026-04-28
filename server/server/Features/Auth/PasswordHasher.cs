@@ -1,6 +1,6 @@
 ﻿namespace server.Features.Auth;
 
-public class PasswordHasher
+public class PasswordHasher : IPasswordHasher
 {
     public  string HashPassword(string password)
     {

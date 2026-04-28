@@ -6,9 +6,9 @@ namespace server.Features.Auth;
 
 public class RegisterMapper
 {
-    private readonly PasswordHasher _passwordHasher;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public RegisterMapper(PasswordHasher hasher)
+    public RegisterMapper(IPasswordHasher hasher)
     {
         _passwordHasher = hasher;
     }

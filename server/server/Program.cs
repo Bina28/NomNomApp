@@ -79,8 +79,8 @@ builder.Services.AddScoped<FindRecipesByNutrientsHandler>();
 builder.Services.AddSingleton<SetConnectionManager>();
 builder.Services.AddScoped<CommentsHandler>();
 builder.Services.AddScoped<FollowsHandler>();
-builder.Services.AddSingleton<PasswordHasher>();
-builder.Services.AddSingleton<JwtService>();
+builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddJwt();
 
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));

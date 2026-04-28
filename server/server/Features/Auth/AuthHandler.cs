@@ -8,11 +8,11 @@ namespace server.Features.Auth;
 
 public class AuthHandler
 {
-    private readonly JwtService _jwtService;
+    private readonly IJwtService _jwtService;
     private readonly AppDbContext _context;
-    private readonly PasswordHasher _passwordHasher;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public AuthHandler(JwtService service, AppDbContext context, PasswordHasher hasher)
+    public AuthHandler(IJwtService service, AppDbContext context, IPasswordHasher hasher)
     {
         _jwtService = service;
         _context = context;

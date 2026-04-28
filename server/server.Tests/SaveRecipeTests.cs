@@ -8,7 +8,7 @@ using Server.Features.Recipes.SaveRecipe;
 
 namespace Server.Tests;
 
-public class SaveRecipe
+public class SaveRecipeTests
 {
     [Fact]
     public async Task SaveRecipe_WhenRecipeHasIngredientsAndImage_ShouldSaveRecipeAndUploadImage()

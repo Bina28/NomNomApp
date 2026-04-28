@@ -8,7 +8,7 @@ using Server.Features.Recipes.SaveRecipe;
 
 namespace server.Tests;
 
-public class GetRecipe
+public class GetRecipeTests
 {
     [Fact]
     public async Task GetRecipeById_ReturnsRecipeFromDb_WhenExists()
