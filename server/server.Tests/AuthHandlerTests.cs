@@ -4,7 +4,6 @@ using server.Data;
 using server.Domain;
 using server.Features.Auth;
 using server.Features.Auth.DTOs;
-using server.Features.Shared;
 using Server.Features.Auth.DTOs;
 
 namespace Server.Tests;
@@ -38,10 +37,10 @@ public class AuthHandlerTests
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
-
-        //act
-        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock);
+        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock));
         var request = new LoginRequest("test@gmail.com", "password");
+
+        //act       
         var result = await authHandler.LoginAsync(request);
 
         //assert   
@@ -73,16 +72,16 @@ public class AuthHandlerTests
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
-
-        //act
-        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock);
+        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock));
         var request = new LoginRequest("test@gmail.com", "password");
+
+        //act      
         var result = await authHandler.LoginAsync(request);
 
         //assert
         Assert.False(result.Success);
         Assert.Null(result.Data);
-        Assert.Equal("User not Found", result.Error);
+        Assert.Equal("Invalid email or password", result.Error);
         jwtServiceMock.DidNotReceive().GenereateToken(Arg.Any<string>(), Arg.Any<string>());
 
     }
@@ -99,16 +98,16 @@ public class AuthHandlerTests
         using var context = new AppDbContext(options);
         var hashServiceMock = Substitute.For<IPasswordHasher>();
         var jwtServiceMock = Substitute.For<IJwtService>();
+        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock));
+        var request = new LoginRequest("someuser@gmail.com", "password");
 
         //act
-        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock);
-        var request = new LoginRequest("someuser@gmail.com", "password");
         var result = await authHandler.LoginAsync(request);
 
         //assert
         Assert.False(result.Success);
         Assert.Null(result.Data);
-        Assert.Equal("User not Found", result.Error);
+        Assert.Equal("Invalid email or password", result.Error);
         jwtServiceMock.DidNotReceive().GenereateToken(Arg.Any<string>(), Arg.Any<string>());
         hashServiceMock.DidNotReceive().VerifyPassword(Arg.Any<string>(), Arg.Any<string>());
     }
@@ -129,10 +128,10 @@ public class AuthHandlerTests
 
         jwtServiceMock.GenereateToken(Arg.Any<string>(), Arg.Any<string>()).Returns("fake-jwt-token");
         hashServiceMock.HashPassword(Arg.Any<string>()).Returns("hashedpassword");
+        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock));
+        var request = new RegisterRequest("newuser", "test@gmail.com", "password");
 
         //act
-        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock);
-        var request = new RegisterRequest("newuser", "test@gmail.com", "password");
         var result = await authHandler.RegisterAsync(request);
 
         //assert   
@@ -177,10 +176,12 @@ public class AuthHandlerTests
             Email = "test@gmail.com"
         };
 
+        var hasher = Substitute.For<IPasswordHasher>();
         var authHandler = new AuthHandler(
             Substitute.For<IJwtService>(),
             context,
-            Substitute.For<IPasswordHasher>());
+            hasher,
+            new RegisterMapper(hasher));
 
         //act
         var result = await authHandler.GetCurrentUserAsync(userId);
@@ -189,6 +190,78 @@ public class AuthHandlerTests
         Assert.True(result.Success);
         Assert.Null(result.Error);
         Assert.Equal(expected, result.Data);
+    }
+
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public async Task GetCurrentUserAsync_EmptyOrNullId_ReturnsFail(string? userId)
+    {
+        //arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+        .Options;
+
+        using var context = new AppDbContext(options);
+
+        var hasher = Substitute.For<IPasswordHasher>();
+        var authHandler = new AuthHandler(
+     Substitute.For<IJwtService>(),
+     context,
+     hasher,
+     new RegisterMapper(hasher));
+
+        //act
+        var result = await authHandler.GetCurrentUserAsync(userId!);
+
+        //assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.Equal("Unauthorized", result.Error);
+    }
+
+
+    [Fact]
+    public async Task GetAllUsersAsync_ExcludesCurrentUser()
+    {
+        //arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+     .UseInMemoryDatabase(Guid.NewGuid().ToString())
+     .Options;
+
+        using var context = new AppDbContext(options);
+
+        var hasher = Substitute.For<IPasswordHasher>();
+        var authHandler = new AuthHandler(
+     Substitute.For<IJwtService>(),
+     context,
+     hasher,
+     new RegisterMapper(hasher));
+
+        var users = new List<User>
+        {
+            new() { Id = "1", UserName = "user1", Email = "user1@gmail.com", PasswordHash = "hash1" },
+            new() { Id = "2", UserName = "user2", Email = "user2@gmail.com", PasswordHash = "hash2" },
+            new() { Id = "3", UserName = "currentUser", Email = "currentUser@gmail.com", PasswordHash = "hash3" }
+        };
+
+        context.Users.AddRange(users);
+        await context.SaveChangesAsync();
+
+        //act
+        var result = await authHandler.GetAllUsersAsync("3");
+
+        //assert
+        Assert.True(result.Success);
+        Assert.Null(result.Error);
+        Assert.NotNull(result.Data);
+
+        Assert.DoesNotContain(result.Data!, u => u.Id == "3");
+        Assert.Contains(result.Data!, u => u.Id == "1");
+        Assert.Contains(result.Data!, u => u.Id == "2");
+        Assert.Equal(2, result.Data!.Count);
+
     }
 
 }

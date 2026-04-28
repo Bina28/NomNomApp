@@ -14,7 +14,8 @@ public class SetConnectionManager
 
     public void RemoveConnection(string userId)
     {
-        _userConnections.TryRemove(userId, out _);
+        _userConnections.TryRemove(userId, out _);              
+
     }
 
     public async Task BroadcastToAll(string eventType, object data)

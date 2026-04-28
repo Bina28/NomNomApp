@@ -11,25 +11,27 @@ public class AuthHandler
     private readonly IJwtService _jwtService;
     private readonly AppDbContext _context;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly RegisterMapper _registerMapper;
 
-    public AuthHandler(IJwtService service, AppDbContext context, IPasswordHasher hasher)
+    public AuthHandler(IJwtService service, AppDbContext context, IPasswordHasher hasher, RegisterMapper registerMapper)
     {
         _jwtService = service;
         _context = context;
         _passwordHasher = hasher;
+        _registerMapper = registerMapper;
     }
 
     public async Task<Result<string>> LoginAsync(LoginRequest request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-        if (user == null  )
+        if (user == null)
         {
-            return Result<string>.Fail("User not Found");
+            return Result<string>.Fail("Invalid email or password");
         }
 
         if (!_passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
         {
-            return Result<string>.Fail("User not Found");
+            return Result<string>.Fail("Invalid email or password");
         }
 
         var token = _jwtService.GenereateToken(user.Id, user.UserName);
@@ -45,8 +47,7 @@ public class AuthHandler
             return Result<string>.Fail("User already exists");
         }
 
-        var mapper = new RegisterMapper(_passwordHasher);
-        var newUser = mapper.ToEntity(request);
+        var newUser = _registerMapper.ToEntity(request);
 
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync();

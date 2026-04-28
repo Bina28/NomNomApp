@@ -73,6 +73,7 @@ builder.Services.AddScoped<ISaveRecipeHandler, SaveRecipeHandler>();
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IPhotoProvider, ClodinaryPhotoProvider>();
 builder.Services.AddScoped<AuthHandler>();
+builder.Services.AddScoped<RegisterMapper>();
 builder.Services.AddScoped<CreateRecipeHandler>();
 builder.Services.AddScoped<GetRecipeByIdHandler>();
 builder.Services.AddScoped<FindRecipesByNutrientsHandler>();

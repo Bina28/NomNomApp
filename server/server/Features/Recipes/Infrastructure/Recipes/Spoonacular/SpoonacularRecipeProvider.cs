@@ -7,17 +7,15 @@ namespace Server.Features.Recipes.Infrastructure.Recipes.Spoonacular;
 
 public class SpoonacularRecipeProvider : IRecipeProvider
 {
-    private readonly string _apiKey;
     private readonly HttpClient _client;
-    public SpoonacularRecipeProvider(IOptions<SpoonacularSettings> options, HttpClient client)
+    public SpoonacularRecipeProvider( HttpClient client)
     {
-        _apiKey = options.Value.ApiKey;
         _client = client;
     }
 
     public async Task<Recipe?> GetRecipeById(int id)
     {
-        var response = await _client.GetAsync($"recipes/{id}/information?apiKey={_apiKey}");
+        var response = await _client.GetAsync($"recipes/{id}/information");
         if (!response.IsSuccessStatusCode) return null;
         var json = await response.Content.ReadAsStringAsync();
         var apiRecipe = JsonSerializer.Deserialize<ApiRecipeDto>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -27,7 +25,7 @@ public class SpoonacularRecipeProvider : IRecipeProvider
 
     public async Task<List<Recipe>?> FindRecipesByNutrients(FindRecipesByNutrientsRequest request)
     {
-        var url = $"recipes/findByNutrients?apiKey={_apiKey}&minCalories={request.Calories}&number={request.Number}";
+        var url = $"recipes/findByNutrients?minCalories={request.Calories}&number={request.Number}";
         var response = await _client.GetAsync(url);
         if (!response.IsSuccessStatusCode)  return null;
         var jsonResult = await response.Content.ReadAsStringAsync();
