@@ -4,6 +4,8 @@ using server.Data;
 using server.Domain;
 using server.Features.Auth;
 using server.Features.Auth.DTOs;
+using server.Features.Shared;
+using Server.Features.Auth.DTOs;
 
 namespace Server.Tests;
 
@@ -124,11 +126,9 @@ public class AuthHandlerTests
 
         var hashServiceMock = Substitute.For<IPasswordHasher>();
         var jwtServiceMock = Substitute.For<IJwtService>();
-   
+
         jwtServiceMock.GenereateToken(Arg.Any<string>(), Arg.Any<string>()).Returns("fake-jwt-token");
         hashServiceMock.HashPassword(Arg.Any<string>()).Returns("hashedpassword");
-
-
 
         //act
         var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock);
@@ -148,6 +148,47 @@ public class AuthHandlerTests
         hashServiceMock.Received(1).HashPassword("password");
         jwtServiceMock.Received(1).GenereateToken(Arg.Any<string>(), Arg.Any<string>());
 
+    }
+
+    [Fact]
+    public async Task GetCurrentUserAsync_ValidId_ReturnsUserDto()
+    {
+        //arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AppDbContext(options);
+
+        var userId = Guid.NewGuid().ToString();
+        context.Users.Add(new User
+        {
+            Id = userId,
+            UserName = "testuser",
+            Email = "test@gmail.com",
+            PasswordHash = "hashedpassword"
+        });
+        await context.SaveChangesAsync();
+
+        var expected = new UserDto
+        {
+            Id = userId,
+            UserName = "testuser",
+            Email = "test@gmail.com"
+        };
+
+        var authHandler = new AuthHandler(
+            Substitute.For<IJwtService>(),
+            context,
+            Substitute.For<IPasswordHasher>());
+
+        //act
+        var result = await authHandler.GetCurrentUserAsync(userId);
+
+        //assert
+        Assert.True(result.Success);
+        Assert.Null(result.Error);
+        Assert.Equal(expected, result.Data);
     }
 
 }
