@@ -19,9 +19,9 @@ public class FindRecipesByNutrientsHandler
         _apiHandler = handler;
     }
 
-    public async Task<Result<List<FindRecipesByNutrientsResponse>>> FindRecipesByNutrients(FindRecipesByNutrientsRequest request)
+    public async Task<Result<List<FindRecipesByNutrientsResponse>>> FindRecipesByNutrients(FindRecipesByNutrientsRequest request, CancellationToken ct = default)
     {
-        var results = await _client.FindRecipesByNutrients(request);
+        var results = await _client.FindRecipesByNutrients(request, ct);
 
         if (results == null)
             return Result<List<FindRecipesByNutrientsResponse>>
@@ -32,17 +32,17 @@ public class FindRecipesByNutrientsHandler
         var existingIds = await _context.Recipes
             .Where(r => apiIds.Contains(r.Id))
             .Select(r => r.Id)
-            .ToListAsync();
+            .ToListAsync(ct);
 
         var missingIds = apiIds.Except(existingIds);
 
 
         foreach (var id in missingIds)
         {
-            var detail = await _client.GetRecipeById(id);
+            var detail = await _client.GetRecipeById(id, ct);
             if (detail == null) continue;
 
-            await _apiHandler.SaveRecipe(detail);
+            await _apiHandler.SaveRecipe(detail, ct);
 
         }
 
@@ -54,3 +54,4 @@ public class FindRecipesByNutrientsHandler
         return Result<List<FindRecipesByNutrientsResponse>>.Ok(response);
     }
 }
+    

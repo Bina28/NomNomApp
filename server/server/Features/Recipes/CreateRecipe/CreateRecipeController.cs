@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using server.Features.Auth;
 using server.Features.Recipes.CreateRecipe.DTOs;
-using System.Security.Claims;
 
 namespace server.Features.Recipes.CreateRecipe;
 
@@ -18,15 +18,9 @@ public class CreateRecipeController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] RecipeDto request)
+    public async Task<IActionResult> Create([FromBody] RecipeDto request, CancellationToken ct)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (userId == null)
-        {
-            return Unauthorized("User not found");
-        }
-        var result = await _service.CreateRecipe(request, userId);
+        var result = await _service.CreateRecipe(request, User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : BadRequest(result.Error);
     }
 }

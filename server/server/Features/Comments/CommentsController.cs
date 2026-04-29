@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using server.Features.Auth;
 using Server.Features.Comments.DTOs;
-using System.Security.Claims;
 
 namespace Server.Features.Comments;
 
@@ -16,41 +16,37 @@ public class CommentsController : ControllerBase
         _commentsHandler = commentsHandler;
     }
 
-    // TODO: bør være ActionResult<CommentDto> for Swagger-støtte
+
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> PostAsync([FromBody] CreateCommentRequest request)
+    public async Task<ActionResult<CommentDto>> PostAsync([FromBody] CreateCommentRequest request, CancellationToken ct)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null)
-            return Problem(detail: "User not found", statusCode: 401);
-
-        var result = await _commentsHandler.PostComment(request, userId);
+        var result = await _commentsHandler.PostComment(request, User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
-    // TODO: bør være ActionResult<List<CommentDto>> for Swagger-støtte
+
     [HttpGet("recipe/{recipeId}")]
-    public async Task<IActionResult> GetCommentsForRecipe(int recipeId)
+    public async Task<ActionResult<List<CommentDto>>> GetCommentsForRecipe(int recipeId, CancellationToken ct)
     {
-        var result = await _commentsHandler.GetCommentsForRecipe(recipeId);
+        var result = await _commentsHandler.GetCommentsForRecipe(recipeId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
-    // IActionResult: returnerer bare true/false
+
     [HttpDelete("{id}")]
     [Authorize]
-    public async Task<IActionResult> Delete(string id)
+    public async Task<ActionResult<bool>> Delete(string id, CancellationToken ct)
     {
-        var result = await _commentsHandler.DeleteComment(id);
+        var result = await _commentsHandler.DeleteComment(id, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
-    // TODO: bør være ActionResult<double> for Swagger-støtte
+
     [HttpGet("recipe/{recipeId}/score")]
-    public async Task<IActionResult> GetCommentsScore(int recipeId)
+    public async Task<ActionResult<double>> GetCommentsScore(int recipeId, CancellationToken ct)
     {
-        var result = await _commentsHandler.GetCommentsScore(recipeId);
+        var result = await _commentsHandler.GetCommentsScore(recipeId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 }

@@ -18,7 +18,7 @@ public class FollowsHandler
         _sseManager = sseManager;
     }
 
-    public async Task<Result<bool>> FollowUser(string currentUserId, string targetUserId)
+    public async Task<Result<bool>> FollowUser(string currentUserId, string targetUserId, CancellationToken ct = default)
     {
         if (currentUserId == targetUserId)
         {
@@ -26,14 +26,14 @@ public class FollowsHandler
         }
 
         var existingFollow = await _context.Follows
-            .FirstOrDefaultAsync(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId);
+            .FirstOrDefaultAsync(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId, ct);
 
         if (existingFollow != null)
         {
             return Result<bool>.Fail("Already following this user");
         }
 
-        var currentUser = await _context.Users.FindAsync(currentUserId);
+        var currentUser = await _context.Users.FindAsync([currentUserId], ct);
         if (currentUser == null)
         {
             return Result<bool>.Fail("User not found");
@@ -45,14 +45,14 @@ public class FollowsHandler
             FollowingId = targetUserId
         };
 
-        var targetUser = await _context.Users.FindAsync(targetUserId);
+        var targetUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == targetUserId, ct);
         if (targetUser == null)
         {
             return Result<bool>.Fail("Target user not found");
         }
 
         _context.Follows.Add(follow);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
 
         await _sseManager.BroadcastToAll("new_follow", new
         {
@@ -65,7 +65,7 @@ public class FollowsHandler
         return Result<bool>.Ok(true);
     }
 
-    public async Task<Result<List<FollowDto>>> GetFollowers(string userId)
+    public async Task<Result<List<FollowDto>>> GetFollowers(string userId, CancellationToken ct = default)
     {
         var followers = await _context.Follows
             .Include(f => f.Follower)
@@ -77,12 +77,12 @@ public class FollowsHandler
                 FollowingId = f.FollowingId,
                 Follower = new UserInfo { UserName = f.Follower.UserName }
             })
-            .ToListAsync();
+            .ToListAsync(ct);
 
         return Result<List<FollowDto>>.Ok(followers);
     }
 
-    public async Task<Result<List<FollowDto>>> GetFollowing(string userId)
+    public async Task<Result<List<FollowDto>>> GetFollowing(string userId, CancellationToken ct = default)
     {
         var following = await _context.Follows
             .Include(f => f.Following)
@@ -94,31 +94,29 @@ public class FollowsHandler
                 FollowingId = f.FollowingId,
                 Following = new UserInfo { UserName = f.Following.UserName }
             })
-            .ToListAsync();
+            .ToListAsync(ct);
 
         return Result<List<FollowDto>>.Ok(following);
     }
 
-    public async Task<Result<bool>> IsFollowing(string currentUserId, string targetUserId)
+    public async Task<Result<bool>> IsFollowing(string currentUserId, string targetUserId, CancellationToken ct = default)
     {
         var isFollowing = await _context.Follows
-            .AnyAsync(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId);
+            .AnyAsync(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId, ct);
 
         return Result<bool>.Ok(isFollowing);
     }
 
-    public async Task<Result<bool>> UnfollowUser(string currentUserId, string targetUserId)
+    public async Task<Result<bool>> UnfollowUser(string currentUserId, string targetUserId, CancellationToken ct = default)
     {
-        var follow = await _context.Follows
-            .FirstOrDefaultAsync(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId);
+        var deleted = await _context.Follows
+            .Where(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId)
+            .ExecuteDeleteAsync(ct);
 
-        if (follow == null)
+        if (deleted == 0)
         {
             return Result<bool>.Fail("Not following this user");
         }
-
-        _context.Follows.Remove(follow);
-        await _context.SaveChangesAsync();
 
         return Result<bool>.Ok(true);
     }

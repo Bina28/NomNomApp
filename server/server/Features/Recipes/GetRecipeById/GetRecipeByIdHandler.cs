@@ -19,10 +19,10 @@ public class GetRecipeByIdHandler
         _logger = logger;
     }
 
-    public async Task<Result<RecipeResponse>> GetRecipeById(int id)
+    public async Task<Result<RecipeResponse>> GetRecipeById(int id, CancellationToken ct = default)
     {
         _logger.LogInformation("GetRecipeById started. RecipeId={RecipeId}", id);
-        var recipeInDb = await _recipeRepository.GetByIdWithDetailsAsync(id);
+        var recipeInDb = await _recipeRepository.GetByIdWithDetailsAsync(id, ct);
         if (recipeInDb != null)
         {
             _logger.LogInformation("Recipe found in DB. RecipeId={RecipeId}", id);
@@ -31,7 +31,7 @@ public class GetRecipeByIdHandler
         }
 
         _logger.LogInformation("Recipe not found in DB. Calling external API. RecipeId={RecipeId}", id);
-        var apiRecipe = await _client.GetRecipeById(id);
+        var apiRecipe = await _client.GetRecipeById(id, ct);
         if (apiRecipe == null)
         {
             _logger.LogWarning("Recipe not found in external API. RecipeId={RecipeId}", id);
@@ -39,7 +39,7 @@ public class GetRecipeByIdHandler
         }
 
 
-        var savedRecipe = await _apiHandler.SaveRecipe(apiRecipe);
+        var savedRecipe = await _apiHandler.SaveRecipe(apiRecipe, ct);
         _logger.LogInformation("Recipe saved successfully. RecipeId={RecipeId}", id);
 
         return Result<RecipeResponse>.Ok(RecipeMapper.ToResponse(savedRecipe));

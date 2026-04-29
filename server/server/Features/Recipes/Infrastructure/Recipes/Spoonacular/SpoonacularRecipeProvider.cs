@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using server.Domain;
+﻿using server.Domain;
 using Server.Features.Recipes.FindByNutrients;
 using System.Text.Json;
 
@@ -8,27 +7,27 @@ namespace Server.Features.Recipes.Infrastructure.Recipes.Spoonacular;
 public class SpoonacularRecipeProvider : IRecipeProvider
 {
     private readonly HttpClient _client;
-    public SpoonacularRecipeProvider( HttpClient client)
+    public SpoonacularRecipeProvider(HttpClient client)
     {
         _client = client;
     }
 
-    public async Task<Recipe?> GetRecipeById(int id)
+    public async Task<Recipe?> GetRecipeById(int id, CancellationToken ct = default)
     {
-        var response = await _client.GetAsync($"recipes/{id}/information");
+        var response = await _client.GetAsync($"recipes/{id}/information", ct);
         if (!response.IsSuccessStatusCode) return null;
-        var json = await response.Content.ReadAsStringAsync();
+        var json = await response.Content.ReadAsStringAsync(ct);
         var apiRecipe = JsonSerializer.Deserialize<ApiRecipeDto>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         if (apiRecipe == null) return null;
         return MapToDomain(apiRecipe);
     }
 
-    public async Task<List<Recipe>?> FindRecipesByNutrients(FindRecipesByNutrientsRequest request)
+    public async Task<List<Recipe>?> FindRecipesByNutrients(FindRecipesByNutrientsRequest request, CancellationToken ct = default)
     {
         var url = $"recipes/findByNutrients?minCalories={request.Calories}&number={request.Number}";
-        var response = await _client.GetAsync(url);
-        if (!response.IsSuccessStatusCode)  return null;
-        var jsonResult = await response.Content.ReadAsStringAsync();
+        var response = await _client.GetAsync(url, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        var jsonResult = await response.Content.ReadAsStringAsync(ct);
         var results = JsonSerializer.Deserialize<List<ApiRecipeDto>>(jsonResult,
         new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
  );
@@ -48,7 +47,7 @@ public class SpoonacularRecipeProvider : IRecipeProvider
             ExtendedIngredients = dto.ExtendedIngredients?
             .Select(i => new Ingredient
             {
-            Original = i.Original ?? string.Empty
+                Original = i.Original ?? string.Empty
             })
            .ToList() ?? [],
         };

@@ -18,19 +18,19 @@ public class CommentsHandler
         _sseManager = sseManager;
     }
 
-    public async Task<Result<bool>> DeleteComment(string id)
+    public async Task<Result<bool>> DeleteComment(string id, CancellationToken ct =default )
     {
-        var comment = await _context.Comments.FindAsync(id);
+        var comment = await _context.Comments.FindAsync([id], ct);
         if (comment == null)
         {
             return Result<bool>.Fail("Comment not found");
         }
         _context.Comments.Remove(comment);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
         return Result<bool>.Ok(true);
     }
 
-    public async Task<Result<List<CommentDto>>> GetCommentsForRecipe(int recipeId)
+    public async Task<Result<List<CommentDto>>> GetCommentsForRecipe(int recipeId, CancellationToken ct = default)
     {
         var comments = await _context.Comments
             .Include(c => c.User)
@@ -44,16 +44,16 @@ public class CommentsHandler
                 c.User.UserName,
                 c.UserId
             ))
-            .ToListAsync();
+            .ToListAsync(ct);
 
         return Result<List<CommentDto>>.Ok(comments);
     }
 
-    public async Task<Result<double>> GetCommentsScore(int recipeId)
+    public async Task<Result<double>> GetCommentsScore(int recipeId, CancellationToken ct = default)
     {
         var comments = await _context.Comments
             .Where(c => c.RecipeId == recipeId)
-            .ToListAsync();
+            .ToListAsync(ct);
 
         if (comments.Count == 0)
         {
@@ -64,9 +64,9 @@ public class CommentsHandler
         return Result<double>.Ok(averageScore);
     }
 
-    public async Task<Result<CommentDto>> PostComment(CreateCommentRequest request, string userId)
+    public async Task<Result<CommentDto>> PostComment(CreateCommentRequest request, string userId, CancellationToken ct = default)
     {
-        var user = await _context.Users.FindAsync(userId);
+        var user = await _context.Users.FindAsync([userId], ct);
         if (user == null)
         {
             return Result<CommentDto>.Fail("User not found");
@@ -86,7 +86,7 @@ public class CommentsHandler
         };
 
         _context.Comments.Add(comment);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
 
         await _sseManager.BroadcastToAll("new_comment", new
         {

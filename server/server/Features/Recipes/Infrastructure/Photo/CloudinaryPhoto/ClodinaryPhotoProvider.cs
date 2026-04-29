@@ -7,9 +7,11 @@ namespace Server.Features.Recipes.Infrastructure.Photo.CloudinaryPhoto;
 public class ClodinaryPhotoProvider : IPhotoProvider
 {
     private readonly Cloudinary _cloudinary;
+    private readonly ILogger<ClodinaryPhotoProvider> _logger;
 
-    public ClodinaryPhotoProvider(IOptions<CloudinarySettings> config)
+    public ClodinaryPhotoProvider(IOptions<CloudinarySettings> config, ILogger<ClodinaryPhotoProvider> logger)
     {
+        _logger = logger;
         var account = new Account(
             config.Value.CloudName,
             config.Value.ApiKey,
@@ -19,7 +21,7 @@ public class ClodinaryPhotoProvider : IPhotoProvider
         _cloudinary = new Cloudinary(account);
 
     }
-    public async Task<PhotoUploadResult?> UploadImgFromUrl(string imageUrl)
+    public async Task<PhotoUploadResult?> UploadImgFromUrl(string imageUrl, CancellationToken ct = default)
     {
 
         var uploadParams = new ImageUploadParams
@@ -28,11 +30,12 @@ public class ClodinaryPhotoProvider : IPhotoProvider
             Folder = "NomNom2025"
         };
 
-        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+        var uploadResult = await _cloudinary.UploadAsync(uploadParams, ct);
 
         if (uploadResult.Error != null)
         {
-            throw new Exception(uploadResult.Error.Message);
+            _logger.LogError("Failed to upload image to Cloudinary: {Error}", uploadResult.Error.Message);
+            throw new PhotoUploadException($"Failed to upload image: {uploadResult.Error.Message}");
         }
 
         return new PhotoUploadResult(

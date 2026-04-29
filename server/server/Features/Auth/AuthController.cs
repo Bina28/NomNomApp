@@ -1,7 +1,7 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using server.Features.Auth.DTOs;
+using Server.Features.Auth.DTOs;
 
 namespace server.Features.Auth;
 
@@ -18,12 +18,12 @@ public class AuthController : ControllerBase
     }
 
 
-    // IActionResult: returnerer ingen data, bare setter cookie
+
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken ct)
     {
-        var result = await _service.LoginAsync(request);
-        if (!result.Success)
+        var result = await _service.LoginAsync(request, ct);
+        if (!result.Success || string.IsNullOrEmpty(result.Data))
             return Problem(detail: result.Error, statusCode: 401);
 
         Response.Cookies.Append(
@@ -35,13 +35,13 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
-    // IActionResult: returnerer ingen data, bare setter cookie
+
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken ct)
     {
-        var result = await _service.RegisterAsync(request);
-        if (!result.Success)
-           return Problem(detail: result.Error, statusCode: 400);
+        var result = await _service.RegisterAsync(request, ct);
+        if (!result.Success || string.IsNullOrEmpty(result.Data))
+            return Problem(detail: result.Error, statusCode: 400);
 
         Response.Cookies.Append(
             "access_token",
@@ -52,34 +52,29 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
-    // TODO: bør være ActionResult<UserDto> for Swagger-støtte
+
     [Authorize]
     [HttpGet("me")]
-    public async Task<IActionResult> Me()
+    public async Task<ActionResult<UserDto>> Me(CancellationToken ct)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        var result = await _service.GetCurrentUserAsync(userId);
-
+        var result = await _service.GetCurrentUserAsync(User.GetUserId(), ct);
         return result.Success
             ? Ok(result.Data)
             : Problem(detail: result.Error, statusCode: 401);
     }
 
-    // TODO: bør være ActionResult<List<UserDto>> for Swagger-støtte
+
     [HttpGet("users")]
     [Authorize]
-    public async Task<IActionResult> GetAllUsers()
+    public async Task<ActionResult<List<UserDto>>> GetAllUsers(CancellationToken ct)
     {
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var result = await _service.GetAllUsersAsync(currentUserId);
-
+        var result = await _service.GetAllUsersAsync(User.GetUserId(), ct);
         return result.Success
             ? Ok(result.Data)
             : Problem(detail: result.Error, statusCode: 400);
     }
 
-    // IActionResult: returnerer ingen data, bare sletter cookie
+    [Authorize]
     [HttpPost("logout")]
     public IActionResult Logout()
     {
@@ -92,8 +87,8 @@ public class AuthController : ControllerBase
         return new CookieOptions
         {
             HttpOnly = true,
-            Secure = true, 
-            SameSite = SameSiteMode.None, 
+            Secure = true,
+            SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddMinutes(15)
         };
     }

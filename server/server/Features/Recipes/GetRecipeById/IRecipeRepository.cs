@@ -4,6 +4,6 @@ namespace Server.Features.Recipes.GetRecipeById;
 
 public interface IRecipeRepository
 {
-    Task<Recipe?> GetByIdWithDetailsAsync(int id);
+    Task<Recipe?> GetByIdWithDetailsAsync(int id, CancellationToken ct = default);
    
 }

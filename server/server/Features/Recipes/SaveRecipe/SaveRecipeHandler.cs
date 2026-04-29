@@ -17,18 +17,18 @@ public class SaveRecipeHandler : ISaveRecipeHandler
     }
 
 
-    public async Task<Recipe> SaveRecipe(Recipe recipe)
+    public async Task<Recipe> SaveRecipe(Recipe recipe, CancellationToken ct = default)
     {
-        recipe.ExtendedIngredients = await ResolveIngredients(recipe);
-        await HandleImage(recipe);
+        recipe.ExtendedIngredients = await ResolveIngredients(recipe, ct);
+        await HandleImage(recipe, ct);
 
         _context.Recipes.Add(recipe);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
 
         return recipe;
     }
 
-    private async Task<List<Ingredient>> ResolveIngredients(Recipe recipe)
+    private async Task<List<Ingredient>> ResolveIngredients(Recipe recipe, CancellationToken ct = default)
     {
         var result = new List<Ingredient>();
         var distinctIngredients = recipe.ExtendedIngredients
@@ -41,7 +41,7 @@ public class SaveRecipeHandler : ISaveRecipeHandler
         foreach (var original in distinctIngredients)
         {
             var ingredient = _context.Ingredients.Local.FirstOrDefault(x => string.Equals(x.Original, original, StringComparison.OrdinalIgnoreCase))
-                ?? await _context.Ingredients.FirstOrDefaultAsync(x => x.Original != null && x.Original.ToLower() == original!.ToLower());
+                ?? await _context.Ingredients.FirstOrDefaultAsync(x => x.Original != null && x.Original.ToLower() == original!.ToLower(), ct);
 
             if (ingredient == null)
             {
@@ -56,12 +56,11 @@ public class SaveRecipeHandler : ISaveRecipeHandler
         return result;
     }
 
-    private async Task HandleImage(Recipe recipe)
+    private async Task HandleImage(Recipe recipe, CancellationToken ct = default)
     {
         if (string.IsNullOrEmpty(recipe.Image)) return;
 
-        var uploadPhoto = await _photoService.UploadImgFromUrl(recipe.Image);
-
+        var uploadPhoto = await _photoService.UploadImgFromUrl(recipe.Image, ct);
         if (uploadPhoto == null) return;
 
         var photo = new Photo

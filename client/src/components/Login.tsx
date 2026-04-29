@@ -25,8 +25,11 @@ export default function Login() {
       await checkAuth();
       navigate("/user");
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.data?.error) {
-        setError(err.response.data.error);
+      if (axios.isAxiosError(err)) {
+        const message = err.response?.data?.detail
+          ?? err.response?.data?.error
+          ?? "An unexpected error occurred";
+        setError(message);
       } else {
         setError("An unexpected error occurred");
       }

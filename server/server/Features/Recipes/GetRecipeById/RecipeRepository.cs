@@ -13,12 +13,12 @@ public class RecipeRepository : IRecipeRepository
         _context = context;
     }
 
-    public async Task<Recipe?> GetByIdWithDetailsAsync(int id)
+    public async Task<Recipe?> GetByIdWithDetailsAsync(int id, CancellationToken ct = default)
     {
         return await _context.Recipes
              .Include(r => r.ExtendedIngredients)
              .Include(r => r.Photos)
-             .FirstOrDefaultAsync(x => x.Id == id);
+             .FirstOrDefaultAsync(x => x.Id == id, ct);
     }
 
 

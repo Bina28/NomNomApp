@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using server.Features.Auth;
+using Server.Features.Follows.DTOs;
 
 namespace Server.Features.Follows;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class FollowsController : ControllerBase
 {
@@ -16,70 +17,42 @@ public class FollowsController : ControllerBase
         _followsHandler = followsHandler;
     }
 
-    // TODO: bør være ActionResult<FollowDto> for Swagger-støtte
+
     [HttpPost("{userId}")]
-    [Authorize]
-    public async Task<IActionResult> FollowUser(string userId)
+    public async Task<ActionResult<FollowDto>> FollowUser(string userId, CancellationToken ct)
     {
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (currentUserId == null)
-        {
-            return Problem(detail: "User not found", statusCode: 401);
-        }
-
-        var result = await _followsHandler.FollowUser(currentUserId, userId);
+        var result = await _followsHandler.FollowUser(User.GetUserId(), userId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
-    // IActionResult: returnerer bare true/false
+
     [HttpDelete("{userId}")]
-    [Authorize]
-    public async Task<IActionResult> UnfollowUser(string userId)
+    public async Task<ActionResult<bool>> UnfollowUser(string userId, CancellationToken ct)
     {
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (currentUserId == null)
-            return Problem(detail: "User not authenticated", statusCode: 401);
-
-        var result = await _followsHandler.UnfollowUser(currentUserId, userId);
+        var result = await _followsHandler.UnfollowUser(User.GetUserId(), userId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
-    // TODO: bør være ActionResult<List<FollowDto>> for Swagger-støtte
+
     [HttpGet("followers")]
-    [Authorize]
-    public async Task<IActionResult> GetFollowers()
+    public async Task<ActionResult<List<FollowDto>>> GetFollowers(CancellationToken ct)
     {
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (currentUserId == null)
-            return Problem(detail: "User not authenticated", statusCode: 401);
-
-        var result = await _followsHandler.GetFollowers(currentUserId);
+        var result = await _followsHandler.GetFollowers(User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
-    // TODO: bør være ActionResult<List<FollowDto>> for Swagger-støtte
     [HttpGet("following")]
-    [Authorize]
-    public async Task<IActionResult> GetFollowing()
+    public async Task<ActionResult<FollowDto>> GetFollowing(CancellationToken ct)
     {
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (currentUserId == null)
-            return Problem(detail: "User not authenticated", statusCode: 401);
-
-        var result = await _followsHandler.GetFollowing(currentUserId);
+        var result = await _followsHandler.GetFollowing(User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
-    // TODO: bør være ActionResult<bool> for Swagger-støtte
-    [HttpGet("check/{userId}")]
-    [Authorize]
-    public async Task<IActionResult> IsFollowing(string userId)
-    {
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (currentUserId == null)
-            return Problem(detail: "User not authenticated", statusCode: 401);
 
-        var result = await _followsHandler.IsFollowing(currentUserId, userId);
+    [HttpGet("check/{userId}")]
+    public async Task<ActionResult<bool>> IsFollowing(string userId, CancellationToken ct)
+    {
+        var result = await _followsHandler.IsFollowing(User.GetUserId(), userId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 }

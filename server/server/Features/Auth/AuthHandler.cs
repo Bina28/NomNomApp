@@ -21,9 +21,9 @@ public class AuthHandler
         _registerMapper = registerMapper;
     }
 
-    public async Task<Result<string>> LoginAsync(LoginRequest request)
+    public async Task<Result<string>> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email, ct);
         if (user == null)
         {
             return Result<string>.Fail("Invalid email or password");
@@ -39,9 +39,9 @@ public class AuthHandler
 
     }
 
-    public async Task<Result<string>> RegisterAsync(RegisterRequest request)
+    public async Task<Result<string>> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
     {
-        var user = await _context.Users.AnyAsync(u => u.Email == request.Email);
+        var user = await _context.Users.AnyAsync(u => u.Email == request.Email, ct);
         if (user)
         {
             return Result<string>.Fail("User already exists");
@@ -50,18 +50,18 @@ public class AuthHandler
         var newUser = _registerMapper.ToEntity(request);
 
         _context.Users.Add(newUser);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
 
         var token = _jwtService.GenereateToken(newUser.Id, newUser.UserName);
         return Result<string>.Ok(token);
     }
 
-    public async Task<Result<UserDto>> GetCurrentUserAsync(string userId)
+    public async Task<Result<UserDto>> GetCurrentUserAsync(string userId, CancellationToken ct = default)
 {
     if (string.IsNullOrEmpty(userId))
         return Result<UserDto>.Fail("Unauthorized");
 
-    var user = await _context.Users.FindAsync(userId);
+    var user = await _context.Users.FindAsync([userId], ct);
 
     if (user == null)
         return Result<UserDto>.Fail("User not found");
@@ -74,7 +74,7 @@ public class AuthHandler
     });
 }
 
-    public async Task<Result<List<UserDto>>> GetAllUsersAsync(string? currentUserId)
+    public async Task<Result<List<UserDto>>> GetAllUsersAsync(string? currentUserId, CancellationToken ct = default)
     {
         var users = await _context.Users
             .Where(u => u.Id != currentUserId)
@@ -84,7 +84,7 @@ public class AuthHandler
                 Email = u.Email,
                 UserName = u.UserName
             })
-            .ToListAsync();
+            .ToListAsync(ct);
 
         return Result<List<UserDto>>.Ok(users);
     }

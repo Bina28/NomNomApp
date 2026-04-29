@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using server.Features.Auth;
 
 namespace Server.Features.Sse;
 
@@ -26,13 +26,7 @@ public class SseController : ControllerBase
         Response.Headers.Append("Cache-Control", "no-cache");
 
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null)
-        {
-            Response.StatusCode = 401;
-            return;
-        }
-
+        var userId = User.GetUserId();
         _logger.LogInformation("SSE connected: {UserId}", userId);
         _sseManager.AddConnection(userId, Response);
 
