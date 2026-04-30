@@ -7,6 +7,7 @@ public static class RecipeMapper
     public static RecipeResponse ToResponse(Recipe apiRecipe)
     {
         return new RecipeResponse(
+            Id: apiRecipe.Id,
             Title: apiRecipe.Title,
             Summary: apiRecipe.Summary,
             Instructions: apiRecipe.Instructions,

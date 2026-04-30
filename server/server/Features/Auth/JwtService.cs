@@ -15,7 +15,7 @@ public class JwtService : IJwtService
         _jwtOptions = jwtOptions.Value;
     }
 
-    public string GenereateToken(string userId, string userName)
+    public string GenerateToken(string userId, string userName)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key!));
 

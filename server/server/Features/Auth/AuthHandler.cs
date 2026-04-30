@@ -34,7 +34,7 @@ public class AuthHandler
             return Result<string>.Fail("Invalid email or password");
         }
 
-        var token = _jwtService.GenereateToken(user.Id, user.UserName);
+        var token = _jwtService.GenerateToken(user.Id, user.UserName);
         return Result<string>.Ok(token);
 
     }
@@ -52,7 +52,7 @@ public class AuthHandler
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync(ct);
 
-        var token = _jwtService.GenereateToken(newUser.Id, newUser.UserName);
+        var token = _jwtService.GenerateToken(newUser.Id, newUser.UserName);
         return Result<string>.Ok(token);
     }
 
