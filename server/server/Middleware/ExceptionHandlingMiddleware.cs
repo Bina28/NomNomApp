@@ -20,6 +20,13 @@ public class ExceptionHandlingMiddleware
         {
             // Client disconnected — not an error
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Unauthorized access");
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { error = "Unauthorized" });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception");

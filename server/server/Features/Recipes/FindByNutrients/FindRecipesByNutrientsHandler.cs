@@ -30,6 +30,7 @@ public class FindRecipesByNutrientsHandler
         var apiIds = results.Select(x => x.Id).ToList();
 
         var existingIds = await _context.Recipes
+            .AsNoTracking()
             .Where(r => apiIds.Contains(r.Id))
             .Select(r => r.Id)
             .ToListAsync(ct);

@@ -68,7 +68,7 @@ public class AuthController : ControllerBase
     [Authorize]
     public async Task<ActionResult<List<UserDto>>> GetAllUsers(CancellationToken ct)
     {
-        var result = await _service.GetAllUsersAsync(User.GetUserId(), ct);
+        var result = await _service.GetUsersExceptCurrentAsync(User.GetUserId(), ct);
         return result.Success
             ? Ok(result.Data)
             : Problem(detail: result.Error, statusCode: 400);

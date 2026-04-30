@@ -68,7 +68,7 @@ public class FollowsHandler
     public async Task<Result<List<FollowDto>>> GetFollowers(string userId, CancellationToken ct = default)
     {
         var followers = await _context.Follows
-            .Include(f => f.Follower)
+            .AsNoTracking()           
             .Where(f => f.FollowingId == userId)
             .Select(f => new FollowDto
             {
@@ -85,7 +85,7 @@ public class FollowsHandler
     public async Task<Result<List<FollowDto>>> GetFollowing(string userId, CancellationToken ct = default)
     {
         var following = await _context.Follows
-            .Include(f => f.Following)
+            .AsNoTracking()         
             .Where(f => f.FollowerId == userId)
             .Select(f => new FollowDto
             {

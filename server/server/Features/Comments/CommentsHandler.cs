@@ -11,29 +11,36 @@ public class CommentsHandler
 {
     private readonly AppDbContext _context;
     private readonly SetConnectionManager _sseManager;
+    private readonly ILogger<CommentsHandler> _logger;
 
-    public CommentsHandler(AppDbContext context, SetConnectionManager sseManager)
+    public CommentsHandler(AppDbContext context, SetConnectionManager sseManager, ILogger<CommentsHandler> logger)
     {
         _context = context;
         _sseManager = sseManager;
+        _logger = logger;
     }
 
-    public async Task<Result<bool>> DeleteComment(string id, CancellationToken ct =default )
+    public async Task<Result<bool>> DeleteComment(string commentId, CancellationToken ct = default)
     {
-        var comment = await _context.Comments.FindAsync([id], ct);
+        _logger.LogInformation("DeleteComment started. CommentId={CommentId}", commentId);
+        var comment = await _context.Comments.FindAsync([commentId], ct);
         if (comment == null)
         {
+            _logger.LogWarning("DeleteComment failed, comment not found. CommentId={CommentId}", commentId);
             return Result<bool>.Fail("Comment not found");
         }
         _context.Comments.Remove(comment);
         await _context.SaveChangesAsync(ct);
+
+        _logger.LogInformation("DeleteComment successful. CommentId={CommentId}", commentId);
         return Result<bool>.Ok(true);
     }
 
     public async Task<Result<List<CommentDto>>> GetCommentsForRecipe(int recipeId, CancellationToken ct = default)
     {
+        _logger.LogInformation("GetCommentsForRecipe started. RecipeId={RecipeId}", recipeId);
         var comments = await _context.Comments
-            .Include(c => c.User)
+            .AsNoTracking()
             .Where(c => c.RecipeId == recipeId)
             .OrderByDescending(c => c.CreatedAt)
             .Select(c => new CommentDto(
@@ -46,34 +53,41 @@ public class CommentsHandler
             ))
             .ToListAsync(ct);
 
+        _logger.LogInformation("GetCommentsForRecipe successful. RecipeId={RecipeId}, Count={Count}", recipeId,
+        comments.Count);
         return Result<List<CommentDto>>.Ok(comments);
     }
 
     public async Task<Result<double>> GetCommentsScore(int recipeId, CancellationToken ct = default)
     {
-        var comments = await _context.Comments
-            .Where(c => c.RecipeId == recipeId)
-            .ToListAsync(ct);
+        _logger.LogInformation("GetCommentsScore started. RecipeId={RecipeId}", recipeId);
+        var averageScore = await _context.Comments
+          .Where(c => c.RecipeId == recipeId)
+          .Select(s => (double?)s.Score)
+          .AverageAsync(ct);
 
-        if (comments.Count == 0)
-        {
-            return Result<double>.Ok(0);
-        }
-
-        var averageScore = comments.Average(c => c.Score);
-        return Result<double>.Ok(averageScore);
+        _logger.LogInformation("GetCommentsScore successful. RecipeId={RecipeId}, Score={Score}", recipeId, averageScore ?? 0);
+        return Result<double>.Ok(averageScore ?? 0);
     }
 
     public async Task<Result<CommentDto>> PostComment(CreateCommentRequest request, string userId, CancellationToken ct = default)
     {
-        var user = await _context.Users.FindAsync([userId], ct);
-        if (user == null)
+        _logger.LogInformation("PostComment started. UserId={UserId}", userId);
+        var userName = await _context.Users
+            .Where(u => u.Id== userId)
+            .AsNoTracking()
+            .Select(u => u.UserName)
+            .FirstOrDefaultAsync(ct);
+
+        if (userName == null)
         {
-            return Result<CommentDto>.Fail("User not found");
+            _logger.LogWarning("PostComment failed, user not found. UserId={UserId}", userId);
+            throw new UnauthorizedAccessException("Authenticated user not found in database.");
         }
 
         if (!int.TryParse(request.RecipeId, out var recipeId))
         {
+            _logger.LogWarning("PostComment failed. Invalid recipe Id. UserId={UserId}", userId);
             return Result<CommentDto>.Fail("Invalid recipe ID");
         }
 
@@ -85,14 +99,17 @@ public class CommentsHandler
             RecipeId = recipeId
         };
 
+      
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync(ct);
+        _logger.LogInformation("PostComment created successfully. CommentId={CommentId}", comment.Id);
 
+       
         await _sseManager.BroadcastToAll("new_comment", new
         {
             commentId = comment.Id,
             recipeId = comment.RecipeId,
-            userName = user.UserName,
+            userName,
             text = comment.Text,
             score = comment.Score,
             createdAt = comment.CreatedAt
@@ -103,9 +120,11 @@ public class CommentsHandler
             comment.Text,
             comment.Score,
             comment.CreatedAt,
-            user.UserName,
+            userName,
             comment.UserId
         );
+
+        _logger.LogInformation("PostComment successful. CommentId={CommentId}, RecipeId={RecipeId}", comment.Id, comment.RecipeId);
 
         return Result<CommentDto>.Ok(commentDto);
     }

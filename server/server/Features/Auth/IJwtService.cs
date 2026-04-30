@@ -2,5 +2,5 @@ namespace server.Features.Auth;
 
 public interface IJwtService
 {
-    string GenereateToken(string userId, string userName);
+    string GenerateToken(string userId, string userName);
 }
