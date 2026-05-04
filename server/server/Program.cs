@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using Serilog.Exceptions;
 using server.Data;
 using server.Features.Auth;
 using server.Features.Recipes.CreateRecipe;
@@ -92,6 +93,8 @@ builder.Host.UseSerilog((context, services, configuration) =>
     configuration
         .ReadFrom.Configuration(context.Configuration)
         .Enrich.FromLogContext()
+        .Enrich.WithEnvironmentName()
+        .Enrich.WithExceptionDetails()
         .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {CorrelationId} {Message:lj}{NewLine}{Exception}")
         .WriteTo.File(
             "logs/log-.txt",

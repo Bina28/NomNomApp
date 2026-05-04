@@ -26,37 +26,33 @@ public class AuthHandler
 
     public async Task<Result<string>> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
-        _logger.LogInformation("LoginAsync started. Email={Email}", request.Email);
         var user = await _context.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Email == request.Email, ct);
 
         if (user == null)
         {
-            _logger.LogWarning("Login failed, user not found. Email={Email}", request.Email);
+            _logger.LogWarning("Login failed: user not found. Email={Email}", request.Email);
             return Result<string>.Fail("Invalid email or password");
-
         }
 
         if (!_passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
         {
-            _logger.LogWarning("Login failed, wrong password. Email={Email}", request.Email);
+            _logger.LogWarning("Login failed: wrong password. UserId={UserId}", user.Id);
             return Result<string>.Fail("Invalid email or password");
         }
 
-        _logger.LogInformation("Login successful. Email={Email}", request.Email);
         var token = _jwtService.GenerateToken(user.Id, user.UserName);
+        _logger.LogInformation("User {UserId} logged in", user.Id);
         return Result<string>.Ok(token);
-
     }
 
     public async Task<Result<string>> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
     {
-        _logger.LogInformation("RegisterAsync started. Email={Email}", request.Email);
-        var user = await _context.Users.AnyAsync(u => u.Email == request.Email, ct);
-        if (user)
+        var emailTaken = await _context.Users.AnyAsync(u => u.Email == request.Email, ct);
+        if (emailTaken)
         {
-            _logger.LogWarning("Registration failed, email already exists. Email={Email}", request.Email);
+            _logger.LogWarning("Registration failed: email already exists. Email={Email}", request.Email);
             return Result<string>.Fail("User already exists");
         }
 
@@ -65,24 +61,21 @@ public class AuthHandler
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync(ct);
 
-        _logger.LogInformation("Registration successful. Email={Email}", request.Email);
         var token = _jwtService.GenerateToken(newUser.Id, newUser.UserName);
+        _logger.LogInformation("Registered user {UserId} with name {UserName}", newUser.Id, newUser.UserName);
         return Result<string>.Ok(token);
     }
 
     public async Task<Result<UserDto>> GetCurrentUserAsync(string userId, CancellationToken ct = default)
     {
-        _logger.LogInformation("GetCurrentUserAsync started. UserId={UserId}", userId);
-
         var user = await _context.Users.FindAsync([userId], ct);
 
         if (user == null)
         {
-            _logger.LogWarning("GetCurrentUserAsync failed, user not found. UserId={UserId}", userId);
+            _logger.LogError("Authenticated user {UserId} not found in database", userId);
             return Result<UserDto>.Fail("User not found");
         }
 
-        _logger.LogInformation("GetCurrentUserAsync successful. UserId={UserId}", userId);
         return Result<UserDto>.Ok(new UserDto
         {
             Id = user.Id,
@@ -93,7 +86,6 @@ public class AuthHandler
 
     public async Task<Result<List<UserDto>>> GetUsersExceptCurrentAsync(string currentUserId, CancellationToken ct = default)
     {
-        _logger.LogInformation("GetUsersExceptCurrentAsync started. CurrentUserId={CurrentUserId}", currentUserId);
         var users = await _context.Users
             .Where(u => u.Id != currentUserId)
             .AsNoTracking()
@@ -105,7 +97,6 @@ public class AuthHandler
             })
             .ToListAsync(ct);
 
-        _logger.LogInformation("GetUsersExceptCurrentAsync successful. Count={Count}", users.Count);
         return Result<List<UserDto>>.Ok(users);
     }
 }

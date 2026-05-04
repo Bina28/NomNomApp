@@ -22,23 +22,22 @@ public class CommentsHandler
 
     public async Task<Result<bool>> DeleteComment(string commentId, CancellationToken ct = default)
     {
-        _logger.LogInformation("DeleteComment started. CommentId={CommentId}", commentId);
         var comment = await _context.Comments.FindAsync([commentId], ct);
         if (comment == null)
         {
-            _logger.LogWarning("DeleteComment failed, comment not found. CommentId={CommentId}", commentId);
+            _logger.LogWarning("Comment {CommentId} not found for delete", commentId);
             return Result<bool>.Fail("Comment not found");
         }
+
         _context.Comments.Remove(comment);
         await _context.SaveChangesAsync(ct);
 
-        _logger.LogInformation("DeleteComment successful. CommentId={CommentId}", commentId);
+        _logger.LogInformation("Deleted comment {CommentId}", commentId);
         return Result<bool>.Ok(true);
     }
 
     public async Task<Result<List<CommentDto>>> GetCommentsForRecipe(int recipeId, CancellationToken ct = default)
     {
-        _logger.LogInformation("GetCommentsForRecipe started. RecipeId={RecipeId}", recipeId);
         var comments = await _context.Comments
             .AsNoTracking()
             .Where(c => c.RecipeId == recipeId)
@@ -53,41 +52,36 @@ public class CommentsHandler
             ))
             .ToListAsync(ct);
 
-        _logger.LogInformation("GetCommentsForRecipe successful. RecipeId={RecipeId}, Count={Count}", recipeId,
-        comments.Count);
         return Result<List<CommentDto>>.Ok(comments);
     }
 
     public async Task<Result<double>> GetCommentsScore(int recipeId, CancellationToken ct = default)
     {
-        _logger.LogInformation("GetCommentsScore started. RecipeId={RecipeId}", recipeId);
         var averageScore = await _context.Comments
           .Where(c => c.RecipeId == recipeId)
           .Select(s => (double?)s.Score)
           .AverageAsync(ct);
 
-        _logger.LogInformation("GetCommentsScore successful. RecipeId={RecipeId}, Score={Score}", recipeId, averageScore ?? 0);
         return Result<double>.Ok(averageScore ?? 0);
     }
 
     public async Task<Result<CommentDto>> PostComment(CreateCommentRequest request, string userId, CancellationToken ct = default)
     {
-        _logger.LogInformation("PostComment started. UserId={UserId}", userId);
         var userName = await _context.Users
-            .Where(u => u.Id== userId)
+            .Where(u => u.Id == userId)
             .AsNoTracking()
             .Select(u => u.UserName)
             .FirstOrDefaultAsync(ct);
 
         if (userName == null)
         {
-            _logger.LogWarning("PostComment failed, user not found. UserId={UserId}", userId);
+            _logger.LogError("Authenticated user {UserId} not found in database", userId);
             throw new UnauthorizedAccessException("Authenticated user not found in database.");
         }
 
         if (!int.TryParse(request.RecipeId, out var recipeId))
         {
-            _logger.LogWarning("PostComment failed. Invalid recipe Id. UserId={UserId}", userId);
+            _logger.LogWarning("Invalid recipe id {RawRecipeId} from user {UserId}", request.RecipeId, userId);
             return Result<CommentDto>.Fail("Invalid recipe ID");
         }
 
@@ -99,12 +93,9 @@ public class CommentsHandler
             RecipeId = recipeId
         };
 
-      
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync(ct);
-        _logger.LogInformation("PostComment created successfully. CommentId={CommentId}", comment.Id);
 
-       
         await _sseManager.BroadcastToAll("new_comment", new
         {
             commentId = comment.Id,
@@ -124,8 +115,7 @@ public class CommentsHandler
             comment.UserId
         );
 
-        _logger.LogInformation("PostComment successful. CommentId={CommentId}, RecipeId={RecipeId}", comment.Id, comment.RecipeId);
-
+        _logger.LogInformation("Created comment {CommentId} on recipe {RecipeId} by user {UserId}", comment.Id, comment.RecipeId, userId);
         return Result<CommentDto>.Ok(commentDto);
     }
 }

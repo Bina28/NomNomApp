@@ -1,15 +1,5 @@
-﻿namespace Server.Features.Follows.DTOs;
+namespace Server.Features.Follows.DTOs;
 
-public class FollowDto
-{
-    public required string Id { get; set; }
-    public required string FollowerId { get; set; }
-    public required string FollowingId { get; set; }
-    public UserInfo? Follower { get; set; }
-    public UserInfo? Following { get; set; }
-}
+public record FollowerDto(string Id, string FollowerId, string UserName);
 
-public class UserInfo
-{
-    public required string UserName { get; set; }
-}
+public record FollowingDto(string Id, string FollowingId, string UserName);

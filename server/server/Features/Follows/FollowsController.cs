@@ -19,7 +19,7 @@ public class FollowsController : ControllerBase
 
 
     [HttpPost("{userId}")]
-    public async Task<ActionResult<FollowDto>> FollowUser(string userId, CancellationToken ct)
+    public async Task<ActionResult<bool>> FollowUser(string userId, CancellationToken ct)
     {
         var result = await _followsHandler.FollowUser(User.GetUserId(), userId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
@@ -35,14 +35,14 @@ public class FollowsController : ControllerBase
 
 
     [HttpGet("followers")]
-    public async Task<ActionResult<List<FollowDto>>> GetFollowers(CancellationToken ct)
+    public async Task<ActionResult<List<FollowerDto>>> GetFollowers(CancellationToken ct)
     {
         var result = await _followsHandler.GetFollowers(User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
     [HttpGet("following")]
-    public async Task<ActionResult<FollowDto>> GetFollowing(CancellationToken ct)
+    public async Task<ActionResult<List<FollowingDto>>> GetFollowing(CancellationToken ct)
     {
         var result = await _followsHandler.GetFollowing(User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);

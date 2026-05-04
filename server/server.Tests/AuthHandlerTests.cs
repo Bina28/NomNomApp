@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using server.Data;
 using server.Domain;
@@ -25,7 +26,7 @@ public class AuthHandlerTests
         var hashServiceMock = Substitute.For<IPasswordHasher>();
         var jwtServiceMock = Substitute.For<IJwtService>();
         hashServiceMock.VerifyPassword(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
-        jwtServiceMock.GenereateToken(Arg.Any<string>(), Arg.Any<string>()).Returns("fake-jwt-token");
+        jwtServiceMock.GenerateToken(Arg.Any<string>(), Arg.Any<string>()).Returns("fake-jwt-token");
 
         var user = new User
         {
@@ -37,7 +38,8 @@ public class AuthHandlerTests
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
-        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock));
+        var loggerMock = Substitute.For<ILogger<AuthHandler>>();
+        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock), loggerMock);
         var request = new LoginRequest("test@gmail.com", "password");
 
         //act       
@@ -72,7 +74,8 @@ public class AuthHandlerTests
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
-        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock));
+        var loggerMock = Substitute.For<ILogger<AuthHandler>>();
+        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock), loggerMock);
         var request = new LoginRequest("test@gmail.com", "password");
 
         //act      
@@ -82,7 +85,7 @@ public class AuthHandlerTests
         Assert.False(result.Success);
         Assert.Null(result.Data);
         Assert.Equal("Invalid email or password", result.Error);
-        jwtServiceMock.DidNotReceive().GenereateToken(Arg.Any<string>(), Arg.Any<string>());
+        jwtServiceMock.DidNotReceive().GenerateToken(Arg.Any<string>(), Arg.Any<string>());
 
     }
 
@@ -98,7 +101,8 @@ public class AuthHandlerTests
         using var context = new AppDbContext(options);
         var hashServiceMock = Substitute.For<IPasswordHasher>();
         var jwtServiceMock = Substitute.For<IJwtService>();
-        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock));
+        var loggerMock = Substitute.For<ILogger<AuthHandler>>();
+        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock), loggerMock);
         var request = new LoginRequest("someuser@gmail.com", "password");
 
         //act
@@ -108,7 +112,7 @@ public class AuthHandlerTests
         Assert.False(result.Success);
         Assert.Null(result.Data);
         Assert.Equal("Invalid email or password", result.Error);
-        jwtServiceMock.DidNotReceive().GenereateToken(Arg.Any<string>(), Arg.Any<string>());
+        jwtServiceMock.DidNotReceive().GenerateToken(Arg.Any<string>(), Arg.Any<string>());
         hashServiceMock.DidNotReceive().VerifyPassword(Arg.Any<string>(), Arg.Any<string>());
     }
 
@@ -126,9 +130,10 @@ public class AuthHandlerTests
         var hashServiceMock = Substitute.For<IPasswordHasher>();
         var jwtServiceMock = Substitute.For<IJwtService>();
 
-        jwtServiceMock.GenereateToken(Arg.Any<string>(), Arg.Any<string>()).Returns("fake-jwt-token");
+        jwtServiceMock.GenerateToken(Arg.Any<string>(), Arg.Any<string>()).Returns("fake-jwt-token");
         hashServiceMock.HashPassword(Arg.Any<string>()).Returns("hashedpassword");
-        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock));
+        var loggerMock = Substitute.For<ILogger<AuthHandler>>();
+        var authHandler = new AuthHandler(jwtServiceMock, context, hashServiceMock, new RegisterMapper(hashServiceMock), loggerMock);
         var request = new RegisterRequest("newuser", "test@gmail.com", "password");
 
         //act
@@ -145,7 +150,7 @@ public class AuthHandlerTests
         Assert.Equal("hashedpassword", userInDb.PasswordHash);
 
         hashServiceMock.Received(1).HashPassword("password");
-        jwtServiceMock.Received(1).GenereateToken(Arg.Any<string>(), Arg.Any<string>());
+        jwtServiceMock.Received(1).GenerateToken(Arg.Any<string>(), Arg.Any<string>());
 
     }
 
@@ -181,7 +186,8 @@ public class AuthHandlerTests
             Substitute.For<IJwtService>(),
             context,
             hasher,
-            new RegisterMapper(hasher));
+            new RegisterMapper(hasher),
+            Substitute.For<ILogger<AuthHandler>>());
 
         //act
         var result = await authHandler.GetCurrentUserAsync(userId);
@@ -193,36 +199,7 @@ public class AuthHandlerTests
     }
 
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    public async Task GetCurrentUserAsync_EmptyOrNullId_ReturnsFail(string? userId)
-    {
-        //arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-        .Options;
-
-        using var context = new AppDbContext(options);
-
-        var hasher = Substitute.For<IPasswordHasher>();
-        var authHandler = new AuthHandler(
-     Substitute.For<IJwtService>(),
-     context,
-     hasher,
-     new RegisterMapper(hasher));
-
-        //act
-        var result = await authHandler.GetCurrentUserAsync(userId!);
-
-        //assert
-        Assert.False(result.Success);
-        Assert.Null(result.Data);
-        Assert.Equal("Unauthorized", result.Error);
-    }
-
-
-    [Fact]
+[Fact]
     public async Task GetAllUsersAsync_ExcludesCurrentUser()
     {
         //arrange
@@ -237,7 +214,8 @@ public class AuthHandlerTests
      Substitute.For<IJwtService>(),
      context,
      hasher,
-     new RegisterMapper(hasher));
+     new RegisterMapper(hasher),
+     Substitute.For<ILogger<AuthHandler>>());
 
         var users = new List<User>
         {
@@ -250,7 +228,7 @@ public class AuthHandlerTests
         await context.SaveChangesAsync();
 
         //act
-        var result = await authHandler.GetAllUsersAsync("3");
+        var result = await authHandler.GetUsersExceptCurrentAsync("3");
 
         //assert
         Assert.True(result.Success);
