@@ -1,3 +1,12 @@
-﻿namespace server.Features.Auth.DTOs;
+using System.ComponentModel.DataAnnotations;
 
-public record LoginRequest(string Email, string Password);
+namespace server.Features.Auth.DTOs;
+
+public record LoginRequest
+{
+    [Required, EmailAddress]
+    public required string Email { get; init; }
+
+    [Required]
+    public required string Password { get; init; }
+}

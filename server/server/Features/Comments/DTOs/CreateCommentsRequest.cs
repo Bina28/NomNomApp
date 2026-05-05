@@ -1,3 +1,14 @@
-﻿namespace Server.Features.Comments.DTOs;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record CreateCommentRequest(string RecipeId, string Text, int Score);
+namespace Server.Features.Comments.DTOs;
+
+public record CreateCommentRequest
+{
+    [Required, MinLength(1), MaxLength(500)]
+    public required string Text { get; set; }
+
+    [Required, Range(1, 5)]
+    public int Score { get; set; }
+}
+
+

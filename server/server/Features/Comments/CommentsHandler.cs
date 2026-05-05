@@ -65,7 +65,7 @@ public class CommentsHandler
         return Result<double>.Ok(averageScore ?? 0);
     }
 
-    public async Task<Result<CommentDto>> PostComment(CreateCommentRequest request, string userId, CancellationToken ct = default)
+    public async Task<Result<CommentDto>> PostComment(int recipeId, CreateCommentRequest request, string userId, CancellationToken ct = default)
     {
         var userName = await _context.Users
             .Where(u => u.Id == userId)
@@ -79,18 +79,12 @@ public class CommentsHandler
             throw new UnauthorizedAccessException("Authenticated user not found in database.");
         }
 
-        if (!int.TryParse(request.RecipeId, out var recipeId))
-        {
-            _logger.LogWarning("Invalid recipe id {RawRecipeId} from user {UserId}", request.RecipeId, userId);
-            return Result<CommentDto>.Fail("Invalid recipe ID");
-        }
-
-        var comment = new Comment
+         var comment = new Comment
         {
             Text = request.Text,
             Score = request.Score,
             UserId = userId,
-            RecipeId = recipeId
+            RecipeId =  recipeId
         };
 
         _context.Comments.Add(comment);

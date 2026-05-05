@@ -17,11 +17,11 @@ public class CommentsController : ControllerBase
     }
 
 
-    [HttpPost]
+    [HttpPost("recipe/{recipeId}")]
     [Authorize]
-    public async Task<ActionResult<CommentDto>> PostAsync([FromBody] CreateCommentRequest request, CancellationToken ct)
+    public async Task<ActionResult<CommentDto>> PostAsync(int recipeId, [FromBody] CreateCommentRequest request, CancellationToken ct)
     {
-        var result = await _commentsHandler.PostComment(request, User.GetUserId(), ct);
+        var result = await _commentsHandler.PostComment(recipeId, request, User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
