@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using server.Features.Auth;
-using Server.Features.Follows.DTOs;
+using Server.Features.Auth;
+using Server.Features.Follows.CheckFollowStatus;
+using Server.Features.Follows.Follow;
+using Server.Features.Follows.GetFollowers;
+using Server.Features.Follows.GetFollowing;
+using Server.Features.Follows.Unfollow;
 
 namespace Server.Features.Follows;
 
@@ -10,18 +14,27 @@ namespace Server.Features.Follows;
 [Route("api/[controller]")]
 public class FollowsController : ControllerBase
 {
-    private readonly FollowsHandler _followsHandler;
+    private readonly FollowHandler _followHandler;
+    private readonly UnfollowHandler _unfollowHandler;
+    private readonly GetFollowersHandler _getFollowersHandler;
+    private readonly GetFollowingHandler _getFollowingHandler;
+    private readonly CheckFollowStatusHandler _checkFollowStatusHandler;
 
-    public FollowsController(FollowsHandler followsHandler)
+
+    public FollowsController(FollowHandler followHandler, UnfollowHandler unfollowHandler, GetFollowersHandler getFollowersHandler, GetFollowingHandler getFollowingHandler, CheckFollowStatusHandler followStatusHandler)
     {
-        _followsHandler = followsHandler;
+        _followHandler = followHandler;
+        _unfollowHandler = unfollowHandler;
+        _getFollowingHandler = getFollowingHandler;
+        _getFollowersHandler = getFollowersHandler;
+        _checkFollowStatusHandler = followStatusHandler;
     }
 
 
     [HttpPost("{userId}")]
     public async Task<ActionResult<bool>> FollowUser(string userId, CancellationToken ct)
     {
-        var result = await _followsHandler.FollowUser(User.GetUserId(), userId, ct);
+        var result = await _followHandler.FollowUser(User.GetUserId(), userId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
@@ -29,22 +42,22 @@ public class FollowsController : ControllerBase
     [HttpDelete("{userId}")]
     public async Task<ActionResult<bool>> UnfollowUser(string userId, CancellationToken ct)
     {
-        var result = await _followsHandler.UnfollowUser(User.GetUserId(), userId, ct);
+        var result = await _unfollowHandler.UnfollowUser(User.GetUserId(), userId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
 
     [HttpGet("followers")]
-    public async Task<ActionResult<List<FollowerDto>>> GetFollowers(CancellationToken ct)
+    public async Task<ActionResult<List<FollowerResponse>>> GetFollowers(CancellationToken ct)
     {
-        var result = await _followsHandler.GetFollowers(User.GetUserId(), ct);
+        var result = await _getFollowersHandler.GetFollowers(User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
     [HttpGet("following")]
-    public async Task<ActionResult<List<FollowingDto>>> GetFollowing(CancellationToken ct)
+    public async Task<ActionResult<List<GetFollowers.FollowingResponse>>> GetFollowing(CancellationToken ct)
     {
-        var result = await _followsHandler.GetFollowing(User.GetUserId(), ct);
+        var result = await _getFollowingHandler.GetFollowing(User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
@@ -52,7 +65,7 @@ public class FollowsController : ControllerBase
     [HttpGet("check/{userId}")]
     public async Task<ActionResult<bool>> IsFollowing(string userId, CancellationToken ct)
     {
-        var result = await _followsHandler.IsFollowing(User.GetUserId(), userId, ct);
+        var result = await _checkFollowStatusHandler.IsFollowing(User.GetUserId(), userId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 }

@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
-using server.Domain;
+using Server.Domain;
 using Server.Features.Recipes.GetRecipeById;
 using Server.Features.Recipes.Infrastructure.Recipes;
 using Server.Features.Recipes.SaveRecipe;
 
-namespace server.Tests;
+namespace Server.Tests;
 
 public class GetRecipeTests
 {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace server.Domain;
+namespace Server.Domain;
 
 public class Photo
 {

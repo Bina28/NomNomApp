@@ -1,4 +1,4 @@
-﻿namespace server.Features.Auth;
+﻿namespace Server.Features.Auth;
 
 public static class JwtServiceCollectionExtensions
 {

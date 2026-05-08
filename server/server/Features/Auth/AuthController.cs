@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using server.Features.Auth.DTOs;
-using Server.Features.Auth.DTOs;
+using Server.Features.Auth.Login;
+using Server.Features.Auth.Register;
+using Server.Features.Auth.Shared;
 
-namespace server.Features.Auth;
+namespace Server.Features.Auth;
 
 
 [Route("api/auth")]
@@ -11,10 +12,12 @@ namespace server.Features.Auth;
 public class AuthController : ControllerBase
 {
     private readonly AuthHandler _service;
+    private readonly LoginHandler _login;
 
-    public AuthController(AuthHandler service)
+    public AuthController(AuthHandler service, LoginHandler login)
     {
         _service = service;
+        _login = login;
     }
 
 
@@ -22,7 +25,7 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken ct)
     {
-        var result = await _service.LoginAsync(request, ct);
+        var result = await _login.LoginAsync(request, ct);
         if (!result.Success || string.IsNullOrEmpty(result.Data))
             return Problem(detail: result.Error, statusCode: 401);
 
@@ -55,9 +58,10 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpGet("me")]
-    public async Task<ActionResult<UserDto>> Me(CancellationToken ct)
+    public async Task<ActionResult<UserResponse>> Me(CancellationToken ct)
     {
         var result = await _service.GetCurrentUserAsync(User.GetUserId(), ct);
+
         return result.Success
             ? Ok(result.Data)
             : Problem(detail: result.Error, statusCode: 401);
@@ -66,9 +70,10 @@ public class AuthController : ControllerBase
 
     [HttpGet("users")]
     [Authorize]
-    public async Task<ActionResult<List<UserDto>>> GetAllUsers(CancellationToken ct)
+    public async Task<ActionResult<List<UserResponse>>> GetAllUsers(CancellationToken ct)
     {
         var result = await _service.GetUsersExceptCurrentAsync(User.GetUserId(), ct);
+      
         return result.Success
             ? Ok(result.Data)
             : Problem(detail: result.Error, statusCode: 400);

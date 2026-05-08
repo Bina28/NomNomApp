@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using server.Features.Recipes.FindByNutrients;
+using Server.Features.Recipes.FindByNutrients;
 using Server.Features.Recipes.FindByNutrients;
 using Server.Features.Recipes.GetRecipeById;
 
-namespace server.Features.Recipes;
+namespace Server.Features.Recipes;
 
 [ApiController]
 [Route("api/[controller]")]

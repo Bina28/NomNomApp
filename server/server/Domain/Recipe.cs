@@ -1,6 +1,6 @@
 ﻿using Server.Domain;
 
-namespace server.Domain;
+namespace Server.Domain;
 
 public class Recipe
 {

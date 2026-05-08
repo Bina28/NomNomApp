@@ -1,4 +1,4 @@
-﻿using server.Domain;
+﻿using Server.Domain;
 using Server.Features.Recipes.FindByNutrients;
 
 namespace Server.Features.Recipes.Infrastructure.Recipes;

@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using server.Data;
-using server.Features.Shared;
+using Server.Data;
+using Server.Features.Shared;
 using Server.Features.Recipes.FindByNutrients;
 using Server.Features.Recipes.Infrastructure.Recipes;
 using Server.Features.Recipes.SaveRecipe;
 
-namespace server.Features.Recipes.FindByNutrients;
+namespace Server.Features.Recipes.FindByNutrients;
 
 public class FindRecipesByNutrientsHandler
 {

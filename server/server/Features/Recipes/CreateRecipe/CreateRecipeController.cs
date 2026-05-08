@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using server.Features.Auth;
-using server.Features.Recipes.CreateRecipe.DTOs;
+using Server.Features.Auth;
+using Server.Features.Recipes.CreateRecipe.DTOs;
 
-namespace server.Features.Recipes.CreateRecipe;
+namespace Server.Features.Recipes.CreateRecipe;
 
 [ApiController]
 [Authorize]

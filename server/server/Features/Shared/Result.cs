@@ -1,4 +1,4 @@
-﻿namespace server.Features.Shared;
+﻿namespace Server.Features.Shared;
 
 public record Result<T>
 {

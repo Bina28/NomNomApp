@@ -1,7 +1,7 @@
 ﻿namespace Server.Features.Comments.DTOs;
 
 
-public record CommentDto(
+public record CommentResponse(
 string Id,
 string Text,
 int Score,

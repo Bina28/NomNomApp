@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using server.Data;
-using server.Domain;
-using server.Features.Auth;
-using server.Features.Auth.DTOs;
+using Server.Data;
+using Server.Domain;
+using Server.Features.Auth;
+using Server.Features.Auth.DTOs;
 using Server.Features.Auth.DTOs;
 
 namespace Server.Tests;

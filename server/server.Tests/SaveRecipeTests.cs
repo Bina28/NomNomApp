@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NSubstitute;
-using server.Data;
-using server.Domain;
+using Server.Data;
+using Server.Domain;
 using Server.Features.Recipes.Infrastructure.Photo;
 using Server.Features.Recipes.Infrastructure.Photo.CloudinaryPhoto;
 using Server.Features.Recipes.SaveRecipe;

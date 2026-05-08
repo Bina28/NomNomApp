@@ -1,4 +1,4 @@
-﻿using server.Domain;
+﻿using Server.Domain;
 
 namespace Server.Domain;
 

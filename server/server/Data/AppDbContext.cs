@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using server.Domain;
+using Server.Domain;
 using Server.Domain;
 
 
-namespace server.Data;
+namespace Server.Data;
 
 public class AppDbContext : DbContext
 {

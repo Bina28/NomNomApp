@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace server.Features.Recipes.CreateRecipe.DTOs;
+namespace Server.Features.Recipes.CreateRecipe.DTOs;
 
 public record RecipeDto
 {

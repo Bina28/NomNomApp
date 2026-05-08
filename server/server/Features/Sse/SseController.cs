@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using server.Features.Auth;
+using Server.Features.Auth;
 
 namespace Server.Features.Sse;
 

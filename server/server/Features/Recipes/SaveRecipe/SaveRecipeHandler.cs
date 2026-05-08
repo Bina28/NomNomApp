@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using server.Data;
-using server.Domain;
+using Server.Data;
+using Server.Domain;
 using Server.Features.Recipes.Infrastructure.Photo;
 
 namespace Server.Features.Recipes.SaveRecipe;

@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using server.Features.Auth;
+using Server.Features.Auth;
+using Server.Features.Comments.DeleteComment;
 using Server.Features.Comments.DTOs;
+using Server.Features.Comments.GetComments;
+using Server.Features.Comments.GetCommentsScore;
+using Server.Features.Comments.PostComment;
 
 namespace Server.Features.Comments;
 
@@ -9,27 +13,32 @@ namespace Server.Features.Comments;
 [Route("api/[controller]")]
 public class CommentsController : ControllerBase
 {
-    private readonly CommentsHandler _commentsHandler;
+    private readonly PostCommentHandler _postCommentHandler;
+    private readonly DeleteCommentHandler _deleteCommentHandler;
+    private readonly GetCommentsHandler _getCommentsHandler;
+    private readonly GetCommentsScoreHandler _getCommentsScoreHandler;
 
-    public CommentsController(CommentsHandler commentsHandler)
+    public CommentsController(PostCommentHandler postCommentHandler, DeleteCommentHandler deleteCommentHandler, GetCommentsHandler getCommentsHandler, GetCommentsScoreHandler getCommentsScoreHandler)
     {
-        _commentsHandler = commentsHandler;
+        _postCommentHandler = postCommentHandler;
+        _deleteCommentHandler = deleteCommentHandler;
+        _getCommentsHandler = getCommentsHandler;
+        _getCommentsScoreHandler = getCommentsScoreHandler;
     }
-
 
     [HttpPost("recipe/{recipeId}")]
     [Authorize]
-    public async Task<ActionResult<CommentDto>> PostAsync(int recipeId, [FromBody] CreateCommentRequest request, CancellationToken ct)
+    public async Task<ActionResult<CommentResponse>> PostAsync(int recipeId, [FromBody] CreateCommentRequest request, CancellationToken ct)
     {
-        var result = await _commentsHandler.PostComment(recipeId, request, User.GetUserId(), ct);
+        var result = await _postCommentHandler.PostComment(recipeId, request, User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
 
     [HttpGet("recipe/{recipeId}")]
-    public async Task<ActionResult<List<CommentDto>>> GetCommentsForRecipe(int recipeId, CancellationToken ct)
+    public async Task<ActionResult<List<CommentResponse>>> GetCommentsForRecipe(int recipeId, CancellationToken ct)
     {
-        var result = await _commentsHandler.GetCommentsForRecipe(recipeId, ct);
+        var result = await _getCommentsHandler.GetCommentsForRecipe(recipeId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
@@ -38,7 +47,7 @@ public class CommentsController : ControllerBase
     [Authorize]
     public async Task<ActionResult<bool>> Delete(string id, CancellationToken ct)
     {
-        var result = await _commentsHandler.DeleteComment(id, ct);
+        var result = await _deleteCommentHandler.DeleteComment(id, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
@@ -46,7 +55,7 @@ public class CommentsController : ControllerBase
     [HttpGet("recipe/{recipeId}/score")]
     public async Task<ActionResult<double>> GetCommentsScore(int recipeId, CancellationToken ct)
     {
-        var result = await _commentsHandler.GetCommentsScore(recipeId, ct);
+        var result = await _getCommentsScoreHandler.GetCommentsScore(recipeId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 }

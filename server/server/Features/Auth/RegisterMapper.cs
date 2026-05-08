@@ -1,8 +1,8 @@
 ﻿
-using server.Domain;
-using server.Features.Auth.DTOs;
+using Server.Domain;
+using Server.Features.Auth.Register;
 
-namespace server.Features.Auth;
+namespace Server.Features.Auth;
 
 public class RegisterMapper
 {

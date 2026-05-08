@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Server.Features.Comments.DTOs;
+namespace Server.Features.Comments.PostComment;
 
 public record CreateCommentRequest
 {

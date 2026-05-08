@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using server.Data;
-using server.Features.Recipes.CreateRecipe.DTOs;
-using server.Features.Shared;
+using Server.Data;
+using Server.Features.Recipes.CreateRecipe.DTOs;
+using Server.Features.Shared;
 
-namespace server.Features.Recipes.CreateRecipe;
+namespace Server.Features.Recipes.CreateRecipe;
 
 public class CreateRecipeHandler
 {

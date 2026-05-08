@@ -1,4 +1,4 @@
-﻿using server.Features.Shared;
+﻿using Server.Features.Shared;
 using Server.Features.Recipes.Infrastructure.Recipes;
 using Server.Features.Recipes.SaveRecipe;
 

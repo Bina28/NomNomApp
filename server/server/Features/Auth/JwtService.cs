@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace server.Features.Auth;
+namespace Server.Features.Auth;
 
 public class JwtService : IJwtService
 {

@@ -1,8 +1,8 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace server.Features.Auth.DTOs;
+namespace Server.Features.Auth.Login;
 
-public record LoginRequest
+public class LoginRequest
 {
     [Required, EmailAddress]
     public required string Email { get; init; }

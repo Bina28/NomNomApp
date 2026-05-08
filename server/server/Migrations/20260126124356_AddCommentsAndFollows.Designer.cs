@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using server.Data;
+using Server.Data;
 
 #nullable disable
 
@@ -39,7 +39,7 @@ namespace Server.Migrations
                     b.ToTable("IngredientRecipe");
                 });
 
-            modelBuilder.Entity("server.Domain.Ingredient", b =>
+            modelBuilder.Entity("Server.Domain.Ingredient", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -52,7 +52,7 @@ namespace Server.Migrations
                     b.ToTable("Ingredients");
                 });
 
-            modelBuilder.Entity("server.Domain.Photo", b =>
+            modelBuilder.Entity("Server.Domain.Photo", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -76,7 +76,7 @@ namespace Server.Migrations
                     b.ToTable("Photos");
                 });
 
-            modelBuilder.Entity("server.Domain.Recipe", b =>
+            modelBuilder.Entity("Server.Domain.Recipe", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -101,7 +101,7 @@ namespace Server.Migrations
                     b.ToTable("Recipes");
                 });
 
-            modelBuilder.Entity("server.Domain.User", b =>
+            modelBuilder.Entity("Server.Domain.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -123,7 +123,7 @@ namespace Server.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("server.Domain.UserRecipe", b =>
+            modelBuilder.Entity("Server.Domain.UserRecipe", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -142,7 +142,7 @@ namespace Server.Migrations
                     b.ToTable("UserRecipes");
                 });
 
-            modelBuilder.Entity("server.Domain.UserRecipeIngredients", b =>
+            modelBuilder.Entity("Server.Domain.UserRecipeIngredients", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -167,42 +167,42 @@ namespace Server.Migrations
 
             modelBuilder.Entity("IngredientRecipe", b =>
                 {
-                    b.HasOne("server.Domain.Ingredient", null)
+                    b.HasOne("Server.Domain.Ingredient", null)
                         .WithMany()
                         .HasForeignKey("ExtendedIngredientsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server.Domain.Recipe", null)
+                    b.HasOne("Server.Domain.Recipe", null)
                         .WithMany()
                         .HasForeignKey("RecipesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("server.Domain.Photo", b =>
+            modelBuilder.Entity("Server.Domain.Photo", b =>
                 {
-                    b.HasOne("server.Domain.Recipe", "Recipe")
+                    b.HasOne("Server.Domain.Recipe", "Recipe")
                         .WithOne("Photos")
-                        .HasForeignKey("server.Domain.Photo", "RecipeId")
+                        .HasForeignKey("Server.Domain.Photo", "RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Recipe");
                 });
 
-            modelBuilder.Entity("server.Domain.UserRecipe", b =>
+            modelBuilder.Entity("Server.Domain.UserRecipe", b =>
                 {
-                    b.HasOne("server.Domain.User", "User")
+                    b.HasOne("Server.Domain.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("server.Domain.UserRecipeIngredients", b =>
+            modelBuilder.Entity("Server.Domain.UserRecipeIngredients", b =>
                 {
-                    b.HasOne("server.Domain.UserRecipe", "Recipe")
+                    b.HasOne("Server.Domain.UserRecipe", "Recipe")
                         .WithMany("Ingredients")
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -210,12 +210,12 @@ namespace Server.Migrations
                     b.Navigation("Recipe");
                 });
 
-            modelBuilder.Entity("server.Domain.Recipe", b =>
+            modelBuilder.Entity("Server.Domain.Recipe", b =>
                 {
                     b.Navigation("Photos");
                 });
 
-            modelBuilder.Entity("server.Domain.UserRecipe", b =>
+            modelBuilder.Entity("Server.Domain.UserRecipe", b =>
                 {
                     b.Navigation("Ingredients");
                 });
