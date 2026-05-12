@@ -22,6 +22,16 @@ public class PostCommentHandler
 
     public async Task<Result<CommentResponse>> PostComment(int recipeId, CreateCommentRequest request, string userId, CancellationToken ct = default)
     {
+        var recipeExists = await _context.Recipes
+            .AsNoTracking()
+            .AnyAsync(r => r.Id == recipeId, ct);
+
+        if (!recipeExists)
+        {
+            _logger.LogWarning("Recipe {RecipeId} not found for comment creation", recipeId);
+            return Result<CommentResponse>.Fail("Recipe not found");
+        }
+
         var userName = await _context.Users
             .Where(u => u.Id == userId)
             .AsNoTracking()

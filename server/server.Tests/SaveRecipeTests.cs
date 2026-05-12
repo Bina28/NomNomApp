@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
 using NSubstitute;
-using Server.Data;
 using Server.Domain;
 using Server.Features.Recipes.Infrastructure.Photo;
 using Server.Features.Recipes.Infrastructure.Photo.CloudinaryPhoto;
@@ -13,19 +11,13 @@ public class SaveRecipeTests
     [Fact]
     public async Task SaveRecipe_WhenRecipeHasIngredientsAndImage_ShouldSaveRecipeAndUploadImage()
     {
-
-        //Arrange 
-        var dbName = Guid.NewGuid().ToString();
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(dbName)
-            .Options;
-
-        using var context = new AppDbContext(options);
+        //Arrange
+        using var db = new TestDb();
 
         var photoMock = Substitute.For<IPhotoProvider>();
         photoMock
-       .UploadImgFromUrl("Test image url")
-       .Returns(new PhotoUploadResult("public-id", "uploaded-url"));
+            .UploadImgFromUrl("Test image url")
+            .Returns(new PhotoUploadResult("public-id", "uploaded-url"));
 
         var recipe = new Recipe
         {
@@ -36,13 +28,13 @@ public class SaveRecipeTests
         };
 
         //Act
-        var sut = new SaveRecipeHandler(context, photoMock);
+        var sut = new SaveRecipeHandler(db.Context, photoMock);
         await sut.SaveRecipe(recipe);
 
         //Assert
-        Assert.Equal(1, context.Recipes.Count());
-        Assert.Equal(2, context.Ingredients.Count());
-        Assert.Equal(1, context.Photos.Count());
+        Assert.Equal(1, db.Context.Recipes.Count());
+        Assert.Equal(2, db.Context.Ingredients.Count());
+        Assert.Equal(1, db.Context.Photos.Count());
         Assert.NotNull(recipe.Photos);
         Assert.Equal("uploaded-url", recipe.Image);
     }
@@ -50,12 +42,8 @@ public class SaveRecipeTests
     [Fact]
     public async Task SaveRecipe_SavesRecipeWithIngredients_WithoutUploadingImage()
     {
-
         //Arrange
-        var dbName = Guid.NewGuid().ToString();
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-       .UseInMemoryDatabase(dbName)
-       .Options;
+        using var db = new TestDb();
 
         var photoMock = Substitute.For<IPhotoProvider>();
 
@@ -65,38 +53,28 @@ public class SaveRecipeTests
             ExtendedIngredients = [new Ingredient { Original = "Salt" },
             new Ingredient { Original = "Pepper" }],
             Image = null
-
         };
 
-        using var context = new AppDbContext(options);
-
         //Act
-        var sut = new SaveRecipeHandler(context, photoMock);
+        var sut = new SaveRecipeHandler(db.Context, photoMock);
         await sut.SaveRecipe(recipe);
 
         //Assert
-        var savedRecipe = context.Recipes.First();
+        var savedRecipe = db.Context.Recipes.First();
         Assert.Null(savedRecipe.Photos);
         Assert.Null(savedRecipe.Image);
 
-        Assert.Equal(1, context.Recipes.Count());
-        Assert.Equal(2, context.Ingredients.Count());
+        Assert.Equal(1, db.Context.Recipes.Count());
+        Assert.Equal(2, db.Context.Ingredients.Count());
 
         await photoMock.DidNotReceive().UploadImgFromUrl(Arg.Any<string>());
-
     }
 
     [Fact]
     public async Task SaveRecipe_SavesRecipeWithDublicatIngredients_WithoutSavingDuplciatToDb()
     {
-
         //Arrange
-        var dbName = Guid.NewGuid().ToString();
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(dbName)
-            .Options;
-
-        using var context = new AppDbContext(options);
+        using var db = new TestDb();
         var photoMock = Substitute.For<IPhotoProvider>();
 
         var recipe = new Recipe
@@ -109,12 +87,10 @@ public class SaveRecipeTests
         };
 
         //Act
-        var sut = new SaveRecipeHandler(context, photoMock);
+        var sut = new SaveRecipeHandler(db.Context, photoMock);
         await sut.SaveRecipe(recipe);
 
         //Assert
-        Assert.Equal(2, context.Ingredients.Count());
-
+        Assert.Equal(2, db.Context.Ingredients.Count());
     }
-
 }

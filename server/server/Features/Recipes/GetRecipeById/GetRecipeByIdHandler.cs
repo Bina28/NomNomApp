@@ -1,19 +1,21 @@
-﻿using Server.Features.Shared;
+using Microsoft.EntityFrameworkCore;
+using Server.Data;
 using Server.Features.Recipes.Infrastructure.Recipes;
 using Server.Features.Recipes.SaveRecipe;
+using Server.Features.Shared;
 
 namespace Server.Features.Recipes.GetRecipeById;
 
 public class GetRecipeByIdHandler
 {
-    private readonly IRecipeRepository _recipeRepository;
+    private readonly AppDbContext _context;
     private readonly IRecipeProvider _client;
     private readonly ISaveRecipeHandler _apiHandler;
     private readonly ILogger<GetRecipeByIdHandler> _logger;
 
-    public GetRecipeByIdHandler(IRecipeRepository repository, IRecipeProvider client, ISaveRecipeHandler handler, ILogger<GetRecipeByIdHandler> logger)
+    public GetRecipeByIdHandler(AppDbContext context, IRecipeProvider client, ISaveRecipeHandler handler, ILogger<GetRecipeByIdHandler> logger)
     {
-        _recipeRepository = repository;
+        _context = context;
         _client = client;
         _apiHandler = handler;
         _logger = logger;
@@ -22,7 +24,11 @@ public class GetRecipeByIdHandler
     public async Task<Result<RecipeResponse>> GetRecipeById(int id, CancellationToken ct = default)
     {
         _logger.LogInformation("GetRecipeById started. RecipeId={RecipeId}", id);
-        var recipeInDb = await _recipeRepository.GetByIdWithDetailsAsync(id, ct);
+        var recipeInDb = await _context.Recipes
+            .Include(r => r.ExtendedIngredients)
+            .Include(r => r.Photos)
+            .FirstOrDefaultAsync(r => r.Id == id, ct);
+
         if (recipeInDb != null)
         {
             _logger.LogInformation("Recipe found in DB. RecipeId={RecipeId}", id);

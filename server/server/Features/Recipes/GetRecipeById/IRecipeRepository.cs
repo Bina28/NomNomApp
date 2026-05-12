@@ -1,9 +1,0 @@
-﻿using Server.Domain;
-
-namespace Server.Features.Recipes.GetRecipeById;
-
-public interface IRecipeRepository
-{
-    Task<Recipe?> GetByIdWithDetailsAsync(int id, CancellationToken ct = default);
-   
-}

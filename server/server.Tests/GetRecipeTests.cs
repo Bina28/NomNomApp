@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using Server.Domain;
@@ -13,98 +13,76 @@ public class GetRecipeTests
     [Fact]
     public async Task GetRecipeById_ReturnsRecipeFromDb_WhenExists()
     {
-        // --- GIVEN: There is a database with one recipe ---
-        var recipe = new Recipe { Id = 1, Title = "Test Recipe" };
+        //Arrange
+        using var db = new TestDb();
+        db.Context.Recipes.Add(new Recipe { Id = 1, Title = "Test Recipe" });
+        await db.Context.SaveChangesAsync();
 
         var mockClient = Substitute.For<IRecipeProvider>();
         var mockApiHandler = Substitute.For<ISaveRecipeHandler>();
         var logger = Substitute.For<ILogger<GetRecipeByIdHandler>>();
-        var repoMock = Substitute.For<IRecipeRepository>();
 
-        repoMock.GetByIdWithDetailsAsync(1)
-                .Returns(recipe);
+        var sut = new GetRecipeByIdHandler(db.Context, mockClient, mockApiHandler, logger);
 
-        var sut = new GetRecipeByIdHandler(repoMock, mockClient, mockApiHandler, logger);
-
-        // --- WHEN: We search for a recipe by id = 1 ---
+        // Act
         var result = await sut.GetRecipeById(1);
 
-        // --- THEN: The method returns the correct recipe ---
+        //Assert
         Assert.True(result.Success);
         Assert.Equal("Test Recipe", result.Data?.Title);
-
-        // --- THEN: The method doesn't call external API---
-        await mockClient.DidNotReceive().GetRecipeById(recipe.Id);
-
-
+        await mockClient.DidNotReceive().GetRecipeById(1);
     }
 
     [Fact]
     public async Task GetRecipeById_SavesAndReturnsRecipe_WhenNotInDbButExistsInApi()
     {
-        // --- GIVEN: Recipe doesn't exist in DB ---
-        var repoMock = Substitute.For<IRecipeRepository>();
-        repoMock.GetByIdWithDetailsAsync(1)
-            .Returns((Recipe?)null);
+        //Arrange
+        using var db = new TestDb();
 
-        // --- GIVEN: Recipe exists in API ---
         var apiRecipe = new Recipe { Id = 1, Title = "Test Recipe" };
 
         var mockClient = Substitute.For<IRecipeProvider>();
         mockClient.GetRecipeById(1)
             .Returns(apiRecipe);
 
-
-        // --- GIVEN: Recipe saved in DB ---
-        var recipe = new Recipe { Id = 1, Title = "Test Recipe" };
+        var savedRecipe = new Recipe { Id = 1, Title = "Test Recipe" };
         var mockApiHandler = Substitute.For<ISaveRecipeHandler>();
         mockApiHandler.SaveRecipe(apiRecipe)
-            .Returns(recipe);
+            .Returns(savedRecipe);
 
         var logger = Substitute.For<ILogger<GetRecipeByIdHandler>>();
 
-        var sut = new GetRecipeByIdHandler(repoMock, mockClient, mockApiHandler, logger);
+        var sut = new GetRecipeByIdHandler(db.Context, mockClient, mockApiHandler, logger);
 
-        // --- WHEN: We search for a recipe by id = 1 ---
+        //Act
         var result = await sut.GetRecipeById(1);
 
-        // --- THEN: The method returns the correct recipe ---
+        //Assert
         Assert.True(result.Success);
         Assert.Equal("Test Recipe", result.Data?.Title);
-
         await mockApiHandler.Received(1).SaveRecipe(apiRecipe);
-
-
     }
 
     [Fact]
     public async Task GetRecipeById_ReturnsNotFound_WhenRecipeDoesNotExist()
     {
-        // --- GIVEN: Recipe doesn't exists in DB ---
-        var repoMock = Substitute.For<IRecipeRepository>();
-        repoMock.GetByIdWithDetailsAsync(1)
-            .ReturnsNull();
+        //Arrange
+        using var db = new TestDb();
 
-        // --- GIVEN: Recipe doesn't exists in API ---
         var mockClient = Substitute.For<IRecipeProvider>();
         mockClient.GetRecipeById(1)
              .ReturnsNull();
 
-        // --- GIVEN: Nothing is saved to DB ---
         var mockApiHandler = Substitute.For<ISaveRecipeHandler>();
 
         var logger = Substitute.For<ILogger<GetRecipeByIdHandler>>();
-        var sut = new GetRecipeByIdHandler(repoMock, mockClient, mockApiHandler, logger);
+        var sut = new GetRecipeByIdHandler(db.Context, mockClient, mockApiHandler, logger);
 
-        // --- WHEN: We search for a recipe by id = 1 ---
+        //Act
         var result = await sut.GetRecipeById(1);
 
-        // --- THEN: The method returns not found message ---
+        //Assert
         Assert.False(result.Success);
-
-        // --- THEN: Recipe is NOT saved ---
         await mockApiHandler.DidNotReceive().SaveRecipe(Arg.Any<Recipe>());
-
     }
-
 }

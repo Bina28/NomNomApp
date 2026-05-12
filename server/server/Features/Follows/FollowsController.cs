@@ -55,7 +55,7 @@ public class FollowsController : ControllerBase
     }
 
     [HttpGet("following")]
-    public async Task<ActionResult<List<GetFollowers.FollowingResponse>>> GetFollowing(CancellationToken ct)
+    public async Task<ActionResult<List<FollowingResponse>>> GetFollowing(CancellationToken ct)
     {
         var result = await _getFollowingHandler.GetFollowing(User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);

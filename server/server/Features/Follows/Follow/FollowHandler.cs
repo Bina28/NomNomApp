@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Server.Data;
+using Server.Domain;
 using Server.Features.Shared;
 using Server.Features.Sse;
 
@@ -41,7 +42,7 @@ public class FollowHandler
             return Result<bool>.Fail("User not found");
         }
 
-        var follow = new Follow
+        var follow = new Domain.Follow
         {
             FollowerId = currentUserId,
             FollowingId = targetUserId

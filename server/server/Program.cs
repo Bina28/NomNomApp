@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -6,10 +7,21 @@ using Serilog;
 using Serilog.Exceptions;
 using Server.Data;
 using Server.Features.Auth;
+using Server.Features.Auth.GetAllUsers;
+using Server.Features.Auth.GetCurrentUser;
+using Server.Features.Auth.Login;
+using Server.Features.Auth.Register;
+using Server.Features.Comments.DeleteComment;
+using Server.Features.Comments.GetComments;
+using Server.Features.Comments.GetCommentsScore;
+using Server.Features.Comments.PostComment;
+using Server.Features.Follows.CheckFollowStatus;
+using Server.Features.Follows.Follow;
+using Server.Features.Follows.GetFollowers;
+using Server.Features.Follows.GetFollowing;
+using Server.Features.Follows.Unfollow;
 using Server.Features.Recipes.CreateRecipe;
 using Server.Features.Recipes.FindByNutrients;
-using Server.Features.Comments;
-using Server.Features.Follows;
 using Server.Features.Recipes.GetRecipeById;
 using Server.Features.Recipes.Infrastructure.Photo;
 using Server.Features.Recipes.Infrastructure.Photo.CloudinaryPhoto;
@@ -18,6 +30,7 @@ using Server.Features.Recipes.SaveRecipe;
 using Server.Features.Sse;
 using Server.Middleware;
 using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,22 +78,63 @@ builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>>(sp =>
         });
 });
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("auth", httpContext =>
+    {
+        var key = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+        {
+            Window = TimeSpan.FromMinutes(1),
+            PermitLimit = 5,
+            QueueLimit = 0
+        });
+    });
+
+    options.OnRejected = async (context, ct) =>
+    {
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            context.HttpContext.Response.Headers.RetryAfter =
+                ((int)retryAfter.TotalSeconds).ToString();
+        }
+
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            title = "Too many requests",
+            detail = "Please slow down and try again later.",
+            status = 429
+        }, ct);
+    };
+});
+
 
 builder.Services.Configure<SpoonacularSettings>(
     builder.Configuration.GetSection("SpoonacularApi")
 );
 builder.Services.AddSpoonacularApiClient(builder.Configuration);
 builder.Services.AddScoped<ISaveRecipeHandler, SaveRecipeHandler>();
-builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IPhotoProvider, ClodinaryPhotoProvider>();
-builder.Services.AddScoped<AuthHandler>();
+builder.Services.AddScoped<LoginHandler>();
+builder.Services.AddScoped<RegisterHandler>();
+builder.Services.AddScoped<GetCurrentUserHandler>();
+builder.Services.AddScoped<GetAllUsersHandler>();
 builder.Services.AddScoped<RegisterMapper>();
 builder.Services.AddScoped<CreateRecipeHandler>();
 builder.Services.AddScoped<GetRecipeByIdHandler>();
 builder.Services.AddScoped<FindRecipesByNutrientsHandler>();
 builder.Services.AddSingleton<SetConnectionManager>();
-builder.Services.AddScoped<CommentsHandler>();
-builder.Services.AddScoped<FollowsHandler>();
+builder.Services.AddScoped<PostCommentHandler>();
+builder.Services.AddScoped<DeleteCommentHandler>();
+builder.Services.AddScoped<GetCommentsHandler>();
+builder.Services.AddScoped<GetCommentsScoreHandler>();
+builder.Services.AddScoped<FollowHandler>();
+builder.Services.AddScoped<UnfollowHandler>();
+builder.Services.AddScoped<GetFollowersHandler>();
+builder.Services.AddScoped<GetFollowingHandler>();
+builder.Services.AddScoped<CheckFollowStatusHandler>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddJwt();
@@ -121,6 +175,7 @@ app.UseCors(x => x
 
 
 app.UseAuthentication();
+app.UseRateLimiter();
 
 app.UseAuthorization();
 
