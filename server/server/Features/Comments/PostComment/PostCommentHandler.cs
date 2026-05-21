@@ -32,17 +32,17 @@ public class PostCommentHandler
             return Result<CommentResponse>.Fail("Recipe not found");
         }
 
-        var userName = await _context.Users
-            .Where(u => u.Id == userId)
+        var user = await _context.Users
             .AsNoTracking()
-            .Select(u => u.UserName)
-            .FirstOrDefaultAsync(ct);
+            .FirstOrDefaultAsync(u => u.Id == userId, ct);
 
-        if (userName == null)
+        if (user is null)
         {
             _logger.LogError("Authenticated user {UserId} not found in database", userId);
             throw new UnauthorizedAccessException("Authenticated user not found in database.");
         }
+
+        var userName = user.UserName;
 
         var comment = new Comment
         {
