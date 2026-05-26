@@ -142,6 +142,8 @@ builder.Services.AddJwt();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
 
+builder.Services.AddHealthChecks();
+
 builder.Host.UseSerilog((context, services, configuration) =>
 {
     configuration
@@ -159,6 +161,8 @@ builder.Host.UseSerilog((context, services, configuration) =>
 
 
 var app = builder.Build();
+
+app.MapHealthChecks("/api/health");
 
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();

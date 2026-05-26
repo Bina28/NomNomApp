@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Server.Domain;
-using Server.Domain;
 
 
 namespace Server.Data;
@@ -46,6 +45,12 @@ public class AppDbContext : DbContext
             .HasForeignKey(f => f.FollowingId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Comment>()
+            .HasIndex(c => c.RecipeId);
+
+        modelBuilder.Entity<Follow>()
+            .HasIndex(f => new { f.FollowerId, f.FollowingId })
+            .IsUnique();
     }
 
 }
