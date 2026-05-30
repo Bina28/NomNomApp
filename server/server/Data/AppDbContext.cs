@@ -12,8 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<Ingredient> Ingredients { get; set; }
     public DbSet<Photo> Photos { get; set; }
     public DbSet<User> Users { get; set; }
-    public DbSet<UserRecipe> UserRecipes { get; set; }
-    public DbSet<UserRecipeIngredients> UserRecipeIngredients { get; set; }
+    public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Follow> Follows { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -26,10 +25,16 @@ public class AppDbContext : DbContext
             .HasForeignKey<Photo>(p => p.RecipeId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<UserRecipe>()
-        .HasMany(r => r.Ingredients)
+         modelBuilder.Entity<Recipe>()
+        .HasMany(r => r.UserIngredients)
         .WithOne(i => i.Recipe)
         .HasForeignKey(i => i.RecipeId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Recipe>()
+        .HasOne(r => r.User)
+        .WithMany()
+        .HasForeignKey(r => r.UserId)
         .OnDelete(DeleteBehavior.Cascade);
 
         // Configure Follow relationships - User can have many followers and follow many users

@@ -125,7 +125,7 @@ builder.Services.AddScoped<RegisterMapper>();
 builder.Services.AddScoped<CreateRecipeHandler>();
 builder.Services.AddScoped<GetRecipeByIdHandler>();
 builder.Services.AddScoped<FindRecipesByNutrientsHandler>();
-builder.Services.AddSingleton<SetConnectionManager>();
+builder.Services.AddSingleton<SseConnectionManager>();
 builder.Services.AddScoped<PostCommentHandler>();
 builder.Services.AddScoped<DeleteCommentHandler>();
 builder.Services.AddScoped<GetCommentsHandler>();

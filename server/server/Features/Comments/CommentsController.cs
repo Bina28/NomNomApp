@@ -6,6 +6,7 @@ using Server.Features.Comments.DTOs;
 using Server.Features.Comments.GetComments;
 using Server.Features.Comments.GetCommentsScore;
 using Server.Features.Comments.PostComment;
+using Server.Features.Shared;
 
 namespace Server.Features.Comments;
 
@@ -36,18 +37,18 @@ public class CommentsController : ControllerBase
 
 
     [HttpGet("recipe/{recipeId}")]
-    public async Task<ActionResult<List<CommentResponse>>> GetCommentsForRecipe(int recipeId, CancellationToken ct)
+    public async Task<ActionResult<List<CommentResponse>>> GetCommentsForRecipe(int recipeId, PageParameters parameters, CancellationToken ct)
     {
-        var result = await _getCommentsHandler.GetCommentsForRecipe(recipeId, ct);
+        var result = await _getCommentsHandler.GetCommentsForRecipe(recipeId, parameters, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
 
     [HttpDelete("{id}")]
     [Authorize]
-    public async Task<ActionResult<bool>> Delete(string id, CancellationToken ct)
+    public async Task<ActionResult<bool>> Delete(string commentId, CancellationToken ct)
     {
-        var result = await _deleteCommentHandler.DeleteComment(id, ct);
+        var result = await _deleteCommentHandler.DeleteComment(commentId, User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 

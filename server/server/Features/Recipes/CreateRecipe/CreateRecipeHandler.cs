@@ -25,7 +25,7 @@ public class CreateRecipeHandler
         }
 
 
-        var titleExists = await _context.UserRecipes.AnyAsync(i => i.Title == request.Title, ct);
+        var titleExists = await _context.Recipes.AnyAsync(i => i.Title == request.Title && i.UserId == userId, ct);
 
         if (titleExists)
         {

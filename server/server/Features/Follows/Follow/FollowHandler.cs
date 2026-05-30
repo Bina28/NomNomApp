@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Server.Data;
-using Server.Domain;
 using Server.Features.Shared;
 using Server.Features.Sse;
 
@@ -9,10 +8,10 @@ namespace Server.Features.Follows.Follow;
 public class FollowHandler
 {
     private readonly AppDbContext _context;
-    private readonly SetConnectionManager _sseManager;
+    private readonly SseConnectionManager _sseManager;
     private readonly ILogger<FollowHandler> _logger;
 
-    public FollowHandler(AppDbContext context, SetConnectionManager sseManager, ILogger<FollowHandler> logger)
+    public FollowHandler(AppDbContext context, SseConnectionManager sseManager, ILogger<FollowHandler> logger)
     {
         _context = context;
         _sseManager = sseManager;
@@ -58,7 +57,7 @@ public class FollowHandler
         _context.Follows.Add(follow);
         await _context.SaveChangesAsync(ct);
 
-        await _sseManager.BroadcastToAll("new_follow", new
+        await _sseManager.SendToUser(targetUserId, "new_follow", new
         {
             followerId = currentUser.Id,
             followerName = currentUser.UserName,

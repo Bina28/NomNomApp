@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Server.Data;
-using Server.Features.Shared;
-using Server.Features.Recipes.FindByNutrients;
 using Server.Features.Recipes.Infrastructure.Recipes;
 using Server.Features.Recipes.SaveRecipe;
+using Server.Features.Shared;
 
 namespace Server.Features.Recipes.FindByNutrients;
 
@@ -19,12 +18,12 @@ public class FindRecipesByNutrientsHandler
         _apiHandler = handler;
     }
 
-    public async Task<Result<List<FindRecipesByNutrientsResponse>>> FindRecipesByNutrients(FindRecipesByNutrientsRequest request, CancellationToken ct = default)
+    public async Task<Result<PageList<FindRecipesByNutrientsResponse>>> FindRecipesByNutrients(FindRecipesByNutrientsRequest request, PageParameters parameters, CancellationToken ct = default)
     {
         var results = await _client.FindRecipesByNutrients(request, ct);
 
         if (results == null)
-            return Result<List<FindRecipesByNutrientsResponse>>
+            return Result<PageList<FindRecipesByNutrientsResponse>>
                 .Fail("External API returned no data");
 
         var apiIds = results.Select(x => x.Id).ToList();
@@ -47,12 +46,12 @@ public class FindRecipesByNutrientsHandler
 
         }
 
-        var response = results
+        var query = results
         .Select(FindRecipeByNutrientsMapper.ToResponse)
         .ToList();
 
+        var pagedResponse = PageList<FindRecipesByNutrientsResponse>.Create(query, parameters.PageNumber, parameters.PageSize);
 
-        return Result<List<FindRecipesByNutrientsResponse>>.Ok(response);
+        return Result<PageList<FindRecipesByNutrientsResponse>>.Ok(pagedResponse);
     }
 }
-    

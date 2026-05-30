@@ -1,13 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Server.Domain;
 
-public class UserRecipeIngredients
+public class RecipeIngredient
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public required string Name { get; set; }
     public required string Amount { get; set; }
 
-    public  string? RecipeId { get; set; }
-    public UserRecipe Recipe { get; set; } = null!;
+    public int RecipeId { get; set; }
+    public Recipe Recipe { get; set; } = null!;
 }

@@ -14,9 +14,9 @@ public class GetAllUsersHandler
         _context = context;
     }
 
-    public async Task<Result<List<UserResponse>>> GetUsersExceptCurrentAsync(string currentUserId, CancellationToken ct = default)
+    public async Task<Result<PageList<UserResponse>>> GetUsersExceptCurrentAsync(string currentUserId, PageParameters parameters, CancellationToken ct = default)
     {
-        var users = await _context.Users
+        var query =  _context.Users
             .Where(u => u.Id != currentUserId)
             .AsNoTracking()
             .Select(u => new UserResponse
@@ -24,9 +24,11 @@ public class GetAllUsersHandler
                 Id = u.Id,
                 Email = u.Email,
                 UserName = u.UserName
-            })
-            .ToListAsync(ct);
+            });
+          
 
-        return Result<List<UserResponse>>.Ok(users);
+        var pagedUsers = await PageList<UserResponse>.CreateAsync(query, parameters.PageNumber, parameters.PageSize);
+
+        return Result<PageList<UserResponse>>.Ok(pagedUsers);
     }
 }

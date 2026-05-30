@@ -13,9 +13,9 @@ public class GetCommentsHandler
     {
         _context = context;
     }
-    public async Task<Result<List<CommentResponse>>> GetCommentsForRecipe(int recipeId, CancellationToken ct = default)
+    public async Task<Result<PageList<CommentResponse>>> GetCommentsForRecipe(int recipeId, PageParameters parameters, CancellationToken ct = default)
     {
-        var comments = await _context.Comments
+        var query = _context.Comments
             .AsNoTracking()
             .Where(c => c.RecipeId == recipeId)
             .OrderByDescending(c => c.CreatedAt)
@@ -26,9 +26,12 @@ public class GetCommentsHandler
                 c.CreatedAt,
                 c.User.UserName,
                 c.UserId
-            ))
-            .ToListAsync(ct);
+            ));
 
-        return Result<List<CommentResponse>>.Ok(comments);
+        var pagedComments = await PageList<CommentResponse>.CreateAsync(query, parameters.PageNumber, parameters.PageSize);
+
+        return Result<PageList<CommentResponse>>.Ok(pagedComments);
     }
+
+
 }

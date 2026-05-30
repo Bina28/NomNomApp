@@ -1,6 +1,4 @@
-﻿using Server.Domain;
-
-namespace Server.Domain;
+﻿namespace Server.Domain;
 
 public class Follow
 {

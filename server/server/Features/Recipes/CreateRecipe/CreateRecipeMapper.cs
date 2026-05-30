@@ -6,18 +6,17 @@ namespace Server.Features.Recipes.CreateRecipe;
 public class CreateRecipeMapper
 {
 
-    public static UserRecipe ToEntity(RecipeDto request, string userId)
+    public static Recipe ToEntity(RecipeDto request, string userId)
     {
-        return new UserRecipe
+        return new Recipe
         {
             Title = request.Title,
             UserId = userId,
-            Ingredients = [.. request.Ingredients.Select(i => new UserRecipeIngredients
+            UserIngredients = [.. request.Ingredients.Select(i => new RecipeIngredient
             {
                 Name = i.Name,
                 Amount = i.Amount
             })],
-
         };
     }
 

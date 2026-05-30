@@ -2,6 +2,7 @@
 using Server.Features.Recipes.FindByNutrients;
 using Server.Features.Recipes.FindByNutrients;
 using Server.Features.Recipes.GetRecipeById;
+using Server.Features.Shared;
 
 namespace Server.Features.Recipes;
 
@@ -26,9 +27,9 @@ public class RecipeController : ControllerBase
     }
 
     [HttpGet("search")]
-    public async Task<ActionResult<List<FindRecipesByNutrientsResponse>>> FindRecipesByNutrients([FromQuery] FindRecipesByNutrientsRequest request, CancellationToken ct)
+    public async Task<ActionResult<List<FindRecipesByNutrientsResponse>>> FindRecipesByNutrients([FromQuery] FindRecipesByNutrientsRequest request, [FromQuery] PageParameters parameters,CancellationToken ct)
     {
-        var result = await _byNutrientsHandler.FindRecipesByNutrients(request, ct);
+        var result = await _byNutrientsHandler.FindRecipesByNutrients(request, parameters, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 404);
     }
 }

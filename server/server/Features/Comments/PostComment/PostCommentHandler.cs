@@ -10,10 +10,10 @@ namespace Server.Features.Comments.PostComment;
 public class PostCommentHandler
 {
     private readonly AppDbContext _context;
-    private readonly SetConnectionManager _sseManager;
+    private readonly SseConnectionManager _sseManager;
     private readonly ILogger<PostCommentHandler> _logger;
 
-    public PostCommentHandler(AppDbContext context, SetConnectionManager sseManager, ILogger<PostCommentHandler> logger)
+    public PostCommentHandler(AppDbContext context, SseConnectionManager sseManager, ILogger<PostCommentHandler> logger)
     {
         _context = context;
         _sseManager = sseManager;
@@ -55,15 +55,25 @@ public class PostCommentHandler
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync(ct);
 
-        await _sseManager.BroadcastToAll("new_comment", new
+        var targetUserId = await _context.Recipes
+            .Where(r => r.Id == recipeId)
+            .Select(r => r.UserId)
+            .FirstOrDefaultAsync(ct);
+
+
+
+        if (targetUserId != null && targetUserId != userId)
         {
-            commentId = comment.Id,
-            recipeId = comment.RecipeId,
-            userName,
-            text = comment.Text,
-            score = comment.Score,
-            createdAt = comment.CreatedAt
-        });
+            await _sseManager.SendToUser(targetUserId, "new_comment", new
+            {
+                commentId = comment.Id,
+                recipeId = comment.RecipeId,
+                userName,
+                text = comment.Text,
+                score = comment.Score,
+                createdAt = comment.CreatedAt
+            });
+        }
 
         var commentDto = new CommentResponse(
             comment.Id,

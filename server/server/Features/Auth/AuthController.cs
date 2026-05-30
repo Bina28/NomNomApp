@@ -6,6 +6,7 @@ using Server.Features.Auth.GetCurrentUser;
 using Server.Features.Auth.Login;
 using Server.Features.Auth.Register;
 using Server.Features.Auth.Shared;
+using Server.Features.Shared;
 
 namespace Server.Features.Auth;
 
@@ -78,9 +79,9 @@ public class AuthController : ControllerBase
 
     [HttpGet("users")]
     [Authorize]
-    public async Task<ActionResult<List<UserResponse>>> GetAllUsers(CancellationToken ct)
+    public async Task<ActionResult<List<UserResponse>>> GetAllUsers([FromQuery] PageParameters pageParameters, CancellationToken ct)
     {
-        var result = await _getAllUsers.GetUsersExceptCurrentAsync(User.GetUserId(), ct);
+        var result = await _getAllUsers.GetUsersExceptCurrentAsync(User.GetUserId(), pageParameters,  ct);
 
         return result.Success
             ? Ok(result.Data)

@@ -8,10 +8,10 @@ namespace Server.Features.Sse;
 [Route("api/[controller]")]
 public class SseController : ControllerBase
 {
-    private readonly SetConnectionManager _sseManager;
+    private readonly SseConnectionManager _sseManager;
     private readonly ILogger<SseController> _logger;
 
-    public SseController(SetConnectionManager sseManager, ILogger<SseController> logger)
+    public SseController(SseConnectionManager sseManager, ILogger<SseController> logger)
     {
         _sseManager = sseManager;
         _logger = logger;
