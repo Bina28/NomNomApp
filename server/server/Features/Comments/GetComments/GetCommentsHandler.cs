@@ -17,6 +17,7 @@ public class GetCommentsHandler
     {
         var query = _context.Comments
             .AsNoTracking()
+            .Include(c=> c.User)
             .Where(c => c.RecipeId == recipeId)
             .OrderByDescending(c => c.CreatedAt)
             .Select(c => new CommentResponse(

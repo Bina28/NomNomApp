@@ -17,6 +17,7 @@ public class GetFollowersHandler
     {
         var followers = await _context.Follows
             .AsNoTracking()
+            .Include(c => c.Follower)
             .Where(f => f.FollowingId == userId)
             .Select(f => new FollowerResponse(f.Id, f.FollowerId, f.Follower.UserName))
             .ToListAsync(ct);

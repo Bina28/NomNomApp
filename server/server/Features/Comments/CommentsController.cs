@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Server.Features.Auth;
 using Server.Features.Comments.DeleteComment;
 using Server.Features.Comments.DTOs;
@@ -29,6 +30,7 @@ public class CommentsController : ControllerBase
 
     [HttpPost("recipe/{recipeId}")]
     [Authorize]
+    [EnableRateLimiting("auth")]
     public async Task<ActionResult<CommentResponse>> PostAsync(int recipeId, [FromBody] CreateCommentRequest request, CancellationToken ct)
     {
         var result = await _postCommentHandler.PostComment(recipeId, request, User.GetUserId(), ct);
@@ -46,9 +48,9 @@ public class CommentsController : ControllerBase
 
     [HttpDelete("{id}")]
     [Authorize]
-    public async Task<ActionResult<bool>> Delete(string commentId, CancellationToken ct)
+    public async Task<ActionResult<bool>> Delete(string id, CancellationToken ct)
     {
-        var result = await _deleteCommentHandler.DeleteComment(commentId, User.GetUserId(), ct);
+        var result = await _deleteCommentHandler.DeleteComment(id, User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 

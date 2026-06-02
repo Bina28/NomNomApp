@@ -8,7 +8,11 @@ public class SseConnectionManager
     private readonly ConcurrentDictionary<string, HttpResponse> _userConnections = new();
 
     public void AddConnection(string userId, HttpResponse response)
-    {
+    {   if (_userConnections.TryRemove(userId, out var oldResponse))
+        {
+            oldResponse.HttpContext.Abort();
+        }
+        
         _userConnections[userId] = response;
     }
 
