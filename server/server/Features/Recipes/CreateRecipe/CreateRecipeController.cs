@@ -21,6 +21,6 @@ public class CreateRecipeController : ControllerBase
     public async Task<IActionResult> Create([FromBody] RecipeDto request, CancellationToken ct)
     {
         var result = await _service.CreateRecipe(request, User.GetUserId(), ct);
-        return result.Success ? Ok(result.Data) : BadRequest(result.Error);
+        return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 }

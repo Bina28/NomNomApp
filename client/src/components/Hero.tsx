@@ -35,7 +35,7 @@ export default function Hero() {
   useEffect(() => {
     axios
       .get(`${api}/recipe/search?calories=300&number=4`)
-      .then((res) => setPopularRecipes(res.data));
+      .then((res) => setPopularRecipes(res.data.items));
   }, [api]);
 
   return (

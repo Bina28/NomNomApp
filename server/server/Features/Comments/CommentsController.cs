@@ -39,18 +39,18 @@ public class CommentsController : ControllerBase
 
 
     [HttpGet("recipe/{recipeId}")]
-    public async Task<ActionResult<List<CommentResponse>>> GetCommentsForRecipe(int recipeId, PageParameters parameters, CancellationToken ct)
+    public async Task<ActionResult<List<CommentResponse>>> GetCommentsForRecipe(int recipeId, [FromQuery] PageParameters parameters, CancellationToken ct)
     {
         var result = await _getCommentsHandler.GetCommentsForRecipe(recipeId, parameters, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{commentId}")]
     [Authorize]
-    public async Task<ActionResult<bool>> Delete(string id, CancellationToken ct)
+    public async Task<ActionResult<bool>> Delete(string commentId, CancellationToken ct)
     {
-        var result = await _deleteCommentHandler.DeleteComment(id, User.GetUserId(), ct);
+        var result = await _deleteCommentHandler.DeleteComment(commentId, User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 

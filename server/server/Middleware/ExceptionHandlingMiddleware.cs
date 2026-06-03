@@ -1,10 +1,13 @@
-﻿namespace Server.Middleware;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace Server.Middleware;
 
 public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger )
+
+    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
     {
         _next = next;
         _logger = logger;
@@ -23,16 +26,30 @@ public class ExceptionHandlingMiddleware
         catch (UnauthorizedAccessException ex)
         {
             _logger.LogWarning(ex, "Unauthorized access");
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            context.Response.ContentType = "application/json";
-            await context.Response.WriteAsJsonAsync(new { error = "Unauthorized" });
+            await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Unauthorized");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception");
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            context.Response.ContentType = "application/json";
-            await context.Response.WriteAsJsonAsync(new { error = "An unexpected error occurred" });
+            await WriteProblemAsync(context, StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
+    }
+
+    private static async Task WriteProblemAsync(HttpContext context, int statusCode, string detail)
+    {
+        var problemDetails = new ProblemDetails
+        {
+            Status = statusCode,
+            Detail = detail,
+            Instance = $"{context.Request.Method} {context.Request.Path}"
+        };
+
+        var problemDetailsService = context.RequestServices.GetRequiredService<IProblemDetailsService>();
+        context.Response.StatusCode = statusCode;
+        await problemDetailsService.WriteAsync(new ProblemDetailsContext
+        {
+            HttpContext = context,
+            ProblemDetails = problemDetails
+        });
     }
 }

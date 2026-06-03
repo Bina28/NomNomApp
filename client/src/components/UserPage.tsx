@@ -25,14 +25,7 @@ export default function UserPage() {
   const [allUsers, setAllUsers] = useState<UserType[]>([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      fetchFollowers();
-      fetchFollowing();
-      fetchAllUsers();
-    }
-  }, [isLoggedIn]);
-
+ 
   const fetchFollowers = async () => {
     try {
       const res = await agent.get("/follows/followers");
@@ -54,11 +47,20 @@ export default function UserPage() {
   const fetchAllUsers = async () => {
     try {
       const res = await agent.get("/auth/users");
-      setAllUsers(res.data);
+      setAllUsers(res.data.items);
     } catch (err) {
       console.log(err);
     }
   };
+
+   useEffect(() => {
+    if (isLoggedIn) {
+      fetchFollowers();
+      fetchFollowing();
+      fetchAllUsers();
+    }
+  }, [isLoggedIn]);
+
 
   const handleFollow = async (userId: string) => {
     try {
@@ -72,7 +74,7 @@ export default function UserPage() {
 
   const handleUnfollow = async (userId: string) => {
     try {
-      await agent.delete(`/follows/${userId}`);
+      await agent.delete(`/unfollow/${userId}`);
       fetchFollowing();
       fetchAllUsers();
     } catch (err) {

@@ -34,11 +34,14 @@ public class SseController : ControllerBase
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                
                 await Task.Delay(30000, cancellationToken);
                 await Response.WriteAsync($"event: ping\ndata: {{}}\n\n", cancellationToken);
                 await Response.Body.FlushAsync(cancellationToken);
             }
+        }
+        catch (OperationCanceledException)
+        {
+            // Client disconnected — not an error
         }
         finally
         {

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -101,12 +102,18 @@ builder.Services.AddRateLimiter(options =>
         }
 
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-        await context.HttpContext.Response.WriteAsJsonAsync(new
+        var problemDetailsService = context.HttpContext.RequestServices.GetRequiredService<IProblemDetailsService>();
+        await problemDetailsService.WriteAsync(new ProblemDetailsContext
         {
-            title = "Too many requests",
-            detail = "Please slow down and try again later.",
-            status = 429
-        }, ct);
+            HttpContext = context.HttpContext,
+            ProblemDetails =
+            {
+                Status = 429,
+                Title = "Too many requests",
+                Detail = "Please slow down and try again later.",
+                Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}"
+            }
+        });
     };
 });
 

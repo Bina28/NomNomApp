@@ -9,6 +9,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import Login from "./components/Login";
 import SignUp from "./components/SignUp";
 import UserPage from "./components/UserPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -18,10 +19,10 @@ function App() {
         <Route path="/" element={<Hero />} />
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/recipe/:id" element={<RecipeDetail />} />
-        <Route path="/create-recipe" element={<CreateRecipe />} />
+        <Route path="/create-recipe" element={<ProtectedRoute><CreateRecipe /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/user" element={<UserPage />} />
+        <Route path="/user" element={<ProtectedRoute><UserPage /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );
