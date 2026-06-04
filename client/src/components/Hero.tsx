@@ -3,18 +3,7 @@ import { useEffect, useState } from "react";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
-type Recipe = {
-  id: number;
-  title: string;
-  image: string;
-};
-
-type FeatureCardProps = {
-  icon: string;
-  title: string;
-  description: string;
-};
+import type { Recipe, FeatureCardProps } from "../lib/api";
 
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
@@ -111,7 +100,9 @@ export default function Hero() {
                     <Card.Img variant="top" src={recipe.image} />
                   </div>
                   <Card.Body className="d-flex flex-column">
-                    <Card.Title className="flex-grow-1">{recipe.title}</Card.Title>
+                    <Card.Title className="flex-grow-1">
+                      {recipe.title}
+                    </Card.Title>
                     <Button
                       variant="primary"
                       size="sm"

@@ -3,20 +3,7 @@ import { Button, Card, Col, Container, Row, Tab, Tabs } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import agent from "../lib/api/agent";
-
-type FollowUser = {
-  id: string;
-  followerId: string;
-  followingId: string;
-  follower?: { userName: string };
-  following?: { userName: string };
-};
-
-type UserType = {
-  id: string;
-  userName: string;
-  email: string;
-};
+import type { FollowUser, UserType } from "../lib/api";
 
 export default function UserPage() {
   const { user, isLoggedIn, isLoading } = useAuth();

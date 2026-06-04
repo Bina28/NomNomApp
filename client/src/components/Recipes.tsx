@@ -2,10 +2,11 @@ import axios from "axios";
 import { useState } from "react";
 import { Button, Card, Container, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import type { Recipe} from "../lib/api";
 
 export default function Recipes() {
   const [calories, setCalories] = useState("");
-  const [recipes, setRecipes] = useState<Recipes[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const navigate = useNavigate();
   const api = import.meta.env.VITE_API_URL;
 
@@ -13,7 +14,7 @@ export default function Recipes() {
     e.preventDefault();
     axios
       .get(`${api}/recipe/search?calories=${calories}&number=5`)
-      .then((res) => setRecipes(res.data));
+      .then((res) => setRecipes(res.data.items ?? []));
   };
 
   return (

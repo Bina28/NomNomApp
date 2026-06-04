@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import agent from "../lib/api/agent";
 import { useAuth } from "../context/AuthContext";
+import type { Login } from "../lib/api";
 
 export default function Login() {
   const [password, setPassword] = useState("");

@@ -2,19 +2,7 @@ import { useEffect, useState } from "react";
 import { Alert, Button, Form } from "react-bootstrap";
 import { useAuth } from "../context/AuthContext";
 import agent from "../lib/api/agent";
-
-type Comment = {
-  id: string;
-  text: string;
-  score: number;
-  createdAt: string;
-  userName: string;
-  userId: string;
-};
-
-type CommentsProps = {
-  recipeId: number;
-};
+import type { Comment, CommentsProps } from "../lib/api";
 
 export default function Comments({ recipeId }: CommentsProps) {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -33,7 +21,7 @@ export default function Comments({ recipeId }: CommentsProps) {
   const fetchComments = async () => {
     try {
       const res = await agent.get(`/comments/recipe/${recipeId}`);
-      setComments(res.data);
+      setComments(res.data.items ?? []);
     } catch (err) {
       console.log(err);
     }
@@ -56,7 +44,7 @@ export default function Comments({ recipeId }: CommentsProps) {
     setError("");
 
     try {
-      await agent.post("/comments", {
+      await agent.post(`/comments/recipe/${recipeId}`, {
         recipeId: recipeId.toString(),
         text: newComment.trim(),
         score: score,
@@ -65,8 +53,9 @@ export default function Comments({ recipeId }: CommentsProps) {
       setScore(5);
       fetchComments();
       fetchAverageScore();
-    } catch (err: any) {
-      setError(err.response?.data || "Could not add comment");
+    } catch (err) {
+      console.log(err);
+      setError("Could not add comment");
     } finally {
       setIsSubmitting(false);
     }
@@ -100,7 +89,9 @@ export default function Comments({ recipeId }: CommentsProps) {
         <h3>Ratings and Comments</h3>
         {averageScore !== null && averageScore > 0 && (
           <div className="average-score">
-            <span className="stars">{renderStars(Math.round(averageScore))}</span>
+            <span className="stars">
+              {renderStars(Math.round(averageScore))}
+            </span>
             <span className="score-text">{averageScore.toFixed(1)} / 5</span>
           </div>
         )}
@@ -151,12 +142,16 @@ export default function Comments({ recipeId }: CommentsProps) {
             <div key={comment.id} className="comment-card">
               <div className="comment-header">
                 <span className="comment-author">{comment.userName}</span>
-                <span className="comment-stars">{renderStars(comment.score)}</span>
+                <span className="comment-stars">
+                  {renderStars(comment.score)}
+                </span>
               </div>
               <p className="comment-text">{comment.text}</p>
               <div className="comment-footer">
-                <span className="comment-date">{formatDate(comment.createdAt)}</span>
-                {user?.id === parseInt(comment.userId) && (
+                <span className="comment-date">
+                  {formatDate(comment.createdAt)}
+                </span>
+                {user?.id === comment.userId && (
                   <Button
                     variant="link"
                     size="sm"

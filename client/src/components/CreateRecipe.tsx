@@ -1,13 +1,17 @@
 import { useState } from "react";
-import { Alert, Button, Card, Col, Container, Form, Row } from "react-bootstrap";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Container,
+  Form,
+  Row,
+} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import agent from "../lib/api/agent";
-
-type Ingredient = {
-  name: string;
-  amount: string;
-};
+import type { Ingredient } from "../lib/api";
 
 export default function CreateRecipe() {
   const [title, setTitle] = useState("");
@@ -32,7 +36,7 @@ export default function CreateRecipe() {
   const handleIngredientChange = (
     index: number,
     field: keyof Ingredient,
-    value: string
+    value: string,
   ) => {
     const updated = [...ingredients];
     updated[index][field] = value;
@@ -49,7 +53,7 @@ export default function CreateRecipe() {
     }
 
     const validIngredients = ingredients.filter(
-      (i) => i.name.trim() && i.amount.trim()
+      (i) => i.name.trim() && i.amount.trim(),
     );
 
     if (validIngredients.length === 0) {
@@ -65,8 +69,9 @@ export default function CreateRecipe() {
         ingredients: validIngredients,
       });
       navigate("/user");
-    } catch (err: any) {
-      setError(err.response?.data || "Could not create recipe");
+    } catch (err) {
+      console.log(err);
+      setError("Could not create recipe");
     } finally {
       setIsSubmitting(false);
     }
@@ -92,7 +97,10 @@ export default function CreateRecipe() {
             <Button variant="primary" onClick={() => navigate("/login")}>
               Log In
             </Button>
-            <Button variant="outline-secondary" onClick={() => navigate("/signup")}>
+            <Button
+              variant="outline-secondary"
+              onClick={() => navigate("/signup")}
+            >
               Sign Up
             </Button>
           </div>
@@ -105,7 +113,10 @@ export default function CreateRecipe() {
     <Container className="py-4">
       <h1 className="page-title text-center mb-4">Create Your Own Recipe</h1>
 
-      <Card className="create-recipe-card mx-auto" style={{ maxWidth: "700px" }}>
+      <Card
+        className="create-recipe-card mx-auto"
+        style={{ maxWidth: "700px" }}
+      >
         <Card.Body className="p-4">
           {error && <Alert variant="danger">{error}</Alert>}
 
