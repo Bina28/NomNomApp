@@ -23,11 +23,10 @@ public class GetRecipeByIdHandler
 
     public async Task<Result<RecipeResponse>> GetRecipeById(int id, CancellationToken ct = default)
     {
-        _logger.LogInformation("GetRecipeById started. RecipeId={RecipeId}", id);
         var recipeInDb = await _context.Recipes
-            .Include(r => r.ExtendedIngredients)
-            .Include(r => r.Photos)
-            .FirstOrDefaultAsync(r => r.Id == id, ct);
+        .Include(r => r.ExtendedIngredients)
+        .Include(r => r.Photos)
+        .FirstOrDefaultAsync(r => r.Id == id, ct);
 
         if (recipeInDb != null)
         {

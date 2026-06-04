@@ -24,7 +24,7 @@ public class SpoonacularRecipeProvider : IRecipeProvider
 
     public async Task<List<Recipe>?> FindRecipesByNutrients(FindRecipesByNutrientsRequest request, CancellationToken ct = default)
     {
-        var url = $"recipes/findByNutrients?minCalories={request.Calories}&number={request.Number}";
+        var url = $"recipes/findByNutrients?minCalories={request.MinimumCalories}&number={request.Number}";
         var response = await _client.GetAsync(url, ct);
         if (!response.IsSuccessStatusCode) return null;
         var jsonResult = await response.Content.ReadAsStringAsync(ct);
