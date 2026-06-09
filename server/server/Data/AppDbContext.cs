@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Follow> Follows { get; set; }
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -25,11 +26,11 @@ public class AppDbContext : DbContext
             .HasForeignKey<Photo>(p => p.RecipeId)
             .OnDelete(DeleteBehavior.Cascade);
 
-         modelBuilder.Entity<Recipe>()
-        .HasMany(r => r.UserIngredients)
-        .WithOne(i => i.Recipe)
-        .HasForeignKey(i => i.RecipeId)
-        .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Recipe>()
+       .HasMany(r => r.UserIngredients)
+       .WithOne(i => i.Recipe)
+       .HasForeignKey(i => i.RecipeId)
+       .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Recipe>()
         .HasOne(r => r.User)

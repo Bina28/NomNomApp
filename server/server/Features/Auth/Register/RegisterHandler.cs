@@ -34,8 +34,8 @@ public class RegisterHandler
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync(ct);
 
-        var token = _jwtService.GenerateToken(newUser.Id, newUser.UserName);
+        var (accessToken, _) = _jwtService.GenerateToken(newUser.Id);
         _logger.LogInformation("Registered user {UserId} with name {UserName}", newUser.Id, newUser.UserName);
-        return Result<string>.Ok(token);
+        return Result<string>.Ok(accessToken);
     }
 }

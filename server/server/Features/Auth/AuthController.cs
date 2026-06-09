@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Server.Features.Auth.GetAllUsers;
 using Server.Features.Auth.GetCurrentUser;
 using Server.Features.Auth.Login;
+using Server.Features.Auth.RefreshTokens;
 using Server.Features.Auth.Register;
 using Server.Features.Auth.Shared;
 using Server.Features.Shared;
@@ -19,13 +20,17 @@ public class AuthController : ControllerBase
     private readonly RegisterHandler _register;
     private readonly GetCurrentUserHandler _getCurrentUser;
     private readonly GetAllUsersHandler _getAllUsers;
+    private readonly RefreshTokenService _refreshTokenService;
+    private readonly IJwtService _jwtService;
 
-    public AuthController(LoginHandler login, RegisterHandler register, GetCurrentUserHandler getCurrentUser, GetAllUsersHandler getAllUsers)
+    public AuthController(LoginHandler login, RegisterHandler register, GetCurrentUserHandler getCurrentUser, GetAllUsersHandler getAllUsers, RefreshTokenService refreshToken, IJwtService jwtService)
     {
         _login = login;
         _register = register;
         _getCurrentUser = getCurrentUser;
         _getAllUsers = getAllUsers;
+        _refreshTokenService = refreshToken;
+        _jwtService = jwtService;
     }
 
 
@@ -34,16 +39,16 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken ct)
     {
         var result = await _login.LoginAsync(request, ct);
-        if (!result.Success || string.IsNullOrEmpty(result.Data))
+        if (!result.Success || result.Data is null)
             return Problem(detail: result.Error, statusCode: 401);
 
         Response.Cookies.Append(
             "access_token",
-            result.Data,
+            result.Data.AccessToken,
             CreateCookieOptions()
         );
 
-        return Ok();
+        return Ok(new { result.Data.RefreshToken });
     }
 
 
@@ -64,8 +69,21 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        var storedRefreshToken = await _refreshTokenService.GetRefreshTokenAsync(request.RefreshToken);
+        if (storedRefreshToken is null)
+            return Unauthorized("Invalid or expired refresh token.");
 
- 
+        await _refreshTokenService.RevokeRefreshTokenAsync(storedRefreshToken);
+
+        var (accessToken, newRefreshToken) = _jwtService.GenerateToken(storedRefreshToken.UserId);
+        await _refreshTokenService.SaveRefreshTokenAsync(storedRefreshToken.UserId, newRefreshToken);
+        return Ok(new { AccessToken = accessToken, RefreshToken = newRefreshToken });
+    }
+
+
     [Authorize]
     [HttpGet("me")]
     public async Task<ActionResult<UserResponse>> Me(CancellationToken ct)
@@ -82,7 +100,7 @@ public class AuthController : ControllerBase
     [Authorize]
     public async Task<ActionResult<List<UserResponse>>> GetAllUsers([FromQuery] PageParameters pageParameters, CancellationToken ct)
     {
-        var result = await _getAllUsers.GetUsersExceptCurrentAsync(User.GetUserId(), pageParameters,  ct);
+        var result = await _getAllUsers.GetUsersExceptCurrentAsync(User.GetUserId(), pageParameters, ct);
 
         return result.Success
             ? Ok(result.Data)

@@ -10,16 +10,18 @@ public class LoginHandler
     private readonly ILogger<LoginHandler> _logger;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtService _jwtService;
+    private readonly RefreshTokenService _refreshTokenService;
 
-    public LoginHandler(AppDbContext context, IPasswordHasher passwordHasher, ILogger<LoginHandler> logger, IJwtService jwtService)
+    public LoginHandler(AppDbContext context, IPasswordHasher passwordHasher, ILogger<LoginHandler> logger, IJwtService jwtService, RefreshTokenService refreshTokenService)
     {
         _context = context;
         _passwordHasher = passwordHasher;
         _logger = logger;
         _jwtService = jwtService;
+        _refreshTokenService = refreshTokenService;
     }
 
-    public async Task<Result<string>> LoginAsync(LoginRequest request, CancellationToken ct = default)
+    public async Task<Result<LoginResponse>> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
         var user = await _context.Users
             .AsNoTracking()
@@ -28,17 +30,18 @@ public class LoginHandler
         if (user == null)
         {
             _logger.LogWarning("Login failed: user not found. Email={Email}", request.Email);
-            return Result<string>.Fail("Invalid email or password");
+            return Result<LoginResponse>.Fail("Invalid email or password");
         }
 
         if (!_passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
         {
             _logger.LogWarning("Login failed: wrong password. UserId={UserId}", user.Id);
-            return Result<string>.Fail("Invalid email or password");
+            return Result<LoginResponse>.Fail("Invalid email or password");
         }
 
-        var token = _jwtService.GenerateToken(user.Id, user.UserName);
+        var (accessToken, refreshToken) = _jwtService.GenerateToken(user.Id);
+        await _refreshTokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
         _logger.LogInformation("User {UserId} logged in", user.Id);
-        return Result<string>.Ok(token);
+        return Result<LoginResponse>.Ok(new LoginResponse(accessToken, refreshToken));
     }
 }

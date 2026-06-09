@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -143,8 +141,9 @@ builder.Services.AddScoped<GetFollowersHandler>();
 builder.Services.AddScoped<GetFollowingHandler>();
 builder.Services.AddScoped<CheckFollowStatusHandler>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
-builder.Services.AddSingleton<IJwtService, JwtService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddJwt();
+builder.Services.AddScoped<RefreshTokenService>();
 
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
