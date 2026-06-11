@@ -45,7 +45,7 @@ public class SseController : ControllerBase
         }
         finally
         {
-            _sseManager.RemoveConnection(userId);
+            _sseManager.RemoveConnection(userId, Response);
             _logger.LogInformation("SSE disconnected: {UserId}", userId);
         }
     }

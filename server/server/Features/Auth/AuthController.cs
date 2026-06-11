@@ -57,30 +57,27 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken ct)
     {
         var result = await _register.RegisterAsync(request, ct);
-        if (!result.Success || string.IsNullOrEmpty(result.Data))
+        if (!result.Success || result.Data is null)
             return Problem(detail: result.Error, statusCode: 400);
 
-        Response.Cookies.Append(
-            "access_token",
-            result.Data,
-            CreateCookieOptions()
-        );
-
-        return Ok();
+        Response.Cookies.Append("access_token", result.Data.AccessToken, CreateCookieOptions());
+        return Ok(new { result.Data.RefreshToken });
     }
 
+    [EnableRateLimiting("auth")]
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request, CancellationToken ct)
     {
-        var storedRefreshToken = await _refreshTokenService.GetRefreshTokenAsync(request.RefreshToken);
+        var storedRefreshToken = await _refreshTokenService.GetRefreshTokenAsync(request.RefreshToken, ct);
         if (storedRefreshToken is null)
             return Unauthorized("Invalid or expired refresh token.");
 
-        await _refreshTokenService.RevokeRefreshTokenAsync(storedRefreshToken);
-
         var (accessToken, newRefreshToken) = _jwtService.GenerateToken(storedRefreshToken.UserId);
-        await _refreshTokenService.SaveRefreshTokenAsync(storedRefreshToken.UserId, newRefreshToken);
-        return Ok(new { AccessToken = accessToken, RefreshToken = newRefreshToken });
+        await _refreshTokenService.RevokeRefreshTokenAsync(storedRefreshToken, newRefreshToken, ct);
+        await _refreshTokenService.SaveRefreshTokenAsync(storedRefreshToken.UserId, newRefreshToken, ct);
+
+        Response.Cookies.Append("access_token", accessToken, CreateCookieOptions());
+        return Ok(new { RefreshToken = newRefreshToken });
     }
 
 
@@ -109,9 +106,12 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPost("logout")]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest request)
     {
         Response.Cookies.Delete("access_token");
+        var storedToken = await _refreshTokenService.GetRefreshTokenAsync(request.RefreshToken);
+        if (storedToken is not null)
+            await _refreshTokenService.RevokeRefreshTokenAsync(storedToken);
         return Ok();
     }
 

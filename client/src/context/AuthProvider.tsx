@@ -21,10 +21,12 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await agent.post("/auth/logout");
+      const refreshToken = localStorage.getItem("refreshToken");
+      await agent.post("/auth/logout", { refreshToken });
     } catch (error) {
       console.error(error);
     } finally {
+      localStorage.removeItem("refreshToken");
       setUser(null);
     }
   };

@@ -11,22 +11,24 @@ public class RegisterHandler
     private readonly ILogger<LoginHandler> _logger;
     private readonly IJwtService _jwtService;
     private readonly RegisterMapper _registerMapper;
+    private readonly RefreshTokenService _refreshTokenService;
 
-    public RegisterHandler(AppDbContext context, ILogger<LoginHandler> logger, IJwtService jwtService, RegisterMapper mapper)
+    public RegisterHandler(AppDbContext context, ILogger<LoginHandler> logger, IJwtService jwtService, RegisterMapper mapper, RefreshTokenService refreshTokenService)
     {
         _context = context;
         _logger = logger;
         _jwtService = jwtService;
         _registerMapper = mapper;
+        _refreshTokenService = refreshTokenService;
     }
 
-    public async Task<Result<string>> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
+    public async Task<Result<LoginResponse>> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
     {
         var emailTaken = await _context.Users.AnyAsync(u => u.Email == request.Email, ct);
         if (emailTaken)
         {
             _logger.LogWarning("Registration failed: email already exists. Email={Email}", request.Email);
-            return Result<string>.Fail("User already exists");
+            return Result<LoginResponse>.Fail("User already exists");
         }
 
         var newUser = _registerMapper.ToEntity(request);
@@ -34,8 +36,9 @@ public class RegisterHandler
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync(ct);
 
-        var (accessToken, _) = _jwtService.GenerateToken(newUser.Id);
+        var (accessToken, refreshToken) = _jwtService.GenerateToken(newUser.Id);
+        await _refreshTokenService.SaveRefreshTokenAsync(newUser.Id, refreshToken, ct);
         _logger.LogInformation("Registered user {UserId} with name {UserName}", newUser.Id, newUser.UserName);
-        return Result<string>.Ok(accessToken);
+        return Result<LoginResponse>.Ok(new LoginResponse(accessToken, refreshToken));
     }
 }

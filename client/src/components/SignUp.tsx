@@ -24,7 +24,8 @@ export default function SignUp() {
       userName: userName
     };
     try {
-      await agent.post("/auth/register", data);
+      const response = await agent.post("/auth/register", data);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
       await checkAuth();
       navigate("/user");
     } catch (err) {

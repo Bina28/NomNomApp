@@ -16,10 +16,9 @@ public class SseConnectionManager
         _userConnections[userId] = response;
     }
 
-    public void RemoveConnection(string userId)
+    public void RemoveConnection(string userId, HttpResponse response)
     {
-        _userConnections.TryRemove(userId, out _);
-
+        _userConnections.TryRemove(new KeyValuePair<string, HttpResponse>(userId, response));
     }
 
     public async Task SendToUser(string targetUserId, string eventType, object data)
