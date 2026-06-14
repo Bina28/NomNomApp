@@ -1,11 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 
-type SseEvent = {
-  type: string;
-  data: unknown;
-};
-
 type SseCallbacks = {
   onNewFollow?: (data: { followerName: string; followingName: string }) => void;
   onNewComment?: (data: { userName: string; text: string; recipeId: number }) => void;

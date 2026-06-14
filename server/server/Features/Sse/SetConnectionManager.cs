@@ -36,7 +36,7 @@ public class SseConnectionManager
                 await response.WriteAsync(message);
                 await response.Body.FlushAsync();
             }
-            catch { RemoveConnection(targetUserId); }
+            catch { RemoveConnection(targetUserId, response); }
         }
 
     }
