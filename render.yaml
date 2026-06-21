@@ -30,5 +30,3 @@ services:
         sync: false
       - key: CloudinarySettings__ApiSecret
         sync: false
-      - key: AllowedOrigins__0
-        sync: false
