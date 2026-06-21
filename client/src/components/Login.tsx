@@ -28,10 +28,15 @@ export default function Login() {
       navigate("/user");
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        const message = err.response?.data?.detail
-          ?? err.response?.data?.error
-          ?? "An unexpected error occurred";
-        setError(message);
+        const data = err.response?.data;
+        if (data?.detail) {
+          setError(data.detail);
+        } else if (data?.errors) {
+          const first = Object.values(data.errors as Record<string, string[]>)[0]?.[0];
+          setError(first ?? "Validation error");
+        } else {
+          setError("An unexpected error occurred");
+        }
       } else {
         setError("An unexpected error occurred");
       }

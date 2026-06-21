@@ -29,8 +29,16 @@ export default function SignUp() {
       await checkAuth();
       navigate("/user");
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.data?.detail) {
-        setError(err.response.data.detail);
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data;
+        if (data?.detail) {
+          setError(data.detail);
+        } else if (data?.errors) {
+          const first = Object.values(data.errors as Record<string, string[]>)[0]?.[0];
+          setError(first ?? "Validation error");
+        } else {
+          setError("An unexpected error occurred");
+        }
       } else {
         setError("An unexpected error occurred");
       }
