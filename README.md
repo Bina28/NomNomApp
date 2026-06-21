@@ -8,15 +8,24 @@ A full-stack recipe management and social platform where users can discover reci
 
 ## Screenshots
 
-> _Add screenshots here_
-
-| Feed | Recipe Detail |
-|------|---------------|
-| ![Feed](docs/images/feed.png) | ![Recipe](docs/images/recipe.png) |
-
-| Profile | Notifications |
-|---------|---------------|
-| ![Profile](docs/images/profile.png) | ![Notifications](docs/images/notifications.png) |
+<table>
+  <tr>
+    <td><img src="docs/images/feed.png" width="400" alt="Feed"/></td>
+    <td><img src="docs/images/recipe.png" width="400" alt="Recipe Detail"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Home</b></td>
+    <td align="center"><b>Recipe Detail</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/profile.png" width="400" alt="Profile"/></td>
+    <td><img src="docs/images/notifications.png" width="400" alt="Notifications"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Profile</b></td>
+    <td align="center"><b>Notifications</b></td>
+  </tr>
+</table>
 
 ---
 
