@@ -178,8 +178,11 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseHttpsRedirection();
 
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:3000", "https://localhost:3000"];
+
 app.UseCors(x => x
-    .WithOrigins("http://localhost:3000", "https://localhost:3000")
+    .WithOrigins(allowedOrigins)
     .WithHeaders("Content-Type", "Authorization")
     .WithMethods("GET", "POST", "PUT", "DELETE")
     .AllowCredentials()
