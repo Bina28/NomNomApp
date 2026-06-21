@@ -16,7 +16,7 @@ public class SaveRecipeTests
 
         var photoMock = Substitute.For<IPhotoProvider>();
         photoMock
-            .UploadImgFromUrl("Test image url")
+            .UploadImgFromUrlAsync("Test image url")
             .Returns(new PhotoUploadResult("public-id", "uploaded-url"));
 
         var recipe = new Recipe
@@ -29,7 +29,7 @@ public class SaveRecipeTests
 
         //Act
         var sut = new SaveRecipeHandler(db.Context, photoMock);
-        await sut.SaveRecipe(recipe);
+        await sut.SaveRecipeAsync(recipe);
 
         //Assert
         Assert.Equal(1, db.Context.Recipes.Count());
@@ -57,7 +57,7 @@ public class SaveRecipeTests
 
         //Act
         var sut = new SaveRecipeHandler(db.Context, photoMock);
-        await sut.SaveRecipe(recipe);
+        await sut.SaveRecipeAsync(recipe);
 
         //Assert
         var savedRecipe = db.Context.Recipes.First();
@@ -67,7 +67,7 @@ public class SaveRecipeTests
         Assert.Equal(1, db.Context.Recipes.Count());
         Assert.Equal(2, db.Context.Ingredients.Count());
 
-        await photoMock.DidNotReceive().UploadImgFromUrl(Arg.Any<string>());
+        await photoMock.DidNotReceive().UploadImgFromUrlAsync(Arg.Any<string>());
     }
 
     [Fact]
@@ -88,7 +88,7 @@ public class SaveRecipeTests
 
         //Act
         var sut = new SaveRecipeHandler(db.Context, photoMock);
-        await sut.SaveRecipe(recipe);
+        await sut.SaveRecipeAsync(recipe);
 
         //Assert
         Assert.Equal(2, db.Context.Ingredients.Count());

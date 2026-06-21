@@ -13,7 +13,7 @@ public class CheckFollowStatusHandler
         _context = context;
     }
 
-    public async Task<Result<bool>> IsFollowing(string currentUserId, string targetUserId, CancellationToken ct = default)
+    public async Task<Result<bool>> IsFollowingAsync(string currentUserId, string targetUserId, CancellationToken ct = default)
     {
         var isFollowing = await _context.Follows
             .AnyAsync(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId, ct);

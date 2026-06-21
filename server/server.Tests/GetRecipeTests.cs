@@ -25,12 +25,12 @@ public class GetRecipeTests
         var sut = new GetRecipeByIdHandler(db.Context, mockClient, mockApiHandler, logger);
 
         // Act
-        var result = await sut.GetRecipeById(1);
+        var result = await sut.GetRecipeByIdAsync(1);
 
         //Assert
         Assert.True(result.Success);
         Assert.Equal("Test Recipe", result.Data?.Title);
-        await mockClient.DidNotReceive().GetRecipeById(1);
+        await mockClient.DidNotReceive().GetRecipeByIdAsync(1);
     }
 
     [Fact]
@@ -42,12 +42,12 @@ public class GetRecipeTests
         var apiRecipe = new Recipe { Id = 1, Title = "Test Recipe" };
 
         var mockClient = Substitute.For<IRecipeProvider>();
-        mockClient.GetRecipeById(1)
+        mockClient.GetRecipeByIdAsync(1)
             .Returns(apiRecipe);
 
         var savedRecipe = new Recipe { Id = 1, Title = "Test Recipe" };
         var mockApiHandler = Substitute.For<ISaveRecipeHandler>();
-        mockApiHandler.SaveRecipe(apiRecipe)
+        mockApiHandler.SaveRecipeAsync(apiRecipe)
             .Returns(savedRecipe);
 
         var logger = Substitute.For<ILogger<GetRecipeByIdHandler>>();
@@ -55,12 +55,12 @@ public class GetRecipeTests
         var sut = new GetRecipeByIdHandler(db.Context, mockClient, mockApiHandler, logger);
 
         //Act
-        var result = await sut.GetRecipeById(1);
+        var result = await sut.GetRecipeByIdAsync(1);
 
         //Assert
         Assert.True(result.Success);
         Assert.Equal("Test Recipe", result.Data?.Title);
-        await mockApiHandler.Received(1).SaveRecipe(apiRecipe);
+        await mockApiHandler.Received(1).SaveRecipeAsync(apiRecipe);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class GetRecipeTests
         using var db = new TestDb();
 
         var mockClient = Substitute.For<IRecipeProvider>();
-        mockClient.GetRecipeById(1)
+        mockClient.GetRecipeByIdAsync(1)
              .ReturnsNull();
 
         var mockApiHandler = Substitute.For<ISaveRecipeHandler>();
@@ -79,10 +79,10 @@ public class GetRecipeTests
         var sut = new GetRecipeByIdHandler(db.Context, mockClient, mockApiHandler, logger);
 
         //Act
-        var result = await sut.GetRecipeById(1);
+        var result = await sut.GetRecipeByIdAsync(1);
 
         //Assert
         Assert.False(result.Success);
-        await mockApiHandler.DidNotReceive().SaveRecipe(Arg.Any<Recipe>());
+        await mockApiHandler.DidNotReceive().SaveRecipeAsync(Arg.Any<Recipe>());
     }
 }

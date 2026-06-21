@@ -5,6 +5,6 @@ namespace Server.Features.Recipes.Infrastructure.Recipes;
 
 public interface IRecipeProvider
 {
-    Task<Recipe?> GetRecipeById(int id, CancellationToken ct = default);
-    Task<List<Recipe>?> FindRecipesByNutrients(FindRecipesByNutrientsRequest request, CancellationToken ct = default);
+    Task<Recipe?> GetRecipeByIdAsync(int id, CancellationToken ct = default);
+    Task<List<Recipe>?> FindRecipesByNutrientsAsync(FindRecipesByNutrientsRequest request, CancellationToken ct = default);
 }

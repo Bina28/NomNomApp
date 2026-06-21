@@ -12,7 +12,7 @@ public class SpoonacularRecipeProvider : IRecipeProvider
         _client = client;
     }
 
-    public async Task<Recipe?> GetRecipeById(int id, CancellationToken ct = default)
+    public async Task<Recipe?> GetRecipeByIdAsync(int id, CancellationToken ct = default)
     {
         var response = await _client.GetAsync($"recipes/{id}/information", ct);
         if (!response.IsSuccessStatusCode) return null;
@@ -22,7 +22,7 @@ public class SpoonacularRecipeProvider : IRecipeProvider
         return MapToDomain(apiRecipe);
     }
 
-    public async Task<List<Recipe>?> FindRecipesByNutrients(FindRecipesByNutrientsRequest request, CancellationToken ct = default)
+    public async Task<List<Recipe>?> FindRecipesByNutrientsAsync(FindRecipesByNutrientsRequest request, CancellationToken ct = default)
     {
         var url = $"recipes/findByNutrients?minCalories={request.MinimumCalories}&number={request.Number}";
         var response = await _client.GetAsync(url, ct);

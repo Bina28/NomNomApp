@@ -13,7 +13,7 @@ public class GetCommentsHandler
     {
         _context = context;
     }
-    public async Task<Result<PageList<CommentResponse>>> GetCommentsForRecipe(int recipeId, PageParameters parameters, CancellationToken ct = default)
+    public async Task<Result<PageList<CommentResponse>>> GetCommentsForRecipeAsync(int recipeId, PageParameters parameters, CancellationToken ct = default)
     {
         var query = _context.Comments
             .AsNoTracking()

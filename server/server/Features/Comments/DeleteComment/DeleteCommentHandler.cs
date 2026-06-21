@@ -15,7 +15,7 @@ public class DeleteCommentHandler
         _logger = logger;
     }
 
-    public async Task<Result<bool>> DeleteComment(string commentId, string userId, CancellationToken ct = default)
+    public async Task<Result<bool>> DeleteCommentAsync(string commentId, string userId, CancellationToken ct = default)
     {
         var comment = await _context.Comments
             .FirstOrDefaultAsync(c => userId == c.UserId && c.Id == commentId, ct);

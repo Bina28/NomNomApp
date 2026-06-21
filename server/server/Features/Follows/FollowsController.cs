@@ -34,7 +34,7 @@ public class FollowsController : ControllerBase
     [HttpPost("{userId}")]
     public async Task<ActionResult<bool>> FollowUser(string userId, CancellationToken ct)
     {
-        var result = await _followHandler.FollowUser(User.GetUserId(), userId, ct);
+        var result = await _followHandler.FollowUserAsync(User.GetUserId(), userId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
@@ -42,7 +42,7 @@ public class FollowsController : ControllerBase
     [HttpDelete("{userId}")]
     public async Task<ActionResult<bool>> UnfollowUser(string userId, CancellationToken ct)
     {
-        var result = await _unfollowHandler.UnfollowUser(User.GetUserId(), userId, ct);
+        var result = await _unfollowHandler.UnfollowUserAsync(User.GetUserId(), userId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
@@ -50,14 +50,14 @@ public class FollowsController : ControllerBase
     [HttpGet("followers")]
     public async Task<ActionResult<List<FollowerResponse>>> GetFollowers(CancellationToken ct)
     {
-        var result = await _getFollowersHandler.GetFollowers(User.GetUserId(), ct);
+        var result = await _getFollowersHandler.GetFollowersAsync(User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
     [HttpGet("following")]
     public async Task<ActionResult<List<FollowingResponse>>> GetFollowing(CancellationToken ct)
     {
-        var result = await _getFollowingHandler.GetFollowing(User.GetUserId(), ct);
+        var result = await _getFollowingHandler.GetFollowingAsync(User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
@@ -65,7 +65,7 @@ public class FollowsController : ControllerBase
     [HttpGet("check/{userId}")]
     public async Task<ActionResult<bool>> IsFollowing(string userId, CancellationToken ct)
     {
-        var result = await _checkFollowStatusHandler.IsFollowing(User.GetUserId(), userId, ct);
+        var result = await _checkFollowStatusHandler.IsFollowingAsync(User.GetUserId(), userId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 }

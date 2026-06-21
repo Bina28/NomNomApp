@@ -16,7 +16,7 @@ public class CreateRecipeHandler
         _logger = logger;
     }
 
-    public async Task<Result<RecipeDto>> CreateRecipe(RecipeDto request, string userId, CancellationToken ct = default)
+    public async Task<Result<RecipeDto>> CreateRecipeAsync(RecipeDto request, string userId, CancellationToken ct = default)
     {
         if (string.IsNullOrEmpty(request.Title))
         {

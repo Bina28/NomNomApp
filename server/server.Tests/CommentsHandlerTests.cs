@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Server.Domain;
@@ -20,13 +19,13 @@ public class CommentsHandlerTests
         db.Context.Users.Add(new User { Id = "user-123", UserName = "TestUser", Email = "testuser@example.com", PasswordHash = "hashedpassword" });
         await db.Context.SaveChangesAsync();
 
-        var sseManager = new SetConnectionManager();
+        var sseManager = new SseConnectionManager();
         var mockLogger = Substitute.For<ILogger<PostCommentHandler>>();
 
         var sut = new PostCommentHandler(db.Context, sseManager, mockLogger);
 
         //Act
-        var result = await sut.PostComment(1, new CreateCommentRequest { Text = "Test comment", Score = 2 }, "user-123");
+        var result = await sut.PostCommentAsync(1, new CreateCommentRequest { Text = "Test comment", Score = 2 }, "user-123");
 
         //Assert       
         Assert.True(result.Success);
@@ -48,12 +47,12 @@ public class CommentsHandlerTests
         await db.Context.SaveChangesAsync();
 
 
-        var sseManager = new SetConnectionManager();
+        var sseManager = new SseConnectionManager();
         var mockLogger = Substitute.For<ILogger<PostCommentHandler>>();
         var sut = new PostCommentHandler(db.Context, sseManager, mockLogger);
 
         //Act
-        var result = await sut.PostComment(1, new CreateCommentRequest { Text = "Test comment", Score = 2 }, "user-123");
+        var result = await sut.PostCommentAsync(1, new CreateCommentRequest { Text = "Test comment", Score = 2 }, "user-123");
 
         //Assert
         Assert.False(result.Success);
@@ -71,12 +70,12 @@ public class CommentsHandlerTests
         await db.Context.SaveChangesAsync();
 
 
-        var sseManager = new SetConnectionManager();
+        var sseManager = new SseConnectionManager();
         var mockLogger = Substitute.For<ILogger<PostCommentHandler>>();
         var sut = new PostCommentHandler(db.Context, sseManager, mockLogger);
 
         //Act
-        var result = await Assert.ThrowsAsync<UnauthorizedAccessException>(() => sut.PostComment(1, new CreateCommentRequest { Text = "Test comment", Score = 2 }, "non-existent-user"));
+        var result = await Assert.ThrowsAsync<UnauthorizedAccessException>(() => sut.PostCommentAsync(1, new CreateCommentRequest { Text = "Test comment", Score = 2 }, "non-existent-user"));
 
         //Assert       
         Assert.Empty(db.Context.Comments);
@@ -97,7 +96,7 @@ public class CommentsHandlerTests
 
         var sut = new DeleteCommentHandler(db.Context, mockLogger);
         //Act
-        var result = await sut.DeleteComment("2");
+        var result = await sut.DeleteCommentAsync("2", "1");
 
         //Assert
         Assert.True(result.Success);
@@ -110,18 +109,18 @@ public class CommentsHandlerTests
     {
         //Arrange
         using var db = new TestDb();
-       
+
 
         var mockLogger = Substitute.For<ILogger<DeleteCommentHandler>>();
 
         var sut = new DeleteCommentHandler(db.Context, mockLogger);
         //Act
-        var result = await sut.DeleteComment("2");
+        var result = await sut.DeleteCommentAsync("2", "1");
 
         //Assert
         Assert.False(result.Success);
         Assert.Equal("Comment not found", result.Error);
-       
+
 
     }
-    }
+}

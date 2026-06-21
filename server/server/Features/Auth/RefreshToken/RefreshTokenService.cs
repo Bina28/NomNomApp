@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Server.Data;
 using Server.Domain;
 
-namespace Server.Features.Auth;
+namespace Server.Features.Auth.RefreshTokens;
 
-public class RefreshTokenService
+public class RefreshTokenService : IRefreshTokenService
 {
     private readonly AppDbContext _context;
 

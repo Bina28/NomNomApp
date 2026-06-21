@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Server.Data;
+using Server.Features.Auth.Infrastructure.Jwt;
+using Server.Features.Auth.Infrastructure.Password;
+using Server.Features.Auth.RefreshTokens;
 using Server.Features.Shared;
 
 namespace Server.Features.Auth.Login;
@@ -10,9 +13,9 @@ public class LoginHandler
     private readonly ILogger<LoginHandler> _logger;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtService _jwtService;
-    private readonly RefreshTokenService _refreshTokenService;
+    private readonly IRefreshTokenService _refreshTokenService;
 
-    public LoginHandler(AppDbContext context, IPasswordHasher passwordHasher, ILogger<LoginHandler> logger, IJwtService jwtService, RefreshTokenService refreshTokenService)
+    public LoginHandler(AppDbContext context, IPasswordHasher passwordHasher, ILogger<LoginHandler> logger, IJwtService jwtService, IRefreshTokenService refreshTokenService)
     {
         _context = context;
         _passwordHasher = passwordHasher;

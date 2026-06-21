@@ -1,8 +1,7 @@
-﻿
 using Server.Domain;
-using Server.Features.Auth.Register;
+using Server.Features.Auth.Infrastructure.Password;
 
-namespace Server.Features.Auth;
+namespace Server.Features.Auth.Register;
 
 public class RegisterMapper
 {
@@ -12,6 +11,7 @@ public class RegisterMapper
     {
         _passwordHasher = hasher;
     }
+
     public User ToEntity(RegisterRequest request)
     {
         return new User

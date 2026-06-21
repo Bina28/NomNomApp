@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Server.Data;
+using Server.Features.Auth.Infrastructure.Jwt;
 using Server.Features.Auth.Login;
+using Server.Features.Auth.RefreshTokens;
 using Server.Features.Shared;
 
 namespace Server.Features.Auth.Register;
@@ -11,9 +13,9 @@ public class RegisterHandler
     private readonly ILogger<LoginHandler> _logger;
     private readonly IJwtService _jwtService;
     private readonly RegisterMapper _registerMapper;
-    private readonly RefreshTokenService _refreshTokenService;
+    private readonly IRefreshTokenService _refreshTokenService;
 
-    public RegisterHandler(AppDbContext context, ILogger<LoginHandler> logger, IJwtService jwtService, RegisterMapper mapper, RefreshTokenService refreshTokenService)
+    public RegisterHandler(AppDbContext context, ILogger<LoginHandler> logger, IJwtService jwtService, RegisterMapper mapper, IRefreshTokenService refreshTokenService)
     {
         _context = context;
         _logger = logger;

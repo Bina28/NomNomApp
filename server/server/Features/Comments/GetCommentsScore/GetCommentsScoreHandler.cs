@@ -12,7 +12,7 @@ public class GetCommentsScoreHandler
     {
         _context = context;
     }
-    public async Task<Result<double>> GetCommentsScore(int recipeId, CancellationToken ct = default)
+    public async Task<Result<double>> GetCommentsScoreAsync(int recipeId, CancellationToken ct = default)
     {
         var averageScore = await _context.Comments
           .Where(c => c.RecipeId == recipeId)

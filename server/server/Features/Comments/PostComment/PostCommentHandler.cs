@@ -20,7 +20,7 @@ public class PostCommentHandler
         _logger = logger;
     }
 
-    public async Task<Result<CommentResponse>> PostComment(int recipeId, CreateCommentRequest request, string userId, CancellationToken ct = default)
+    public async Task<Result<CommentResponse>> PostCommentAsync(int recipeId, CreateCommentRequest request, string userId, CancellationToken ct = default)
     {
         var recipeExists = await _context.Recipes
             .AsNoTracking()
@@ -64,7 +64,7 @@ public class PostCommentHandler
 
         if (targetUserId != null && targetUserId != userId)
         {
-            await _sseManager.SendToUser(targetUserId, "new_comment", new
+            await _sseManager.SendToUserAsync(targetUserId, "new_comment", new
             {
                 commentId = comment.Id,
                 recipeId = comment.RecipeId,

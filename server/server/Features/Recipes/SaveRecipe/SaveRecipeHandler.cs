@@ -17,7 +17,7 @@ public class SaveRecipeHandler : ISaveRecipeHandler
     }
 
 
-    public async Task<Recipe> SaveRecipe(Recipe recipe, CancellationToken ct = default)
+    public async Task<Recipe> SaveRecipeAsync(Recipe recipe, CancellationToken ct = default)
     {
         recipe.ExtendedIngredients = await ResolveIngredients(recipe, ct);
         await HandleImage(recipe, ct);
@@ -60,7 +60,7 @@ public class SaveRecipeHandler : ISaveRecipeHandler
     {
         if (string.IsNullOrEmpty(recipe.Image)) return;
 
-        var uploadPhoto = await _photoService.UploadImgFromUrl(recipe.Image, ct);
+        var uploadPhoto = await _photoService.UploadImgFromUrlAsync(recipe.Image, ct);
         if (uploadPhoto == null) return;
 
         var photo = new Photo

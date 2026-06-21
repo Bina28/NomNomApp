@@ -16,7 +16,7 @@ public class UnfollowHandler
         _logger = logger;
     }
 
-    public async Task<Result<bool>> UnfollowUser(string currentUserId, string targetUserId, CancellationToken ct = default)
+    public async Task<Result<bool>> UnfollowUserAsync(string currentUserId, string targetUserId, CancellationToken ct = default)
     {
         var deleted = await _context.Follows
             .Where(f => f.FollowerId == currentUserId && f.FollowingId == targetUserId)

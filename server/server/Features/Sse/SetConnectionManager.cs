@@ -21,7 +21,7 @@ public class SseConnectionManager
         _userConnections.TryRemove(new KeyValuePair<string, HttpResponse>(userId, response));
     }
 
-    public async Task SendToUser(string targetUserId, string eventType, object data)
+    public async Task SendToUserAsync(string targetUserId, string eventType, object data)
     {
         var json = JsonSerializer.Serialize(data);
         var message = $"event: {eventType}\ndata: {json}\n\n";

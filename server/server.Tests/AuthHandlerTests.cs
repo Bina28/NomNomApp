@@ -2,11 +2,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Server.Domain;
-using Server.Features.Auth;
+using Server.Features.Auth.Infrastructure.Jwt;
+using Server.Features.Auth.Infrastructure.Password;
+using Server.Features.Auth.RefreshTokens;
 using Server.Features.Auth.GetAllUsers;
 using Server.Features.Auth.GetCurrentUser;
 using Server.Features.Auth.Login;
 using Server.Features.Auth.Register;
+using Server.Features.Shared;
 
 namespace Server.Tests;
 
@@ -20,8 +23,9 @@ public class AuthHandlerTests
 
         var hashServiceMock = Substitute.For<IPasswordHasher>();
         var jwtServiceMock = Substitute.For<IJwtService>();
+        var refreshTokenServiceMock = Substitute.For<IRefreshTokenService>();
         hashServiceMock.VerifyPassword(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
-        jwtServiceMock.GenerateToken(Arg.Any<string>(), Arg.Any<string>()).Returns("fake-jwt-token");
+        jwtServiceMock.GenerateToken(Arg.Any<string>()).Returns(("fake-access-token", "fake-refresh-token"));
 
         var user = new User
         {
@@ -35,7 +39,7 @@ public class AuthHandlerTests
         await db.Context.SaveChangesAsync();
 
         var loggerMock = Substitute.For<ILogger<LoginHandler>>();
-        var sut = new LoginHandler(db.Context, hashServiceMock, loggerMock, jwtServiceMock);
+        var sut = new LoginHandler(db.Context, hashServiceMock, loggerMock, jwtServiceMock, refreshTokenServiceMock);
         var request = new LoginRequest { Email = "test@gmail.com", Password = "password" };
 
         //act
@@ -43,7 +47,8 @@ public class AuthHandlerTests
 
         //assert
         Assert.True(result.Success);
-        Assert.Equal("fake-jwt-token", result.Data);
+        Assert.Equal("fake-access-token", result.Data!.AccessToken);
+        Assert.Equal("fake-refresh-token", result.Data.RefreshToken);
     }
 
     [Fact]
@@ -54,6 +59,7 @@ public class AuthHandlerTests
 
         var hashServiceMock = Substitute.For<IPasswordHasher>();
         var jwtServiceMock = Substitute.For<IJwtService>();
+        var refreshTokenServiceMock = Substitute.For<IRefreshTokenService>();
         hashServiceMock.VerifyPassword(Arg.Any<string>(), Arg.Any<string>()).Returns(false);
 
         var user = new User
@@ -68,7 +74,7 @@ public class AuthHandlerTests
         await db.Context.SaveChangesAsync();
 
         var loggerMock = Substitute.For<ILogger<LoginHandler>>();
-        var sut = new LoginHandler(db.Context, hashServiceMock, loggerMock, jwtServiceMock);
+        var sut = new LoginHandler(db.Context, hashServiceMock, loggerMock, jwtServiceMock, refreshTokenServiceMock);
         var request = new LoginRequest { Email = "test@gmail.com", Password = "password" };
 
         //act
@@ -78,7 +84,7 @@ public class AuthHandlerTests
         Assert.False(result.Success);
         Assert.Null(result.Data);
         Assert.Equal("Invalid email or password", result.Error);
-        jwtServiceMock.DidNotReceive().GenerateToken(Arg.Any<string>(), Arg.Any<string>());
+        jwtServiceMock.DidNotReceive().GenerateToken(Arg.Any<string>());
     }
 
     [Fact]
@@ -89,8 +95,9 @@ public class AuthHandlerTests
 
         var hashServiceMock = Substitute.For<IPasswordHasher>();
         var jwtServiceMock = Substitute.For<IJwtService>();
+        var refreshTokenServiceMock = Substitute.For<IRefreshTokenService>();
         var loggerMock = Substitute.For<ILogger<LoginHandler>>();
-        var sut = new LoginHandler(db.Context, hashServiceMock, loggerMock, jwtServiceMock);
+        var sut = new LoginHandler(db.Context, hashServiceMock, loggerMock, jwtServiceMock, refreshTokenServiceMock);
         var request = new LoginRequest { Email = "someuser@gmail.com", Password = "password" };
 
         //act
@@ -100,7 +107,7 @@ public class AuthHandlerTests
         Assert.False(result.Success);
         Assert.Null(result.Data);
         Assert.Equal("Invalid email or password", result.Error);
-        jwtServiceMock.DidNotReceive().GenerateToken(Arg.Any<string>(), Arg.Any<string>());
+        jwtServiceMock.DidNotReceive().GenerateToken(Arg.Any<string>());
         hashServiceMock.DidNotReceive().VerifyPassword(Arg.Any<string>(), Arg.Any<string>());
     }
 
@@ -112,12 +119,13 @@ public class AuthHandlerTests
 
         var hashServiceMock = Substitute.For<IPasswordHasher>();
         var jwtServiceMock = Substitute.For<IJwtService>();
+        var refreshTokenServiceMock = Substitute.For<IRefreshTokenService>();
 
-        jwtServiceMock.GenerateToken(Arg.Any<string>(), Arg.Any<string>()).Returns("fake-jwt-token");
+        jwtServiceMock.GenerateToken(Arg.Any<string>()).Returns(("fake-access-token", "fake-refresh-token"));
         hashServiceMock.HashPassword(Arg.Any<string>()).Returns("hashedpassword");
 
         var loggerMock = Substitute.For<ILogger<LoginHandler>>();
-        var sut = new RegisterHandler(db.Context, loggerMock, jwtServiceMock, new RegisterMapper(hashServiceMock));
+        var sut = new RegisterHandler(db.Context, loggerMock, jwtServiceMock, new RegisterMapper(hashServiceMock), refreshTokenServiceMock);
         var request = new RegisterRequest { UserName = "newuser", Email = "test@gmail.com", Password = "password" };
 
         //act
@@ -125,7 +133,8 @@ public class AuthHandlerTests
 
         //assert
         Assert.True(result.Success);
-        Assert.Equal("fake-jwt-token", result.Data);
+        Assert.Equal("fake-access-token", result.Data!.AccessToken);
+        Assert.Equal("fake-refresh-token", result.Data.RefreshToken);
         Assert.Null(result.Error);
 
         var userInDb = await db.Context.Users.FirstOrDefaultAsync(u => u.Email == "test@gmail.com");
@@ -134,7 +143,7 @@ public class AuthHandlerTests
         Assert.Equal("hashedpassword", userInDb.PasswordHash);
 
         hashServiceMock.Received(1).HashPassword("password");
-        jwtServiceMock.Received(1).GenerateToken(Arg.Any<string>(), Arg.Any<string>());
+        jwtServiceMock.Received(1).GenerateToken(Arg.Any<string>());
     }
 
     [Fact]
@@ -183,19 +192,20 @@ public class AuthHandlerTests
         db.Context.Users.AddRange(users);
         await db.Context.SaveChangesAsync();
 
+        var parameters = new PageParameters { PageNumber = 1, PageSize = 10 };
         var sut = new GetAllUsersHandler(db.Context);
 
         //act
-        var result = await sut.GetUsersExceptCurrentAsync("3");
+        var result = await sut.GetUsersExceptCurrentAsync("3", parameters);
 
         //assert
         Assert.True(result.Success);
         Assert.Null(result.Error);
         Assert.NotNull(result.Data);
 
-        Assert.DoesNotContain(result.Data!, u => u.Id == "3");
-        Assert.Contains(result.Data!, u => u.Id == "1");
-        Assert.Contains(result.Data!, u => u.Id == "2");
+        Assert.DoesNotContain(result.Data!.Items, u => u.Id == "3");
+        Assert.Contains(result.Data!.Items, u => u.Id == "1");
+        Assert.Contains(result.Data!.Items, u => u.Id == "2");
         Assert.Equal(2, result.Data!.Count);
     }
 }

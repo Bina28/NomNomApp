@@ -17,7 +17,7 @@ public class FollowHandler
         _sseManager = sseManager;
         _logger = logger;
     }
-    public async Task<Result<bool>> FollowUser(string currentUserId, string targetUserId, CancellationToken ct = default)
+    public async Task<Result<bool>> FollowUserAsync(string currentUserId, string targetUserId, CancellationToken ct = default)
     {
         if (currentUserId == targetUserId)
         {
@@ -57,7 +57,7 @@ public class FollowHandler
         _context.Follows.Add(follow);
         await _context.SaveChangesAsync(ct);
 
-        await _sseManager.SendToUser(targetUserId, "new_follow", new
+        await _sseManager.SendToUserAsync(targetUserId, "new_follow", new
         {
             followerId = currentUser.Id,
             followerName = currentUser.UserName,

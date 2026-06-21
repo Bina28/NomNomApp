@@ -13,7 +13,7 @@ public class GetFollowersHandler
         _context = context;
     }
 
-    public async Task<Result<List<FollowerResponse>>> GetFollowers(string userId, CancellationToken ct = default)
+    public async Task<Result<List<FollowerResponse>>> GetFollowersAsync(string userId, CancellationToken ct = default)
     {
         var followers = await _context.Follows
             .AsNoTracking()

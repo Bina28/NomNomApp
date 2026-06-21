@@ -33,7 +33,7 @@ public class CommentsController : ControllerBase
     [EnableRateLimiting("auth")]
     public async Task<ActionResult<CommentResponse>> PostAsync(int recipeId, [FromBody] CreateCommentRequest request, CancellationToken ct)
     {
-        var result = await _postCommentHandler.PostComment(recipeId, request, User.GetUserId(), ct);
+        var result = await _postCommentHandler.PostCommentAsync(recipeId, request, User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
@@ -41,7 +41,7 @@ public class CommentsController : ControllerBase
     [HttpGet("recipe/{recipeId}")]
     public async Task<ActionResult<List<CommentResponse>>> GetCommentsForRecipe(int recipeId, [FromQuery] PageParameters parameters, CancellationToken ct)
     {
-        var result = await _getCommentsHandler.GetCommentsForRecipe(recipeId, parameters, ct);
+        var result = await _getCommentsHandler.GetCommentsForRecipeAsync(recipeId, parameters, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
@@ -50,7 +50,7 @@ public class CommentsController : ControllerBase
     [Authorize]
     public async Task<ActionResult<bool>> Delete(string commentId, CancellationToken ct)
     {
-        var result = await _deleteCommentHandler.DeleteComment(commentId, User.GetUserId(), ct);
+        var result = await _deleteCommentHandler.DeleteCommentAsync(commentId, User.GetUserId(), ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 
@@ -58,7 +58,7 @@ public class CommentsController : ControllerBase
     [HttpGet("recipe/{recipeId}/score")]
     public async Task<ActionResult<double>> GetCommentsScore(int recipeId, CancellationToken ct)
     {
-        var result = await _getCommentsScoreHandler.GetCommentsScore(recipeId, ct);
+        var result = await _getCommentsScoreHandler.GetCommentsScoreAsync(recipeId, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 400);
     }
 }

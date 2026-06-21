@@ -21,7 +21,7 @@ public class ClodinaryPhotoProvider : IPhotoProvider
         _cloudinary = new Cloudinary(account);
 
     }
-    public async Task<PhotoUploadResult?> UploadImgFromUrl(string imageUrl, CancellationToken ct = default)
+    public async Task<PhotoUploadResult?> UploadImgFromUrlAsync(string imageUrl, CancellationToken ct = default)
     {
 
         var uploadParams = new ImageUploadParams

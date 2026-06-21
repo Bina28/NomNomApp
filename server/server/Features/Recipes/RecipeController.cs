@@ -21,14 +21,14 @@ public class RecipeController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<RecipeResponse>> GetRecipeById(int id, CancellationToken ct)
     {
-        var result = await _recipeByIdHandler.GetRecipeById(id, ct);
+        var result = await _recipeByIdHandler.GetRecipeByIdAsync(id, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 404);
     }
 
     [HttpGet("search")]
     public async Task<ActionResult<List<FindRecipesByNutrientsResponse>>> FindRecipesByNutrients([FromQuery] FindRecipesByNutrientsRequest request, [FromQuery] PageParameters parameters,CancellationToken ct)
     {
-        var result = await _byNutrientsHandler.FindRecipesByNutrients(request, parameters, ct);
+        var result = await _byNutrientsHandler.FindRecipesByNutrientsAsync(request, parameters, ct);
         return result.Success ? Ok(result.Data) : Problem(detail: result.Error, statusCode: 404);
     }
 }

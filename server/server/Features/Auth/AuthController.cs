@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Server.Features.Auth.GetAllUsers;
 using Server.Features.Auth.GetCurrentUser;
 using Server.Features.Auth.Login;
+using Server.Features.Auth.Infrastructure.Jwt;
 using Server.Features.Auth.RefreshTokens;
 using Server.Features.Auth.Register;
 using Server.Features.Auth.Shared;

@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Server.Features.Auth;
+namespace Server.Features.Auth.Infrastructure.Jwt;
 
 public class JwtService : IJwtService
 {
@@ -34,12 +34,12 @@ public class JwtService : IJwtService
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key!));
         var token = new JwtSecurityToken(
-      issuer: _jwtOptions.Issuer,
-      audience: _jwtOptions.Audience,
-      claims: claims,
-      expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_jwtOptions.ExpiryMinutes)),
-      signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
-      );
+            issuer: _jwtOptions.Issuer,
+            audience: _jwtOptions.Audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_jwtOptions.ExpiryMinutes)),
+            signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
+        );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
@@ -49,5 +49,4 @@ public class JwtService : IJwtService
         var randomBytes = RandomNumberGenerator.GetBytes(64);
         return Convert.ToBase64String(randomBytes);
     }
-
 }

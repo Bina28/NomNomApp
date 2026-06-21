@@ -1,4 +1,4 @@
-namespace Server.Features.Auth;
+namespace Server.Features.Auth.Infrastructure.Password;
 
 public interface IPasswordHasher
 {

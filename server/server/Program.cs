@@ -5,7 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Exceptions;
 using Server.Data;
-using Server.Features.Auth;
+using Server.Features.Auth.Infrastructure.Jwt;
+using Server.Features.Auth.Infrastructure.Password;
+using Server.Features.Auth.RefreshTokens;
 using Server.Features.Auth.GetAllUsers;
 using Server.Features.Auth.GetCurrentUser;
 using Server.Features.Auth.Login;
@@ -143,7 +145,7 @@ builder.Services.AddScoped<CheckFollowStatusHandler>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddJwt();
-builder.Services.AddScoped<RefreshTokenService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 

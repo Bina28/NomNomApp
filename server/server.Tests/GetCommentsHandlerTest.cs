@@ -1,6 +1,7 @@
 ﻿using Server.Domain;
 using Server.Features.Comments.GetComments;
 using Server.Features.Comments.GetCommentsScore;
+using Server.Features.Shared;
 
 namespace Server.Tests;
 
@@ -24,15 +25,16 @@ public class GetCommentsHandlerTest
             new Comment { Id = "3", Text = "Comment3", UserId = "3", RecipeId = 1, CreatedAt = new DateTime(2026, 1, 2) }
         );
         await db.Context.SaveChangesAsync();
+        var parameters = new PageParameters { PageNumber = 1, PageSize = 10 };
 
         var sut = new GetCommentsHandler(db.Context);
         //Act
-        var result = await sut.GetCommentsForRecipe(1);
+        var result = await sut.GetCommentsForRecipeAsync(1, parameters);
 
         //Assert
         Assert.NotNull(result);
         Assert.True(result.Success);
-        var resultDates = result.Data!.Select(c => c.CreatedAt).ToList();
+        var resultDates = result.Data!.Items.Select(c => c.CreatedAt).ToList();
         Assert.Equal(resultDates.OrderByDescending(d => d).ToList(), resultDates);
 
     }
@@ -44,16 +46,17 @@ public class GetCommentsHandlerTest
         using var db = new TestDb();
         db.Context.Recipes.Add(new Recipe { Id = 1 });
         await db.Context.SaveChangesAsync();
+        var paramters = new PageParameters { PageNumber = 1, PageSize = 10 };
 
         var sut = new GetCommentsHandler(db.Context);
 
         //Act
-        var result = await sut.GetCommentsForRecipe(1);
+        var result = await sut.GetCommentsForRecipeAsync(1, paramters);
 
         //Assert
         Assert.True(result.Success);
         Assert.NotNull(result);
-        Assert.Empty(result.Data!);
+        Assert.Empty(result.Data!.Items);
     }
 
 
@@ -79,7 +82,7 @@ public class GetCommentsHandlerTest
         var sut = new GetCommentsScoreHandler(db.Context);
 
         //Act
-        var result = await sut.GetCommentsScore(1);
+        var result = await sut.GetCommentsScoreAsync(1);
 
         //Assert
         Assert.True(result.Success);

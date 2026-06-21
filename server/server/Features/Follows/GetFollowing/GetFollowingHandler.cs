@@ -11,7 +11,7 @@ public class GetFollowingHandler
     {
         _context = context;
     }
-    public async Task<Result<List<FollowingResponse>>> GetFollowing(string userId, CancellationToken ct = default)
+    public async Task<Result<List<FollowingResponse>>> GetFollowingAsync(string userId, CancellationToken ct = default)
     {
         var following = await _context.Follows
             .AsNoTracking()
