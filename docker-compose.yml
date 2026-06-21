@@ -6,6 +6,7 @@ services:
       - "8080:8080"              
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=recipe_db;Username=postgres;Password=strongpassword123
       - JwtSettings__Key=${JWT_KEY}
       - SpoonacularApi__ApiKey=${SPOONACULAR_API_KEY}
@@ -17,11 +18,13 @@ services:
 
   frontend:
     build:
-      context: ./client          
+      context: ./client
+      args:
+        VITE_API_URL: http://localhost:8080/api
     ports:
-      - "8081:8080"              
+      - "8081:8080"
     depends_on:
-      - backend                  
+      - backend
   db:
     image: postgres:16
     container_name: postgres_db

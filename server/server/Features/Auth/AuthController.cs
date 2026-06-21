@@ -21,10 +21,10 @@ public class AuthController : ControllerBase
     private readonly RegisterHandler _register;
     private readonly GetCurrentUserHandler _getCurrentUser;
     private readonly GetAllUsersHandler _getAllUsers;
-    private readonly RefreshTokenService _refreshTokenService;
+    private readonly IRefreshTokenService _refreshTokenService;
     private readonly IJwtService _jwtService;
 
-    public AuthController(LoginHandler login, RegisterHandler register, GetCurrentUserHandler getCurrentUser, GetAllUsersHandler getAllUsers, RefreshTokenService refreshToken, IJwtService jwtService)
+    public AuthController(LoginHandler login, RegisterHandler register, GetCurrentUserHandler getCurrentUser, GetAllUsersHandler getAllUsers, IRefreshTokenService refreshToken, IJwtService jwtService)
     {
         _login = login;
         _register = register;

@@ -16,7 +16,7 @@ export default function UserPage() {
   const fetchFollowers = async () => {
     try {
       const res = await agent.get("/follows/followers");
-      setFollowers(res.data);
+      setFollowers(res.data ?? []);
     } catch (err) {
       console.log(err);
     }
@@ -25,7 +25,7 @@ export default function UserPage() {
   const fetchFollowing = async () => {
     try {
       const res = await agent.get("/follows/following");
-      setFollowing(res.data);
+      setFollowing(res.data ?? []);
     } catch (err) {
       console.log(err);
     }
@@ -34,7 +34,7 @@ export default function UserPage() {
   const fetchAllUsers = async () => {
     try {
       const res = await agent.get("/auth/users");
-      setAllUsers(res.data.items);
+      setAllUsers(res.data.items ?? []);
     } catch (err) {
       console.log(err);
     }

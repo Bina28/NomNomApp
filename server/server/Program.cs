@@ -37,6 +37,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
+builder.Services.AddCors();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -176,10 +177,11 @@ app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsProduction())
+    app.UseHttpsRedirection();
 
 app.UseCors(x => x
-    .WithOrigins("http://localhost:3000", "https://localhost:3000")
+    .WithOrigins("http://localhost:3000", "https://localhost:3000", "http://localhost:8081")
     .WithHeaders("Content-Type", "Authorization")
     .WithMethods("GET", "POST", "PUT", "DELETE")
     .AllowCredentials()
