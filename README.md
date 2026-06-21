@@ -1,6 +1,24 @@
 # NomNomApp
 
+![CI](https://github.com/Bina28/NomNomApp/actions/workflows/ci.yml/badge.svg)
+
 A full-stack recipe management and social platform where users can discover recipes, create their own, rate and comment on them, follow other users, and receive real-time notifications.
+
+---
+
+## Screenshots
+
+> _Add screenshots here_
+
+| Feed | Recipe Detail |
+|------|---------------|
+| ![Feed](docs/images/feed.png) | ![Recipe](docs/images/recipe.png) |
+
+| Profile | Notifications |
+|---------|---------------|
+| ![Profile](docs/images/profile.png) | ![Notifications](docs/images/notifications.png) |
+
+---
 
 ## Tech Stack
 
@@ -8,27 +26,28 @@ A full-stack recipe management and social platform where users can discover reci
 | -------- | ----------------------------------------------- |
 | Frontend | React 19, TypeScript, Vite, Bootstrap           |
 | Backend  | ASP.NET Core 10 (.NET 10), C#                   |
-| Database | PostgreSQL 16 (Docker)                           |
-| ORM      | Entity Framework Core 10                         |
-| Auth     | JWT Bearer tokens in HTTP-only cookies           |
-| Storage  | Cloudinary (photo uploads)                       |
-| Realtime | Server-Sent Events (SSE)                         |
-| External | Spoonacular API (recipe data)                    |
+| Database | PostgreSQL 16 (Docker)                          |
+| ORM      | Entity Framework Core 10                        |
+| Auth     | JWT in HTTP-only cookies + refresh token rotation |
+| Storage  | Cloudinary (photo uploads)                      |
+| Realtime | Server-Sent Events (SSE)                        |
+| External | Spoonacular API (recipe data)                   |
+| CI/CD    | GitHub Actions (build, test, Docker push to GHCR) |
 
 ## Features
 
-- **Recipe Discovery** - Search recipes by nutrients via the Spoonacular API
-- **Custom Recipes** - Create and save your own recipes with ingredients and photos
-- **Comments & Ratings** - Rate recipes (1-5 stars) and leave comments
-- **User Profiles** - View profiles with follower/following lists
-- **Follow System** - Follow other users and discover new people
-- **Real-time Notifications** - Receive toast notifications for new follows and comments via SSE
-- **Authentication** - Secure registration and login with JWT stored in HTTP-only cookies
+- **Recipe Discovery** — Search recipes by nutrients via the Spoonacular API
+- **Custom Recipes** — Create and save your own recipes with ingredients and photos
+- **Comments & Ratings** — Rate recipes (1–5 stars) and leave comments with pagination
+- **User Profiles** — View profiles with follower/following lists and paginated user search
+- **Follow System** — Follow other users and discover new people
+- **Real-time Notifications** — Receive toast notifications for new follows and comments via SSE
+- **Authentication** — Secure registration and login with JWT in HTTP-only cookies and refresh token rotation
 
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- [Node.js](https://nodejs.org/) (v18+)
+- [Node.js](https://nodejs.org/) (v22+)
 - [Docker](https://www.docker.com/) (for PostgreSQL)
 
 ## Getting Started
@@ -39,9 +58,19 @@ A full-stack recipe management and social platform where users can discover reci
 docker-compose up -d
 ```
 
-This starts a PostgreSQL 16 container on port `5432`.
+Starts a PostgreSQL 16 container on port `5432`.
 
-### 2. Run the backend
+### 2. Configure the backend
+
+Copy the example config and fill in your values:
+
+```bash
+cp server/server/appsettings.Example.json server/server/appsettings.Development.json
+```
+
+See [`appsettings.Example.json`](server/server/appsettings.Example.json) for all required fields.
+
+### 3. Run the backend
 
 ```bash
 cd server/server
@@ -49,9 +78,17 @@ dotnet ef database update
 dotnet run
 ```
 
-The API starts at `https://localhost:5001`.
+API starts at `https://localhost:5001`.
 
-### 3. Run the frontend
+### 4. Configure the frontend
+
+```bash
+cp client/.env.example client/.env.development
+```
+
+See [`.env.example`](client/.env.example) for all required variables.
+
+### 5. Run the frontend
 
 ```bash
 cd client
@@ -59,96 +96,116 @@ npm install
 npm run dev
 ```
 
-The app starts at `http://localhost:3000`.
+App starts at `http://localhost:5173`.
+
+## Running with Docker
+
+Build and run the full stack:
+
+```bash
+docker-compose up --build
+```
+
+Images are published to GitHub Container Registry on every push to `main`.
 
 ## Project Structure
 
 ```
 NomNomApp/
-├── client/                     # React frontend
-│   └── src/
-│       ├── components/         # Pages and UI components
-│       ├── context/            # AuthContext, SseContext
-│       ├── hooks/              # Custom hooks (useSse)
-│       └── lib/api/            # Axios client and types
+├── client/                          # React frontend
+│   ├── src/
+│   │   ├── components/              # Pages and UI components
+│   │   ├── context/                 # AuthContext, SseContext
+│   │   ├── hooks/                   # Custom hooks (useSse)
+│   │   └── lib/api/                 # Axios client and types
+│   └── Dockerfile
 │
 ├── server/
-│   ├── server/                 # ASP.NET Core API
-│   │   ├── Data/               # EF Core DbContext
-│   │   ├── Domain/             # Entity models
-│   │   ├── Features/           # Feature-based modules
-│   │   │   ├── Auth/           # Authentication & user management
-│   │   │   ├── Comments/       # Recipe comments & ratings
-│   │   │   ├── Follows/        # User follow system
-│   │   │   ├── Recipes/        # Recipe CRUD & external API
-│   │   │   ├── Sse/            # Real-time event streaming
-│   │   │   └── Shared/         # Result pattern utilities
-│   │   └── Migrations/         # Database migrations
-│   └── server.Tests/           # Unit tests
+│   ├── server/                      # ASP.NET Core API
+│   │   ├── Data/                    # EF Core DbContext
+│   │   ├── Domain/                  # Entity models
+│   │   ├── Features/
+│   │   │   ├── Auth/
+│   │   │   │   ├── AuthController.cs
+│   │   │   │   ├── Infrastructure/
+│   │   │   │   │   ├── Jwt/         # IJwtService, JwtService, JwtOptions
+│   │   │   │   │   └── Password/    # IPasswordHasher, PasswordHasher
+│   │   │   │   ├── Login/           # LoginHandler, LoginRequest, LoginResponse
+│   │   │   │   ├── Register/        # RegisterHandler, RegisterRequest, RegisterMapper
+│   │   │   │   ├── RefreshToken/    # IRefreshTokenService, RefreshTokenService
+│   │   │   │   ├── GetAllUsers/
+│   │   │   │   ├── GetCurrentUser/
+│   │   │   │   └── Shared/          # UserResponse
+│   │   │   ├── Comments/            # Comments & ratings
+│   │   │   ├── Follows/             # Follow system
+│   │   │   ├── Recipes/             # Recipe CRUD & Spoonacular integration
+│   │   │   ├── Sse/                 # Real-time event streaming
+│   │   │   └── Shared/              # Result pattern, PageList, PageParameters
+│   │   ├── Migrations/
+│   │   └── Dockerfile
+│   └── server.Tests/                # xUnit tests (NSubstitute, SQLite in-memory)
 │
-└── docker-compose.yml          # PostgreSQL container
+├── docker-compose.yml
+└── .github/workflows/ci.yml         # CI: build → test → Docker push
 ```
 
 ## API Endpoints
 
 ### Auth
-| Method | Endpoint             | Description              |
-| ------ | -------------------- | ------------------------ |
-| POST   | `/api/auth/register` | Register a new user      |
-| POST   | `/api/auth/login`    | Login                    |
-| POST   | `/api/auth/logout`   | Logout (clear cookie)    |
-| GET    | `/api/auth/me`       | Get current user         |
-| GET    | `/api/auth/users`    | List all users           |
+| Method | Endpoint                    | Description                        |
+| ------ | --------------------------- | ---------------------------------- |
+| POST   | `/api/auth/register`        | Register and receive tokens        |
+| POST   | `/api/auth/login`           | Login and receive tokens           |
+| POST   | `/api/auth/logout`          | Revoke refresh token, clear cookie |
+| POST   | `/api/auth/refresh-token`   | Rotate refresh token               |
+| GET    | `/api/auth/me`              | Get current user                   |
+| GET    | `/api/auth/users`           | List users (paginated)             |
 
 ### Recipes
 | Method | Endpoint              | Description                    |
 | ------ | --------------------- | ------------------------------ |
 | GET    | `/api/recipe/{id}`    | Get recipe by ID               |
-| GET    | `/api/recipe/search`  | Search recipes by nutrients    |
+| GET    | `/api/recipe/search`  | Search recipes by nutrients (paginated) |
 | POST   | `/api/createrecipe`   | Create a custom recipe         |
 
 ### Comments
-| Method | Endpoint                            | Description             |
-| ------ | ----------------------------------- | ----------------------- |
-| POST   | `/api/comments`                     | Add comment/rating      |
-| GET    | `/api/comments/recipe/{recipeId}`   | Get comments for recipe |
-| GET    | `/api/comments/recipe/{id}/score`   | Get average rating      |
-| DELETE | `/api/comments/{id}`                | Delete a comment        |
+| Method | Endpoint                               | Description              |
+| ------ | -------------------------------------- | ------------------------ |
+| POST   | `/api/comments/recipe/{recipeId}`      | Add comment/rating       |
+| GET    | `/api/comments/recipe/{recipeId}`      | Get comments (paginated) |
+| GET    | `/api/comments/recipe/{recipeId}/score`| Get average rating       |
+| DELETE | `/api/comments/{commentId}`            | Delete a comment         |
 
 ### Follows
-| Method | Endpoint                     | Description          |
-| ------ | ---------------------------- | -------------------- |
-| POST   | `/api/follows/{userId}`      | Follow a user        |
-| DELETE | `/api/follows/{userId}`      | Unfollow a user      |
-| GET    | `/api/follows/followers`     | Get your followers    |
-| GET    | `/api/follows/following`     | Get who you follow    |
-| GET    | `/api/follows/check/{userId}`| Check follow status  |
+| Method | Endpoint                      | Description           |
+| ------ | ----------------------------- | --------------------- |
+| POST   | `/api/follows/{userId}`       | Follow a user         |
+| DELETE | `/api/follows/{userId}`       | Unfollow a user       |
+| GET    | `/api/follows/followers`      | Get your followers    |
+| GET    | `/api/follows/following`      | Get who you follow    |
+| GET    | `/api/follows/check/{userId}` | Check follow status   |
 
 ### SSE
-| Method | Endpoint          | Description                  |
-| ------ | ----------------- | ---------------------------- |
-| GET    | `/api/sse/stream` | Subscribe to real-time events|
-
-## Configuration
-
-The backend requires the following configuration in `server/server/appsettings.json`:
-
-- **ConnectionStrings:DefaultConnection** - PostgreSQL connection string
-- **SpoonacularApi:ApiKey** - API key from [spoonacular.com](https://spoonacular.com/food-api)
-- **CloudinarySettings** - Cloudinary account credentials for photo uploads
-- **JwtSettings** - Secret key, issuer, audience, and token expiry
-
-The frontend uses environment variables in `client/.env.development`:
-
-- `VITE_API_URL` - Backend API base URL
-- `VITE_SPOONACULAR_KEY` - Spoonacular API key
+| Method | Endpoint            | Description                   |
+| ------ | ------------------- | ----------------------------- |
+| GET    | `/api/sse/stream`   | Subscribe to real-time events |
 
 ## Architecture
 
-The backend follows a **feature-based architecture** where each feature (Auth, Recipes, Comments, Follows, SSE) is self-contained with its own controller, handler, and DTOs. Cross-cutting concerns use:
+The backend follows **Vertical Slice Architecture (VSA)** — each feature is self-contained with its own controller, handler, request/response types, and infrastructure. Cross-cutting concerns:
 
-- **Result pattern** for consistent success/failure handling
-- **Provider interfaces** for external services (Cloudinary, Spoonacular)
-- **Dependency injection** throughout
+- **Result pattern** — consistent `Result<T>` for success/failure across all handlers
+- **PageList\<T\>** — unified pagination wrapper with `Items`, `Count`, `HasNextPage`
+- **Provider interfaces** — `IRecipeProvider`, `IPhotoProvider` abstract external services
+- **IRefreshTokenService** — injectable interface enabling handler unit tests without DB
 
-The frontend uses React **Context API** for global state (auth and SSE) and **Axios** for API communication with automatic cookie-based credential handling.
+The frontend uses React **Context API** for global state (auth and SSE) and **Axios** for API calls with automatic cookie credential handling.
+
+## Running Tests
+
+```bash
+cd server
+dotnet test server.Tests/Server.Tests.csproj --verbosity normal
+```
+
+Tests use **xUnit**, **NSubstitute** for mocking, and **SQLite in-memory** for database integration tests.
