@@ -29,8 +29,8 @@ export default function SignUp() {
       await checkAuth();
       navigate("/user");
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.data?.error) {
-        setError(err.response.data.error);
+      if (axios.isAxiosError(err) && err.response?.data?.detail) {
+        setError(err.response.data.detail);
       } else {
         setError("An unexpected error occurred");
       }
