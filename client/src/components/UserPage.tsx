@@ -61,7 +61,7 @@ export default function UserPage() {
 
   const handleUnfollow = async (userId: string) => {
     try {
-      await agent.delete(`/unfollow/${userId}`);
+      await agent.delete(`/follows/${userId}`);
       fetchFollowing();
       fetchAllUsers();
     } catch (err) {
