@@ -56,32 +56,39 @@ export default function SignUp() {
 
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="userName">
-              <Form.Label>Username</Form.Label>
+              <Form.Label>Username <span className="text-danger">*</span></Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Choose a username"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
+                required
+                minLength={3}
+                maxLength={30}
               />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formEmail">
-              <Form.Label>Email Address</Form.Label>
+              <Form.Label>Email Address <span className="text-danger">*</span></Form.Label>
               <Form.Control
                 type="email"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </Form.Group>
 
             <Form.Group className="mb-4" controlId="formPassword">
-              <Form.Label>Password</Form.Label>
+              <Form.Label>Password <span className="text-danger">*</span></Form.Label>
               <Form.Control
                 type="password"
                 placeholder="Create a strong password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                maxLength={100}
               />
             </Form.Group>
 

@@ -54,22 +54,25 @@ export default function Login() {
 
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formEmail">
-              <Form.Label>Email Address</Form.Label>
+              <Form.Label>Email Address <span className="text-danger">*</span></Form.Label>
               <Form.Control
                 type="email"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </Form.Group>
 
             <Form.Group className="mb-4" controlId="formPassword">
-              <Form.Label>Password</Form.Label>
+              <Form.Label>Password <span className="text-danger">*</span></Form.Label>
               <Form.Control
                 type="password"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
               />
             </Form.Group>
 

@@ -1,14 +1,20 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Button, Card, Col, Container, Row } from "react-bootstrap";
+import { Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import type { Recipe, FeatureCardProps } from "../lib/api";
+import type { Recipe } from "../lib/api";
+import { Search, Star, Users, UtensilsCrossed } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-function FeatureCard({ icon, title, description }: FeatureCardProps) {
+type FeatureCardProps = { icon: LucideIcon; title: string; description: string };
+
+function FeatureCard({ icon: Icon, title, description }: FeatureCardProps) {
   return (
     <div className="feature-card">
-      <div className="feature-icon">{icon}</div>
+      <div className="feature-icon">
+        <Icon size={26} strokeWidth={1.75} />
+      </div>
       <h3 className="feature-title">{title}</h3>
       <p className="feature-description">{description}</p>
     </div>
@@ -17,6 +23,7 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
 
 export default function Hero() {
   const [popularRecipes, setPopularRecipes] = useState<Recipe[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const api = import.meta.env.VITE_API_URL;
@@ -24,7 +31,8 @@ export default function Hero() {
   useEffect(() => {
     axios
       .get(`${api}/recipe/search?calories=300&number=4`)
-      .then((res) => setPopularRecipes(res.data.items ?? []));
+      .then((res) => setPopularRecipes(res.data.items ?? []))
+      .finally(() => setIsLoading(false));
   }, [api]);
 
   return (
@@ -46,14 +54,12 @@ export default function Hero() {
               Explore Recipes
             </Button>
             {!isLoggedIn && (
-              <Button
-                variant="outline-light"
-                size="lg"
+              <button
                 className="hero-btn-secondary"
                 onClick={() => navigate("/signup")}
               >
-                Sign Up
-              </Button>
+                Sign Up Free
+              </button>
             )}
           </div>
         </Container>
@@ -65,21 +71,21 @@ export default function Hero() {
           <Row className="g-4">
             <Col md={4}>
               <FeatureCard
-                icon="🔍"
+                icon={Search}
                 title="Easy Search"
                 description="Find recipes based on calories and ingredients"
               />
             </Col>
             <Col md={4}>
               <FeatureCard
-                icon="⭐"
+                icon={Star}
                 title="Rate Recipes"
                 description="Give 1-5 stars and share your opinion"
               />
             </Col>
             <Col md={4}>
               <FeatureCard
-                icon="👥"
+                icon={Users}
                 title="Follow Others"
                 description="Follow other users and see what they make"
               />
@@ -92,13 +98,22 @@ export default function Hero() {
       <section className="popular-section">
         <Container>
           <h2 className="section-title">Popular Recipes</h2>
+          {isLoading && (
+            <div className="text-center py-4">
+              <Spinner style={{ color: "var(--primary-color)" }} />
+            </div>
+          )}
           <Row className="g-4">
             {popularRecipes.map((recipe) => (
               <Col xs={6} md={3} key={recipe.id}>
                 <Card className="recipe-card h-100">
-                  <div style={{ overflow: "hidden" }}>
-                    <Card.Img variant="top" src={recipe.image} />
-                  </div>
+                  {recipe.image ? (
+                    <div style={{ overflow: "hidden" }}>
+                      <Card.Img variant="top" src={recipe.image} />
+                    </div>
+                  ) : (
+                    <div className="recipe-card-no-img"><UtensilsCrossed size={36} strokeWidth={1.5} /></div>
+                  )}
                   <Card.Body className="d-flex flex-column">
                     <Card.Title className="flex-grow-1">
                       {recipe.title}

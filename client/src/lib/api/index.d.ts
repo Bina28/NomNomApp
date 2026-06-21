@@ -36,11 +36,6 @@ export type Ingredient = {
   amount: string;
 };
 
-export type FeatureCardProps = {
-  icon: string;
-  title: string;
-  description: string;
-};
 
 export type FollowUser = {
   id: string;

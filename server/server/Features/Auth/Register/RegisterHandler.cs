@@ -30,7 +30,7 @@ public class RegisterHandler
         if (emailTaken)
         {
             _logger.LogWarning("Registration failed: email already exists. Email={Email}", request.Email);
-            return Result<LoginResponse>.Fail("User already exists");
+            return Result<LoginResponse>.Fail("Invalid credentials.");
         }
 
         var newUser = _registerMapper.ToEntity(request);

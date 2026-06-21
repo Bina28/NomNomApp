@@ -26,4 +26,5 @@ RUN dotnet publish "server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:Us
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN mkdir -p /tmp/logs
 ENTRYPOINT ["dotnet", "server.dll"]

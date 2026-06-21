@@ -15,7 +15,7 @@ export default function NavBar() {
   };
 
   return (
-    <Navbar expand="lg" className="navbar-custom" data-bs-theme="dark">
+    <Navbar expand="lg" className="navbar-custom" data-bs-theme="light">
       <Container>
         <Navbar.Brand as={Link} to="/">NomNom</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
