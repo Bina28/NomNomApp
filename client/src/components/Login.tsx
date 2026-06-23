@@ -22,8 +22,7 @@ export default function Login() {
       password: password,
     };
     try {
-      const response = await agent.post("/auth/login", loginCredentials);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
+      await agent.post("/auth/login", loginCredentials);
       await checkAuth();
       navigate("/user");
     } catch (err) {

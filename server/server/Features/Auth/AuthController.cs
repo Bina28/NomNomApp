@@ -43,13 +43,9 @@ public class AuthController : ControllerBase
         if (!result.Success || result.Data is null)
             return Problem(detail: result.Error, statusCode: 401);
 
-        Response.Cookies.Append(
-            "access_token",
-            result.Data.AccessToken,
-            CreateCookieOptions()
-        );
-
-        return Ok(new { result.Data.RefreshToken });
+        Response.Cookies.Append("access_token", result.Data.AccessToken, CreateAccessCookieOptions());
+        Response.Cookies.Append("refresh_token", result.Data.RefreshToken, CreateRefreshCookieOptions());
+        return Ok();
     }
 
 
@@ -61,15 +57,20 @@ public class AuthController : ControllerBase
         if (!result.Success || result.Data is null)
             return Problem(detail: result.Error, statusCode: 400);
 
-        Response.Cookies.Append("access_token", result.Data.AccessToken, CreateCookieOptions());
-        return Ok(new { result.Data.RefreshToken });
+        Response.Cookies.Append("access_token", result.Data.AccessToken, CreateAccessCookieOptions());
+        Response.Cookies.Append("refresh_token", result.Data.RefreshToken, CreateRefreshCookieOptions());
+        return Ok();
     }
 
     [EnableRateLimiting("auth")]
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request, CancellationToken ct)
+    public async Task<IActionResult> RefreshToken(CancellationToken ct)
     {
-        var storedRefreshToken = await _refreshTokenService.GetRefreshTokenAsync(request.RefreshToken, ct);
+        var token = Request.Cookies["refresh_token"];
+        if (string.IsNullOrEmpty(token))
+            return Unauthorized("Missing refresh token.");
+
+        var storedRefreshToken = await _refreshTokenService.GetRefreshTokenAsync(token, ct);
         if (storedRefreshToken is null)
             return Unauthorized("Invalid or expired refresh token.");
 
@@ -77,8 +78,9 @@ public class AuthController : ControllerBase
         await _refreshTokenService.RevokeRefreshTokenAsync(storedRefreshToken, newRefreshToken, ct);
         await _refreshTokenService.SaveRefreshTokenAsync(storedRefreshToken.UserId, newRefreshToken, ct);
 
-        Response.Cookies.Append("access_token", accessToken, CreateCookieOptions());
-        return Ok(new { RefreshToken = newRefreshToken });
+        Response.Cookies.Append("access_token", accessToken, CreateAccessCookieOptions());
+        Response.Cookies.Append("refresh_token", newRefreshToken, CreateRefreshCookieOptions());
+        return Ok();
     }
 
 
@@ -107,24 +109,34 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest request)
+    public async Task<IActionResult> Logout()
     {
+        var token = Request.Cookies["refresh_token"];
+        if (!string.IsNullOrEmpty(token))
+        {
+            var storedToken = await _refreshTokenService.GetRefreshTokenAsync(token);
+            if (storedToken is not null)
+                await _refreshTokenService.RevokeRefreshTokenAsync(storedToken);
+        }
         Response.Cookies.Delete("access_token");
-        var storedToken = await _refreshTokenService.GetRefreshTokenAsync(request.RefreshToken);
-        if (storedToken is not null)
-            await _refreshTokenService.RevokeRefreshTokenAsync(storedToken);
+        Response.Cookies.Delete("refresh_token");
         return Ok();
     }
 
-    private static CookieOptions CreateCookieOptions()
+    private static CookieOptions CreateAccessCookieOptions() => new CookieOptions
     {
-        return new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-            Expires = DateTimeOffset.UtcNow.AddMinutes(15)
-        };
-    }
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.None,
+        Expires = DateTimeOffset.UtcNow.AddMinutes(15)
+    };
+
+    private static CookieOptions CreateRefreshCookieOptions() => new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.None,
+        Expires = DateTimeOffset.UtcNow.AddDays(30)
+    };
 
 }
